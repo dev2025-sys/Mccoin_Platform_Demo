@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-
+import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 const currencies = [
   "BTC",
   "ETH",
@@ -54,7 +55,16 @@ const RecordsTab = () => {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [showDatePicker, setShowDatePicker] = useState(false);
-
+  const t = useTranslations("dashboard.records");
+  const locale = useLocale();
+  const isArabic = locale === "ar";
+  const time = [
+    t("last30Days"),
+    t("last60Days"),
+    t("last90Days"),
+    t("all"),
+    t("selectDate"),
+  ];
   type Deposit = {
     id: string;
     time: string;
@@ -197,7 +207,7 @@ const RecordsTab = () => {
           {/* Asset Filter */}
           <div className="flex items-center gap-3">
             <label className="text-sm font-medium text-[#DAE6EA] whitespace-nowrap">
-              Asset
+              {t("asset")}
             </label>
             <div className="relative flex-grow">
               <select
@@ -205,7 +215,7 @@ const RecordsTab = () => {
                 onChange={(e) => setSelectedAsset(e.target.value)}
                 className="appearance-none bg-[#07153B] border border-[#DAE6EA] rounded-lg px-4 py-1 pr-8 focus:outline-none focus:ring-2 focus:ring-slate-100 focus:border-slate-100 w-full text-[#DAE6EA]"
               >
-                <option value="All">All</option>
+                <option value="All">{t("all")}</option>
                 <option value="BTC">BTC</option>
                 <option value="ETH">ETH</option>
                 <option value="USDT">USDT</option>
@@ -219,7 +229,7 @@ const RecordsTab = () => {
           {/* Time Filter */}
           <div className="flex items-center gap-3">
             <label className="text-sm font-medium text-[#DAE6EA] whitespace-nowrap">
-              Time
+              {t("time")}
             </label>
             <div className="relative flex-grow">
               <select
@@ -230,11 +240,9 @@ const RecordsTab = () => {
                 }}
                 className="appearance-none bg-[#07153B] border border-[#DAE6EA] rounded-lg px-4 py-1 pr-8 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 w-full text-[#DAE6EA]"
               >
-                <option>Last 30 days</option>
-                <option>Last 60 days</option>
-                <option>Last 90 days</option>
-                <option>All</option>
-                <option>Select date</option>
+                {time.map((t, idx) => (
+                  <option key={idx}>{t}</option>
+                ))}
               </select>
               <FiChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#DAE6EA]" />
             </div>
@@ -263,7 +271,7 @@ const RecordsTab = () => {
                         {startDate ? (
                           format(startDate, "PPP")
                         ) : (
-                          <span>Start date</span>
+                          <span>{t("startDate")}</span>
                         )}
                       </Button>
                     </PopoverTrigger>
@@ -293,7 +301,7 @@ const RecordsTab = () => {
                         {endDate ? (
                           format(endDate, "PPP")
                         ) : (
-                          <span>End date</span>
+                          <span>{t("endDate")}</span>
                         )}
                       </Button>
                     </PopoverTrigger>
@@ -331,7 +339,7 @@ const RecordsTab = () => {
               text-white border border-[#DAE6EA] transition-all duration-300 hover:scale-95 cursor-pointer"
             >
               <FiDownload className="h-4 w-4" />
-              Export CSV
+              {t("exportCSV")}
             </Button>
           </div>
         </div>
@@ -342,32 +350,64 @@ const RecordsTab = () => {
             <table className="min-w-full divide-y divide-gray-700">
               <thead className="bg-gray-800">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#DAE6EA] uppercase tracking-wider">
-                    TIME
+                  <th
+                    className={`px-6 py-3 text-left text-xs font-medium text-[#DAE6EA] uppercase tracking-wider ${
+                      isArabic ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {t("table.time")}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-[#DAE6EA] uppercase tracking-wider">
-                    CURRENCY
+                    {t("table.currency")}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#DAE6EA] uppercase tracking-wider">
-                    AMOUNT
+                  <th
+                    className={`px-6 py-3 text-left text-xs font-medium text-[#DAE6EA] uppercase tracking-wider ${
+                      isArabic ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {t("table.amount")}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#DAE6EA] uppercase tracking-wider">
-                    NETWORK
+                  <th
+                    className={`px-6 py-3 text-left text-xs font-medium text-[#DAE6EA] uppercase tracking-wider ${
+                      isArabic ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {t("table.network")}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#DAE6EA] uppercase tracking-wider">
-                    BLOCK CONFIRMATION
+                  <th
+                    className={`px-6 py-3 text-left text-xs font-medium text-[#DAE6EA] uppercase tracking-wider ${
+                      isArabic ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {t("table.blockConfirmation")}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#DAE6EA] uppercase tracking-wider">
-                    DEPOSIT ADDRESS
+                  <th
+                    className={`px-6 py-3 text-left text-xs font-medium text-[#DAE6EA] uppercase tracking-wider ${
+                      isArabic ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {t("table.depositAddress")}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#DAE6EA] uppercase tracking-wider">
-                    TRANSACTION ID
+                  <th
+                    className={`px-6 py-3 text-left text-xs font-medium text-[#DAE6EA] uppercase tracking-wider ${
+                      isArabic ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {t("table.transactionId")}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#DAE6EA] uppercase tracking-wider">
-                    DEPOSIT ID
+                  <th
+                    className={`px-6 py-3 text-left text-xs font-medium text-[#DAE6EA] uppercase tracking-wider ${
+                      isArabic ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {t("table.depositId")}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#DAE6EA] uppercase tracking-wider">
-                    STATE
+                  <th
+                    className={`px-6 py-3 text-left text-xs font-medium text-[#DAE6EA] uppercase tracking-wider ${
+                      isArabic ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {t("table.state")}
                   </th>
                 </tr>
               </thead>
@@ -380,22 +420,46 @@ const RecordsTab = () => {
                     transition={{ delay: index * 0.05 }}
                     className="hover:bg-gray-800/50"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[#DAE6EA]">
+                    <td
+                      className={`px-6 py-4 whitespace-nowrap text-sm text-[#DAE6EA] ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
                       {formatDate(deposit.time)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[#DAE6EA]">
+                    <td
+                      className={`px-6 py-4 whitespace-nowrap text-sm text-[#DAE6EA] ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
                       {deposit.currency}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[#DAE6EA]">
+                    <td
+                      className={`px-6 py-4 whitespace-nowrap text-sm text-[#DAE6EA] ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
                       {deposit.amount}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[#DAE6EA]">
+                    <td
+                      className={`px-6 py-4 whitespace-nowrap text-sm text-[#DAE6EA] ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
                       {deposit.network}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[#DAE6EA]">
+                    <td
+                      className={`px-6 py-4 whitespace-nowrap text-sm text-[#DAE6EA] ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
                       {deposit.confirmations}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-400 hover:underline cursor-pointer">
+                    <td
+                      className={`px-6 py-4 whitespace-nowrap text-sm text-blue-400 hover:underline cursor-pointer ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
                       {`${deposit.address.substring(
                         0,
                         6
@@ -403,21 +467,29 @@ const RecordsTab = () => {
                         deposit.address.length - 4
                       )}`}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-400 hover:underline cursor-pointer">
+                    <td
+                      className={`px-6 py-4 whitespace-nowrap text-sm text-blue-400 hover:underline cursor-pointer ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
                       {`${deposit.txId.substring(
                         0,
                         6
                       )}...${deposit.txId.substring(deposit.txId.length - 4)}`}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[#DAE6EA]">
+                    <td
+                      className={`px-6 py-4 whitespace-nowrap text-sm text-[#DAE6EA] ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
                       {deposit.id}
                     </td>
                     <td
                       className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${getStateColor(
                         deposit.state
-                      )}`}
+                      )} ${isArabic ? "text-right" : "text-left"}`}
                     >
-                      {deposit.state}
+                      {t(`states.${deposit.state.toLowerCase()}`)}
                     </td>
                   </motion.tr>
                 ))}
@@ -429,10 +501,8 @@ const RecordsTab = () => {
               animate={{ opacity: 1 }}
               className="flex flex-col items-center justify-center py-12 text-[#DAE6EA]"
             >
-              <div className="text-xl mb-2">Nothing here</div>
-              <div className="text-sm">
-                No deposit records found matching your filters
-              </div>
+              <div className="text-xl mb-2">{t("empty.title")}</div>
+              <div className="text-sm">{t("empty.desc")}</div>
             </motion.div>
           )}
         </div>

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Chart } from "chart.js/auto";
 import type { ChartConfiguration } from "chart.js";
-
+import { useTranslations } from "next-intl";
 interface HistoricalChartProps {
   title: string;
 }
@@ -90,6 +90,7 @@ const legendData = [
 ];
 
 export default function HistoricalChart({ title }: HistoricalChartProps) {
+  const t = useTranslations("marketOverview.historicalChart");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
   const [timeframe, setTimeframe] = useState("6h");
@@ -182,9 +183,9 @@ export default function HistoricalChart({ title }: HistoricalChartProps) {
   }, [timeframe]);
 
   return (
-    <div className="bg-[#050E27] rounded-lg p-4">
+    <div className="bg-[#050E27] rounded-lg p-4 mt-8">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-medium">{title}</h2>
+        <h2 className="text-lg font-medium">{t("title")}</h2>
         <div className="flex items-center space-x-4">
           {/* Legend box */}
           <div className="bg-[#0c1e4e] rounded-lg p-3">
@@ -217,10 +218,10 @@ export default function HistoricalChart({ title }: HistoricalChartProps) {
             onChange={(e) => setTimeframe(e.target.value)}
             className="bg-[#0c1e4e] text-white text-sm rounded px-2 py-1 border border-slate-700"
           >
-            <option value="6h">6h</option>
-            <option value="24h">24h</option>
-            <option value="7d">7d</option>
-            <option value="30d">30d</option>
+            <option value="6h">{t("timeframe_6h")}</option>
+            <option value="24h">{t("timeframe_24h")}</option>
+            <option value="7d">{t("timeframe_7d")}</option>
+            <option value="30d">{t("timeframe_30d")}</option>
           </select>
         </div>
       </div>

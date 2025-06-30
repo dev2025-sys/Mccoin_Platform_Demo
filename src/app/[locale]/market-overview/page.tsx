@@ -18,8 +18,10 @@ import {
 import Navbar from "@/components/shared/Navbar";
 import Image from "next/image";
 import Footer from "@/components/shared/Footer";
+import { useTranslations } from "next-intl";
 
 export default function MarketOverview() {
+  const t = useTranslations("marketOverview");
   const [isLoading, setIsLoading] = useState(true);
   const [coins, setCoins] = useState<CoinData[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +58,7 @@ export default function MarketOverview() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#07153b] text-white p-6 flex items-center justify-center">
-        <div className="text-slate-400">Loading market data...</div>
+        <div className="text-slate-400">{t("loading")}</div>
       </div>
     );
   }
@@ -80,31 +82,35 @@ export default function MarketOverview() {
             height={30}
             className="mt-[-1rem]"
           />
-          <h1 className="text-2xl font-semibold mb-6">Market Overview</h1>
+          <h1 className="text-2xl font-semibold mb-6">{t("title")}</h1>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Top Gainers */}
-          <TopMovers title="Top Gainers" type="gainers" data={gainers} />
+          <TopMovers title={t("topGainers")} type="gainers" data={gainers} />
 
           {/* Top Losers */}
-          <TopMovers title="Top Losers" type="losers" data={losers} />
+          <TopMovers title={t("topLosers")} type="losers" data={losers} />
 
           {/* Value Leaders */}
-          <TopMovers title="Value Leaders" type="volume" data={volumeLeaders} />
+          <TopMovers
+            title={t("valueLeaders")}
+            type="volume"
+            data={volumeLeaders}
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           {/* Market Cap */}
           <MarketStats
-            title="Market Cap"
+            title={t("marketCap")}
             type="market-cap"
             data={marketCapLeaders}
           />
 
           {/* Top Searchers */}
           <MarketStats
-            title="Top Volume"
+            title={t("topVolume")}
             type="top-search"
             data={volumeLeaders}
           />
@@ -113,20 +119,20 @@ export default function MarketOverview() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           {/* Order Distribution */}
           <MarketCharts
-            title="Order Distribution"
+            title={t("orderDistribution")}
             type="pie"
             data={[buyPercentage, sellPercentage]}
           />
 
           {/* Price Change Distribution */}
           <MarketCharts
-            title="Price Change Distribution"
+            title={t("priceChangeDistribution")}
             type="bar"
             data={priceDistribution}
           />
         </div>
 
-        <HistoricalChart title="Historical Market Value" />
+        <HistoricalChart title={t("historicalValue")} />
       </main>
       <Footer />
     </section>

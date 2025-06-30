@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { CoinData, formatPrice, formatPriceChange } from "@/utils/coingecko";
-
+import { useTranslations } from "next-intl";
 interface TopMoversProps {
   title: string;
   type: "gainers" | "losers" | "volume";
@@ -9,15 +9,16 @@ interface TopMoversProps {
 }
 
 export default function TopMovers({ title, type, data }: TopMoversProps) {
+  const t = useTranslations("marketOverview.topMovers");
   return (
     <div className="bg-[#050E27] rounded-lg p-4">
       <h2 className="text-lg font-medium mb-4">{title}</h2>
 
       {/* Header */}
       <div className="grid grid-cols-12 text-xs text-slate-400 mb-2 px-2">
-        <div className="col-span-3">Coin</div>
-        <div className="col-span-5 text-right">Price(USD)</div>
-        <div className="col-span-4 text-right">24h Change</div>
+        <div className="col-span-3">{t("coin")}</div>
+        <div className="col-span-5 text-right">{t("price")}</div>
+        <div className="col-span-4 text-right">{t("change24h")}</div>
       </div>
 
       {/* Coin List */}

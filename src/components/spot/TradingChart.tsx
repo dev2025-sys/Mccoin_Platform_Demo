@@ -9,6 +9,7 @@ import {
   CandlestickSeries,
 } from "lightweight-charts";
 import { useTrading } from "@/context/TradingContext";
+import { useTranslations } from "next-intl";
 
 interface TradingChartProps {
   height?: number;
@@ -21,6 +22,7 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
   const { state, setTimeframe } = useTrading();
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<string>("");
+  const t = useTranslations("spot.tradingChart");
   useEffect(() => {
     if (state.currentPrice.timestamp) {
       setLastUpdate(
@@ -235,7 +237,7 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
     >
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold flex items-center space-x-2">
-          <span>Chart</span>
+          <span>{t("title")}</span>
           {state.isConnected && (
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
           )}
@@ -260,9 +262,11 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
 
           {/* Chart type selector */}
           <div className="flex space-x-2 text-sm">
-            <span className="text-orange-500">Candlesticks</span>
-            <span className="text-gray-400">Line</span>
-            <span className="text-gray-400">Area</span>
+            <span className="text-orange-500">
+              {t("chartTypes.candlesticks")}
+            </span>
+            <span className="text-gray-400">{t("chartTypes.line")}</span>
+            <span className="text-gray-400">{t("chartTypes.area")}</span>
           </div>
 
           {/* Fullscreen toggle */}
@@ -270,7 +274,7 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
             onClick={toggleFullscreen}
             className="text-gray-400 hover:text-white p-1"
           >
-            {isFullscreen ? "⤓" : "⤢"}
+            {isFullscreen ? t("fullscreen.exit") : t("fullscreen.enter")}
           </button>
         </div>
       </div>
@@ -278,25 +282,25 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
       {/* Price info bar */}
       <div className="flex items-center space-x-6 mb-4 text-sm">
         <div className="flex items-center space-x-2">
-          <span className="text-gray-400">O:</span>
+          <span className="text-gray-400">{t("priceInfo.o")}:</span>
           <span className="text-white">
             {(state.currentPrice.price - 50).toFixed(2)}
           </span>
         </div>
         <div className="flex items-center space-x-2">
-          <span className="text-gray-400">H:</span>
+          <span className="text-gray-400">{t("priceInfo.h")}:</span>
           <span className="text-white">
             {state.currentPrice.high24h.toFixed(2)}
           </span>
         </div>
         <div className="flex items-center space-x-2">
-          <span className="text-gray-400">L:</span>
+          <span className="text-gray-400">{t("priceInfo.l")}:</span>
           <span className="text-white">
             {state.currentPrice.low24h.toFixed(2)}
           </span>
         </div>
         <div className="flex items-center space-x-2">
-          <span className="text-gray-400">C:</span>
+          <span className="text-gray-400">{t("priceInfo.c")}:</span>
           <span
             className={
               state.currentPrice.change24h >= 0
@@ -308,7 +312,7 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
           </span>
         </div>
         <div className="flex items-center space-x-2">
-          <span className="text-gray-400">Vol:</span>
+          <span className="text-gray-400">{t("priceInfo.vol")}:</span>
           <span className="text-white">
             {state.currentPrice.volume24h.toLocaleString()}
           </span>
@@ -325,12 +329,18 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
       {/* Chart controls */}
       <div className="flex items-center justify-between mt-4 text-sm text-gray-400">
         <div className="flex items-center space-x-4">
-          <button className="hover:text-white">📏 Drawing Tools</button>
-          <button className="hover:text-white">📊 Indicators</button>
-          <button className="hover:text-white">⚙️ Settings</button>
+          <button className="hover:text-white">
+            {t("controls.drawingTools")}
+          </button>
+          <button className="hover:text-white">
+            {t("controls.indicators")}
+          </button>
+          <button className="hover:text-white">{t("controls.settings")}</button>
         </div>
         <div className="flex items-center space-x-2">
-          <span>Last update: {lastUpdate}</span>
+          <span>
+            {t("lastUpdate")}: {lastUpdate}
+          </span>
         </div>
       </div>
     </div>

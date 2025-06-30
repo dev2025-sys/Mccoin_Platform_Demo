@@ -7,7 +7,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
-
+import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 const loginData = [
   {
     time: "Mon, Jan 22 2024 5:45:52 PM",
@@ -32,6 +33,9 @@ const loginData = [
 export default function ProfileTab() {
   const { user } = useUser();
   const router = useRouter();
+  const t = useTranslations("dashboard.profile");
+  const locale = useLocale();
+  const isArabic = locale === "ar";
   return (
     <main className="flex-1 border-[0.5px] rounded-md border-[#DAE6EA]">
       <motion.div
@@ -58,12 +62,12 @@ export default function ProfileTab() {
         <Card className="bg-[#081935] border-none">
           <CardHeader>
             <CardTitle className="text-[#FFF] text-2xl font-semibold">
-              Account Verification
+              {t("accountVerification")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-2 mb-4">
-              <label className="text-[#DAE6EA]">Email</label>
+              <label className="text-[#DAE6EA]">{t("email")}</label>
               <div className="flex items-center gap-2">
                 <Input
                   value={user?.emailAddresses[0]?.emailAddress || ""}
@@ -71,31 +75,31 @@ export default function ProfileTab() {
                   className="bg-[#0f294d] text-[#DAE6EA] cursor-not-allowed p-6"
                 />
                 <Button className="p-6" variant="secondary" disabled>
-                  ✔️ Verified
+                  ✔️ {t("verified")}
                 </Button>
               </div>
             </div>
             <div className="flex flex-col gap-2 mb-4">
-              <label className="text-[#DAE6EA]">Mobile</label>
+              <label className="text-[#DAE6EA]">{t("mobile")}</label>
               <div className="flex items-center gap-2">
                 <Input
-                  placeholder="Add phone number"
+                  placeholder={t("addPhone")}
                   className="bg-[#0f294d] text-[#DAE6EA] p-6"
                 />
                 <Button className="p-6" variant="outline">
-                  Connect
+                  {t("connect")}
                 </Button>
               </div>
             </div>
             <div className="flex flex-col gap-2 mb-4">
-              <label className="text-[#DAE6EA]">TOTP</label>
+              <label className="text-[#DAE6EA]">{t("totp")}</label>
               <div className="flex items-center gap-2">
                 <Input
                   className="bg-[#0f294d] text-[#DAE6EA] p-6"
-                  placeholder="Enter verification code"
+                  placeholder={t("enterCode")}
                 />
                 <Button className="p-6" variant="outline">
-                  Connect
+                  {t("connect")}
                 </Button>
               </div>
             </div>
@@ -106,22 +110,20 @@ export default function ProfileTab() {
         <Card className="bg-[#081935] border-none">
           <CardHeader>
             <CardTitle className="text-[#FFF] text-2xl font-semibold">
-              Advanced Settings
+              {t("advancedSettings")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-[#DAE6EA]">Password</p>
-                <p className="text-sm text-[#DAE6EA]">
-                  Set a permanent password to login to your account
-                </p>
+                <p className="font-medium text-[#DAE6EA]">{t("password")}</p>
+                <p className="text-sm text-[#DAE6EA]">{t("passwordDesc")}</p>
               </div>
               <Button
                 variant="outline"
                 onClick={() => router.push("/forgot-password")}
               >
-                Reset password
+                {t("resetPassword")}
               </Button>
             </div>
           </CardContent>
@@ -130,19 +132,49 @@ export default function ProfileTab() {
         {/* Login Status */}
         <Card className="bg-[#081935] border-none">
           <CardHeader>
-            <CardTitle className="text-[#FFF] text-2xl font-semibold">
-              Login Status Management
+            <CardTitle className="text-[#FFF] text-xl font-semibold">
+              {t("loginStatus")}
             </CardTitle>
           </CardHeader>
           <CardContent className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-[#DAE6EA]">
                 <tr>
-                  <th className="text-left py-2">Time</th>
-                  <th className="text-left py-2">Device</th>
-                  <th className="text-left py-2">IP</th>
-                  <th className="text-left py-2">Location</th>
-                  <th className="text-left py-2">Operation</th>
+                  <th
+                    className={`text-left py-2 ${
+                      isArabic ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {t("table.time")}
+                  </th>
+                  <th
+                    className={`text-left py-2 ${
+                      isArabic ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {t("table.device")}
+                  </th>
+                  <th
+                    className={`text-left py-2 ${
+                      isArabic ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {t("table.ip")}
+                  </th>
+                  <th
+                    className={`text-left py-2 ${
+                      isArabic ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {t("table.location")}
+                  </th>
+                  <th
+                    className={`text-left py-2 ${
+                      isArabic ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {t("table.operation")}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -151,13 +183,41 @@ export default function ProfileTab() {
                     key={idx}
                     className="border-t border-[#0f294d] text-[#DAE6EA]"
                   >
-                    <td className="py-2">{entry.time}</td>
-                    <td>{entry.device}</td>
-                    <td>{entry.ip}</td>
-                    <td>{entry.location}</td>
-                    <td>
+                    <td
+                      className={`py-2 ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {entry.time}
+                    </td>
+                    <td
+                      className={`py-2 ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {entry.device}
+                    </td>
+                    <td
+                      className={`py-2 ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {entry.ip}
+                    </td>
+                    <td
+                      className={`py-2 ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {entry.location}
+                    </td>
+                    <td
+                      className={`py-2 ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
                       <Button variant="ghost" className="text-red-400">
-                        Logout
+                        {t("logout")}
                       </Button>
                     </td>
                   </tr>
@@ -166,21 +226,53 @@ export default function ProfileTab() {
             </table>
           </CardContent>
         </Card>
-
+        <div className="h-[1px] bg-[#0f294d] w-full"></div>
         {/* Login History */}
         <Card className="bg-[#081935] border-none">
           <CardHeader>
-            <CardTitle className="text-[#FFF]">Login History</CardTitle>
+            <CardTitle className="text-[#FFF] text-xl font-semibold">
+              {t("loginHistory")}
+            </CardTitle>
           </CardHeader>
           <CardContent className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-[#DAE6EA]">
                 <tr>
-                  <th className="text-left py-2">Time</th>
-                  <th className="text-left py-2">Device</th>
-                  <th className="text-left py-2">IP</th>
-                  <th className="text-left py-2">Location</th>
-                  <th className="text-left py-2">Operation</th>
+                  <th
+                    className={`text-left py-2 ${
+                      isArabic ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {t("table.time")}
+                  </th>
+                  <th
+                    className={`text-left py-2 ${
+                      isArabic ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {t("table.device")}
+                  </th>
+                  <th
+                    className={`text-left py-2 ${
+                      isArabic ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {t("table.ip")}
+                  </th>
+                  <th
+                    className={`text-left py-2 ${
+                      isArabic ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {t("table.location")}
+                  </th>
+                  <th
+                    className={`text-left py-2 ${
+                      isArabic ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {t("table.operation")}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -189,13 +281,41 @@ export default function ProfileTab() {
                     key={idx}
                     className="border-t border-[#0f294d] text-[#DAE6EA]"
                   >
-                    <td className="py-2">{entry.time}</td>
-                    <td>{entry.device}</td>
-                    <td>{entry.ip}</td>
-                    <td>{entry.location}</td>
-                    <td>
+                    <td
+                      className={`py-2 ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {entry.time}
+                    </td>
+                    <td
+                      className={`py-2 ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {entry.device}
+                    </td>
+                    <td
+                      className={`py-2 ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {entry.ip}
+                    </td>
+                    <td
+                      className={`py-2 ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {entry.location}
+                    </td>
+                    <td
+                      className={`py-2 ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
                       <Button variant="ghost" className="text-red-400">
-                        Logout
+                        {t("logout")}
                       </Button>
                     </td>
                   </tr>

@@ -2,14 +2,17 @@
 
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
-import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { usePathname } from "next/navigation";
 import AnimatedLogo from "../custom/AnimatedLogoDark";
 import UserAvatarDropdown from "./UserAvatarDropdown";
+import LanguageDropdown from "./LanguageDropdown";
+import NavLink from "./NavLink";
+import { useTranslations } from "next-intl";
 
 const Navbar = () => {
+  const t = useTranslations("navbar");
   const { user, isLoaded } = useUser();
-
+  const pathname = usePathname();
   // Don't render navbar if user is not loaded or not authenticated
   if (!isLoaded || !user) {
     return null;
@@ -22,26 +25,14 @@ const Navbar = () => {
       </Link>
 
       <div className="hidden md:flex gap-10 text-sm tracking-wide text-[#DAE6EA]">
-        <Link href="/market-overview" className="hover:text-white transition">
-          Market
-        </Link>
-        <Link href="/spot" className="hover:text-white transition">
-          Spot
-        </Link>
-        <Link href="/about" className="hover:text-white transition">
-          About
-        </Link>
+        <NavLink href="/market-overview" label={t("market")} />
+        <NavLink href="/spot" label={t("spot")} />
+        <NavLink href="/about" label={t("about")} />
       </div>
 
       <div className="flex items-center gap-4">
         <UserAvatarDropdown />
-
-        <Button
-          variant="ghost"
-          className="text-[#DAE6EA] flex items-center gap-1 px-2 hover:text-white"
-        >
-          Eng <ChevronDown size={14} />
-        </Button>
+        <LanguageDropdown />
       </div>
     </nav>
   );

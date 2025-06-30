@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useSignIn, useAuth } from "@clerk/nextjs";
 import { useForm } from "react-hook-form";
@@ -9,48 +10,22 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowDown, ArrowUp, Eye, EyeOff } from "lucide-react";
+import { ArrowDown, ArrowUp, Eye, EyeOff, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useLocale } from "next-intl";
+import { FaArrowLeft } from "react-icons/fa";
+import { FaArrowRight } from "react-icons/fa";
 
 const formSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1, "Password is required"),
 });
 
-const coins = [
-  {
-    id: "knc",
-    name: "KNC",
-    price: 0.74,
-    change: 10.02,
-    image: "/images/knc.svg",
-  },
-  {
-    id: "luna",
-    name: "LUNA",
-    price: 0.6435,
-    change: 12.44,
-    image: "/images/luna.svg",
-  },
-  {
-    id: "dia",
-    name: "DIA",
-    price: 0.3122,
-    change: 66.12,
-    image: "/images/dia.svg",
-  },
-  {
-    id: "cvx",
-    name: "CVX",
-    price: 0.65,
-    change: 14.9,
-    image: "/images/cvx.svg",
-  },
-];
-
 export default function SignInPage() {
+  const t = useTranslations("signIn");
+  const isArabic = useLocale() === "ar";
   const { isSignedIn } = useAuth();
   const router = useRouter();
   const { signIn, setActive, isLoaded } = useSignIn();
@@ -107,33 +82,35 @@ export default function SignInPage() {
         }}
       >
         {/* Back button */}
-        <button className="flex items-center text-sm text-[#8CA3D5] hover:text-white transition-colors">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4 mr-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+        {isArabic ? (
+          <button
+            className="flex items-center text-sm text-[#8CA3D5] hover:text-white transition-colors"
+            style={{
+              direction: isArabic ? "rtl" : "ltr",
+            }}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-          Back to Home
-        </button>
+            <FaArrowRight className="ml-1 w-4 h-4" />
+            {t("back")}
+          </button>
+        ) : (
+          <button
+            className="flex items-center text-sm text-[#8CA3D5] hover:text-white transition-colors"
+            style={{
+              direction: isArabic ? "rtl" : "ltr",
+            }}
+          >
+            <FaArrowLeft className="mr-1 w-4 h-4" />
+            {t("back")}
+          </button>
+        )}
 
         {/* Headings */}
         <div className="space-y-2">
           <h1 className="text-3xl font-bold text-white">
-            Invest in McC<span className="text-[#EC3B3B]">o</span>in
+            {t("title4_1")} McC<span className="text-[#EC3B3B]">o</span>in
           </h1>
-          <h1 className="text-3xl font-bold text-white">Way to Trade</h1>
-          <p className="text-sm text-[#8CA3D5]">
-            The global crypto currency exchange
-          </p>
+          <h1 className="text-3xl font-bold text-white">{t("title6")}</h1>
+          <p className="text-sm text-[#8CA3D5]">{t("title5")}</p>
         </div>
 
         {/* Coin grid */}
@@ -208,22 +185,20 @@ export default function SignInPage() {
             width={40}
             height={40}
           />
-          <h2 className="text-2xl mt-2">Log in to your</h2>
-          <h2 className="text-2xl">
-            <span className="text-[#EC3B3B]">McCoin</span> account
+          <h2 className="text-2xl mt-2">
+            {t("title1")} <span className="text-[#EC3B3B]">{t("title2")}</span>{" "}
+            {t("title3")}
           </h2>
 
-          <p className="text-[#DAE6EA] mt-2 text-sm">
-            Please login with your account with the McCoin
-          </p>
+          <p className="text-[#DAE6EA] mt-2 text-sm">{t("subtitle")}</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <div>
-            <label>Email</label>
+          <div className="flex flex-col gap-2">
+            <label>{t("email")}</label>
             <Input
               type="email"
-              placeholder="you@example.com"
+              placeholder={t("email")}
               {...register("email")}
             />
             {errors.email && (
@@ -231,16 +206,18 @@ export default function SignInPage() {
             )}
           </div>
 
-          <div>
-            <label>Password</label>
+          <div className="flex flex-col gap-2">
+            <label>{t("password")}</label>
             <div className="relative">
               <Input
                 type={showPassword ? "text" : "password"}
-                placeholder="Enter password"
+                placeholder={t("password")}
                 {...register("password")}
               />
               <div
-                className="absolute right-3 top-2.5 cursor-pointer text-white"
+                className={`absolute ${
+                  isArabic ? "left-3" : "right-3"
+                } top-2.5 cursor-pointer text-white`}
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -251,12 +228,17 @@ export default function SignInPage() {
             )}
           </div>
 
-          <div className="flex justify-end">
+          <div
+            className={`flex ${isArabic ? "justify-start" : "justify-end"}`}
+            style={{
+              direction: isArabic ? "rtl" : "ltr",
+            }}
+          >
             <Link
               href="/forgot-password"
               className="text-[#EC3B3B] text-sm underline"
             >
-              Forgot password?
+              {t("forgotPassword")}
             </Link>
           </div>
 
@@ -265,13 +247,17 @@ export default function SignInPage() {
             type="submit"
             disabled={loading}
           >
-            {loading ? "Logging in..." : "Log in"}
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              t("button")
+            )}
           </Button>
 
           <p className="text-center text-sm text-[#DAE6EA]">
-            Don’t have an account?{" "}
+            {t("noAccount")}
             <Link href="/sign-up" className="text-[#EC3B3B] underline">
-              Register now!
+              {t("registerNow")}
             </Link>
           </p>
         </form>

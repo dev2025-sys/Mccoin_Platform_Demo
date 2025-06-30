@@ -11,8 +11,11 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-
+import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 export default function DepositTab() {
+  const t = useTranslations("dashboard.deposit");
+  const isArabic = useLocale() === "ar";
   const [selectedCoin, setSelectedCoin] = useState<string>("");
   const [agree, setAgree] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState<string>("");
@@ -43,12 +46,14 @@ export default function DepositTab() {
       {/* Total Assets Card */}
       <Card className="bg-[#081935] shadow-2xl border-[0.5px] rounded-md border-[#DAE6EA]">
         <CardContent className="p-6 space-y-4">
-          <div className="text-white text-xl font-semibold">Total Assets</div>
+          <div className="text-white text-xl font-semibold">
+            {t("totalAssets")}
+          </div>
           <div className="text-white grid grid-cols-2 gap-4">
             <div>
-              <p>Available</p>
+              <p>{t("available")}</p>
               <p className="text-sm text-[#DAE6EA]">USDT</p>
-              <p className="mt-2">Frozen</p>
+              <p className="mt-2">{t("frozen")}</p>
               <p className="text-sm text-[#DAE6EA]">USDT</p>
             </div>
             <div className="flex justify-end items-center">
@@ -56,21 +61,21 @@ export default function DepositTab() {
             </div>
           </div>
           <div className="bg-[#0f294d] p-4 rounded-md border border-[#DAE6EA] text-white space-y-1">
-            <p className="text-red-500 font-semibold">⚠ Attention</p>
+            <p className="text-red-500 font-semibold">⚠ {t("attention")}</p>
             <div className="flex justify-between text-sm">
-              <span>Minimum Deposit</span>
+              <span>{t("minimumDeposit")}</span>
               <span className="text-[#DAE6EA]">0.00000001 USDT</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span>Crediting</span>
+              <span>{t("crediting")}</span>
               <span
                 className={`font-semibold ${
                   allConfirmed ? "text-green-400" : "text-red-500"
                 }`}
               >
                 {allConfirmed
-                  ? "All OK!!"
-                  : `${3 - confirmations} Confirmation(s) Left`}
+                  ? t("allConfirmed")
+                  : t("confirmationsLeft", { count: 3 - confirmations })}
               </span>
             </div>
           </div>
@@ -80,7 +85,7 @@ export default function DepositTab() {
       {/* Deposit Section */}
       <Card className="bg-[#081935] shadow-2xl border-[0.5px] rounded-md border-[#DAE6EA]">
         <CardContent className="p-6 space-y-6 text-white">
-          <div className="text-xl font-semibold">Deposit</div>
+          <div className="text-xl font-semibold">{t("depositTitle")}</div>
 
           {/* Coin Selector */}
           <div className="space-y-2">
@@ -99,7 +104,7 @@ export default function DepositTab() {
 
           {/* Deposit Network */}
           <div className="space-y-2">
-            <label>Generate Deposit Address</label>
+            <label>{t("generateAddress")}</label>
             <div className="grid grid-cols-3 gap-3 text-sm">
               {depositNetworks.map((network) => (
                 <motion.div
@@ -122,13 +127,8 @@ export default function DepositTab() {
 
           {/* Risk Reminder */}
           <div className="bg-[#0f294d] text-sm p-4 rounded border border-[#DAE6EA]">
-            <p className="text-red-500 font-semibold mb-1">
-              USDT-OKTC Risk Reminder
-            </p>
-            <p className="text-[#DAE6EA]">
-              The address is ONLY available for USDT-Optimism deposit. Deposit
-              of other assets will lead to permanent asset loss.
-            </p>
+            <p className="text-red-500 font-semibold mb-1">{t("riskTitle")}</p>
+            <p className="text-[#DAE6EA]">{t("riskMessage")}</p>
             <div className="flex items-center space-x-2 mt-4">
               <Checkbox
                 id="agree"
@@ -136,7 +136,7 @@ export default function DepositTab() {
                 onCheckedChange={(val) => setAgree(val === true)}
               />
               <label htmlFor="agree" className="text-white">
-                I am aware of the risks and would like to proceed.
+                {t("checkboxLabel")}
               </label>
             </div>
           </div>
@@ -146,7 +146,7 @@ export default function DepositTab() {
             className="bg-[#EC3B3B] hover:bg-[#d02f2f]"
             disabled={!allConfirmed}
           >
-            Confirm
+            {t("confirm")}
           </Button>
         </CardContent>
       </Card>

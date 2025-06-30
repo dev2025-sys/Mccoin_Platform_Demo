@@ -1,6 +1,7 @@
 import { useTrading } from "@/context/TradingContext";
 import type React from "react";
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 interface SliderProps {
   value: number;
@@ -15,6 +16,7 @@ const Slider: React.FC<SliderProps> = ({
   className = "",
   type,
 }) => {
+  const t = useTranslations("spot.tradingForm");
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(Number(e.target.value));
   };
@@ -125,6 +127,7 @@ interface TradingFormProps {
 const TradingForm: React.FC<TradingFormProps> = ({ className = "" }) => {
   const { state, placeOrder } = useTrading();
   const [activeTab, setActiveTab] = useState<"limit" | "market">("limit");
+  const t = useTranslations("spot.tradingForm");
   const [buyForm, setBuyForm] = useState({
     amount: "",
     price: "",
@@ -203,12 +206,12 @@ const TradingForm: React.FC<TradingFormProps> = ({ className = "" }) => {
 
     // Validate form
     if (!amount || amount <= 0) {
-      alert("Please enter a valid amount");
+      alert(t("error_invalid_amount"));
       return;
     }
 
     if (activeTab === "limit" && (!price || price <= 0)) {
-      alert("Please enter a valid price");
+      alert(t("error_invalid_price"));
       return;
     }
 
@@ -216,9 +219,9 @@ const TradingForm: React.FC<TradingFormProps> = ({ className = "" }) => {
     const availableBalance = state.portfolio.balances.USDT || 0;
     if (total > availableBalance) {
       alert(
-        `Insufficient USDT balance. Available: ${availableBalance.toFixed(
-          2
-        )} USDT`
+        t("error_insufficient_usdt", {
+          amount: availableBalance.toFixed(2),
+        })
       );
       return;
     }
@@ -244,7 +247,7 @@ const TradingForm: React.FC<TradingFormProps> = ({ className = "" }) => {
     });
 
     // Show success message
-    alert(`Buy order placed: ${amount} BTC at ${price.toFixed(2)} USDT`);
+    alert(t("success_buy_order", { amount: amount, price: price.toFixed(2) }));
   };
 
   const handleSellSubmit = (e: React.FormEvent) => {
@@ -258,12 +261,12 @@ const TradingForm: React.FC<TradingFormProps> = ({ className = "" }) => {
 
     // Validate form
     if (!amount || amount <= 0) {
-      alert("Please enter a valid amount");
+      alert(t("error_invalid_amount"));
       return;
     }
 
     if (activeTab === "limit" && (!price || price <= 0)) {
-      alert("Please enter a valid price");
+      alert(t("error_invalid_price"));
       return;
     }
 
@@ -271,9 +274,9 @@ const TradingForm: React.FC<TradingFormProps> = ({ className = "" }) => {
     const availableBalance = state.portfolio.balances.BTC || 0;
     if (amount > availableBalance) {
       alert(
-        `Insufficient BTC balance. Available: ${availableBalance.toFixed(
-          8
-        )} BTC`
+        t("error_insufficient_btc", {
+          amount: availableBalance.toFixed(8),
+        })
       );
       return;
     }
@@ -299,7 +302,7 @@ const TradingForm: React.FC<TradingFormProps> = ({ className = "" }) => {
     });
 
     // Show success message
-    alert(`Sell order placed: ${amount} BTC at ${price.toFixed(2)} USDT`);
+    alert(t("success_sell_order", { amount: amount, price: price.toFixed(2) }));
   };
 
   const setMaxBuyAmount = () => {
@@ -350,7 +353,7 @@ const TradingForm: React.FC<TradingFormProps> = ({ className = "" }) => {
     <div className={`bg-[#07153b] border-t border-slate-700 ${className}`}>
       <div className="p-4">
         <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
-          <span>Spot Trading</span>
+          <span>{t("spot_trading")}</span>
           {state.isConnected && (
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
           )}
@@ -367,7 +370,7 @@ const TradingForm: React.FC<TradingFormProps> = ({ className = "" }) => {
                   : "text-gray-400 hover:text-white"
               }`}
             >
-              Limit
+              {t("limit")}
             </button>
             <button
               onClick={() => setActiveTab("market")}
@@ -377,29 +380,35 @@ const TradingForm: React.FC<TradingFormProps> = ({ className = "" }) => {
                   : "text-gray-400 hover:text-white"
               }`}
             >
-              Market
+              {t("market")}
             </button>
-            <span className="text-gray-400">Advanced Limit</span>
-            <span className="text-gray-400">Trail Stop</span>
-            <span className="text-gray-400">Trigger</span>
-            <span className="text-gray-400">TP/SL</span>
+            <span className="text-gray-400">{t("advanced_limit")}</span>
+            <span className="text-gray-400">{t("trail_stop")}</span>
+            <span className="text-gray-400">{t("trigger")}</span>
+            <span className="text-gray-400">{t("tp_sl")}</span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Buy Section */}
           <form onSubmit={handleBuySubmit} className="space-y-4">
-            <div className="text-green-400 font-semibold mb-3">Buy BTC</div>
+            <div className="text-green-400 font-semibold mb-3">
+              {t("buy_btc")}
+            </div>
 
             {/* Available balance */}
             <div className="text-xs text-gray-400">
-              Available: {(state.portfolio.balances.USDT || 0).toFixed(2)} USDT
+              {t("available_usdt", {
+                amount: (state.portfolio.balances.USDT || 0).toFixed(2),
+              })}
             </div>
 
             {/* Price input (for limit orders) */}
             {activeTab === "limit" && (
               <div className="space-y-2">
-                <label className="text-sm text-gray-400">Price (USDT)</label>
+                <label className="text-sm text-gray-400">
+                  {t("price_usdt")}
+                </label>
                 <input
                   type="number"
                   value={buyForm.price}
@@ -416,7 +425,9 @@ const TradingForm: React.FC<TradingFormProps> = ({ className = "" }) => {
             {/* Amount input */}
             <div className="space-y-2">
               <div className="flex justify-between">
-                <label className="text-sm text-gray-400">Amount (BTC)</label>
+                <label className="text-sm text-gray-400">
+                  {t("amount_btc")}
+                </label>
               </div>
               <input
                 type="number"
@@ -468,7 +479,7 @@ const TradingForm: React.FC<TradingFormProps> = ({ className = "" }) => {
 
             {/* Total */}
             <div className="space-y-2">
-              <label className="text-sm text-gray-400">Total (USDT)</label>
+              <label className="text-sm text-gray-400">{t("total_usdt")}</label>
               <input
                 type="number"
                 value={buyForm.total}
@@ -505,7 +516,7 @@ const TradingForm: React.FC<TradingFormProps> = ({ className = "" }) => {
                   }
                   className="rounded"
                 />
-                <span>Post-Only</span>
+                <span>{t("post_only")}</span>
               </label>
               <label className="flex items-center space-x-2">
                 <input
@@ -519,7 +530,7 @@ const TradingForm: React.FC<TradingFormProps> = ({ className = "" }) => {
                   }
                   className="rounded"
                 />
-                <span>Reduce Only</span>
+                <span>{t("reduce_only")}</span>
               </label>
             </div>
 
@@ -527,17 +538,21 @@ const TradingForm: React.FC<TradingFormProps> = ({ className = "" }) => {
               type="submit"
               className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors"
             >
-              Buy BTC
+              {t("buy_button")}
             </button>
           </form>
 
           {/* Sell Section */}
           <form onSubmit={handleSellSubmit} className="space-y-4">
-            <div className="text-red-400 font-semibold mb-3">Sell BTC</div>
+            <div className="text-red-400 font-semibold mb-3">
+              {t("sell_btc")}
+            </div>
 
             {/* Available balance */}
             <div className="text-xs text-gray-400">
-              Available: {(state.portfolio.balances.BTC || 0).toFixed(8)} BTC
+              {t("available_btc", {
+                amount: (state.portfolio.balances.BTC || 0).toFixed(8),
+              })}
             </div>
 
             {/* Price input (for limit orders) */}

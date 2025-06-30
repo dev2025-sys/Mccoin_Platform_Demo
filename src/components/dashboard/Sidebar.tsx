@@ -13,13 +13,16 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { useClerk } from "@clerk/nextjs";
+import { useTranslations, useLocale } from "next-intl";
 
 const Sidebar = () => {
+  const t = useTranslations("dashboard");
   const [spotExpanded, setSpotExpanded] = useState(false);
   const { signOut } = useClerk();
   const pathname = usePathname();
+  const locale = useLocale();
 
-  const isActive = (path: string) => pathname === path;
+  const isActive = (path: string) => pathname === `/${locale}${path}`;
 
   return (
     <aside className="w-64 bg-[#081935] p-4 space-y-4 shadow-2xl">
@@ -34,7 +37,7 @@ const Sidebar = () => {
           }`}
         >
           <User className="w-5 h-5" />
-          My Profile
+          {t("sidebar.profile")}
         </Link>
 
         {/* Spot with Submenu */}
@@ -42,18 +45,16 @@ const Sidebar = () => {
           <div
             onClick={() => setSpotExpanded(!spotExpanded)}
             className={`flex items-center justify-between px-2 py-2 rounded-md cursor-pointer ${
-              [
-                "/dashboard/assets",
-                "/dashboard/deposit",
-                "/dashboard/records",
-              ].includes(pathname)
+              ["/dashboard/assets", "/dashboard/deposit", "/dashboard/records"]
+                .map((path) => `/${locale}${path}`)
+                .includes(pathname)
                 ? "bg-[#EC3B3B] text-white"
                 : "text-[#DAE6EA] hover:text-white"
             }`}
           >
             <div className="flex items-center gap-2">
               <LayoutDashboard className="w-5 h-5" />
-              Spot
+              {t("sidebar.spot")}
             </div>
             {spotExpanded ? (
               <ChevronUp className="w-4 h-4" />
@@ -73,7 +74,7 @@ const Sidebar = () => {
                     : "hover:text-white"
                 }`}
               >
-                Assets
+                {t("sidebar.assets")}
               </Link>
               <Link
                 href="/dashboard/deposit"
@@ -83,7 +84,7 @@ const Sidebar = () => {
                     : "hover:text-white"
                 }`}
               >
-                Deposit
+                {t("sidebar.deposit")}
               </Link>
               <Link
                 href="/dashboard/records"
@@ -93,7 +94,7 @@ const Sidebar = () => {
                     : "hover:text-white"
                 }`}
               >
-                Deposit Records
+                {t("sidebar.records")}
               </Link>
             </div>
           )}
@@ -109,7 +110,7 @@ const Sidebar = () => {
           }`}
         >
           <History className="w-5 h-5" />
-          Order History
+          {t("sidebar.orderHistory")}
         </Link>
 
         {/* Preferences */}
@@ -122,7 +123,7 @@ const Sidebar = () => {
           }`}
         >
           <Cog className="w-5 h-5" />
-          Preferences
+          {t("sidebar.preferences")}
         </Link>
 
         {/* Logout */}
@@ -130,7 +131,7 @@ const Sidebar = () => {
           className="flex items-center gap-2 hover:text-red-500 cursor-pointer px-2"
           onClick={() => signOut()}
         >
-          <LogOut className="w-5 h-5" /> Logout
+          <LogOut className="w-5 h-5" /> {t("sidebar.logout")}
         </div>
       </nav>
     </aside>

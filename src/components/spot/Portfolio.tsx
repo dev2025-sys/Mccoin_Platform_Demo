@@ -2,13 +2,14 @@ import type React from "react";
 import { useState } from "react";
 import { Trash2, X } from "lucide-react";
 import { useTrading } from "@/context/TradingContext";
-
+import { useTranslations } from "next-intl";
 interface PortfolioProps {
   className?: string;
 }
 
 const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
   const { state, cancelOrder } = useTrading();
+  const t = useTranslations("spot.portfolio");
   const [activeTab, setActiveTab] = useState<"orders" | "history" | "balances">(
     "orders"
   );
@@ -76,7 +77,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
                 : "text-gray-400 hover:text-white"
             }`}
           >
-            Open Orders ({state.openOrders.length})
+            {t("tabs.orders")} ({state.openOrders.length})
           </button>
           <button
             onClick={() => setActiveTab("history")}
@@ -86,7 +87,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
                 : "text-gray-400 hover:text-white"
             }`}
           >
-            Order History ({state.orderHistory.length})
+            {t("tabs.history")} ({state.orderHistory.length})
           </button>
           <button
             onClick={() => setActiveTab("balances")}
@@ -96,7 +97,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
                 : "text-gray-400 hover:text-white"
             }`}
           >
-            Portfolio
+            {t("tabs.balances")}
           </button>
         </div>
 
@@ -107,13 +108,21 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
               <div className="space-y-2">
                 {/* Headers */}
                 <div className="grid grid-cols-7 gap-4 text-xs text-gray-400 pb-2 border-b border-slate-700">
-                  <span>Pair</span>
-                  <span>Type</span>
-                  <span>Side</span>
-                  <span className="text-right">Amount</span>
-                  <span className="text-right">Price</span>
-                  <span className="text-right">Total</span>
-                  <span className="text-right">Action</span>
+                  <span>{t("orders.headers.pair")}</span>
+                  <span>{t("orders.headers.type")}</span>
+                  <span>{t("orders.headers.side")}</span>
+                  <span className="text-right">
+                    {t("orders.headers.amount")}
+                  </span>
+                  <span className="text-right">
+                    {t("orders.headers.price")}
+                  </span>
+                  <span className="text-right">
+                    {t("orders.headers.total")}
+                  </span>
+                  <span className="text-right">
+                    {t("orders.headers.action")}
+                  </span>
                 </div>
 
                 {/* Order rows */}
@@ -153,9 +162,9 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-[#07153b] rounded-lg mb-4">
                   <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded" />
                 </div>
-                <div className="text-gray-400">No open orders</div>
+                <div className="text-gray-400">{t("orders.noOrders")}</div>
                 <div className="text-sm text-gray-500 mt-1">
-                  Place an order to get started
+                  {t("orders.placePrompt")}
                 </div>
               </div>
             )}
@@ -169,13 +178,19 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
               <div className="space-y-2">
                 {/* Headers */}
                 <div className="grid grid-cols-7 gap-4 text-xs text-gray-400 pb-2 border-b border-slate-700">
-                  <span>Date</span>
-                  <span>Pair</span>
-                  <span>Type</span>
-                  <span>Side</span>
-                  <span className="text-right">Amount</span>
-                  <span className="text-right">Price</span>
-                  <span className="text-right">Status</span>
+                  <span>{t("orders.headers.date")}</span>
+                  <span>{t("orders.headers.pair")}</span>
+                  <span>{t("orders.headers.type")}</span>
+                  <span>{t("orders.headers.side")}</span>
+                  <span className="text-right">
+                    {t("orders.headers.amount")}
+                  </span>
+                  <span className="text-right">
+                    {t("orders.headers.price")}
+                  </span>
+                  <span className="text-right">
+                    {t("orders.headers.status")}
+                  </span>
                 </div>
 
                 {/* Combine order history and transactions */}
@@ -228,9 +243,9 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-700 rounded-lg mb-4">
                   <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded" />
                 </div>
-                <div className="text-gray-400">No trading history</div>
+                <div className="text-gray-400">{t("history.noHistory")}</div>
                 <div className="text-sm text-gray-500 mt-1">
-                  Your completed orders will appear here
+                  {t("history.historyPrompt")}
                 </div>
               </div>
             )}
@@ -242,29 +257,39 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
           <div className="space-y-6">
             {/* Portfolio Summary */}
             <div className="bg-[#07153b] rounded-lg p-4">
-              <h4 className="text-lg font-semibold mb-4">Portfolio Summary</h4>
+              <h4 className="text-lg font-semibold mb-4">
+                {t("balances.summary.title")}
+              </h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <div className="text-sm text-gray-400">Total Value</div>
+                  <div className="text-sm text-gray-400">
+                    {t("balances.summary.total")}
+                  </div>
                   <div className="text-xl font-bold text-green-400">
                     ${formatPrice(totalPortfolioValue)}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-400">24h P&L</div>
+                  <div className="text-sm text-gray-400">
+                    {t("balances.summary.pnl")}
+                  </div>
                   <div className="text-xl font-bold text-green-400">
                     +${formatPrice(totalPortfolioValue * 0.025)}
                   </div>
                   <div className="text-sm text-green-400">+2.5%</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-400">Available</div>
+                  <div className="text-sm text-gray-400">
+                    {t("balances.summary.available")}
+                  </div>
                   <div className="text-lg font-semibold">
                     ${formatPrice(state.portfolio.balances.USDT || 0)}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-400">In Orders</div>
+                  <div className="text-sm text-gray-400">
+                    {t("balances.summary.inOrders")}
+                  </div>
                   <div className="text-lg font-semibold">
                     $
                     {formatPrice(
@@ -280,14 +305,22 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
 
             {/* Asset Balances */}
             <div>
-              <h4 className="text-lg font-semibold mb-4">Asset Balances</h4>
+              <h4 className="text-lg font-semibold mb-4">
+                {t("balances.assets.title")}
+              </h4>
               <div className="space-y-3">
                 {/* Headers */}
                 <div className="grid grid-cols-4 gap-4 text-xs text-gray-400 pb-2 border-b border-slate-700">
-                  <span>Asset</span>
-                  <span className="text-right">Balance</span>
-                  <span className="text-right">Value (USDT)</span>
-                  <span className="text-right">Allocation</span>
+                  <span>{t("balances.assets.headers.asset")}</span>
+                  <span className="text-right">
+                    {t("balances.assets.headers.balance")}
+                  </span>
+                  <span className="text-right">
+                    {t("balances.assets.headers.value")}
+                  </span>
+                  <span className="text-right">
+                    {t("balances.assets.headers.allocation")}
+                  </span>
                 </div>
 
                 {/* Balance rows */}
@@ -355,7 +388,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
             {state.transactions.length > 0 && (
               <div>
                 <h4 className="text-lg font-semibold mb-4">
-                  Recent Transactions
+                  {t("balances.transactions.title")}
                 </h4>
                 <div className="space-y-2">
                   {state.transactions.slice(0, 5).map((transaction) => (

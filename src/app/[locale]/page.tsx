@@ -1,13 +1,14 @@
 "use client";
-
+import { useTranslations } from "next-intl";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Navbar from "@/components/shared/Navbar";
 import { motion } from "framer-motion";
-import { ArrowRight, Bitcoin, DollarSign } from "lucide-react";
+import { Bitcoin, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useLocale } from "next-intl";
 import {
   Select,
   SelectContent,
@@ -26,6 +27,8 @@ const EXCHANGE_RATES = {
 };
 
 export default function HomePage() {
+  const isArabic = useLocale() === "ar";
+  const t = useTranslations("homepage");
   const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -82,32 +85,33 @@ export default function HomePage() {
             transition={{ duration: 0.6 }}
             className="flex-1 space-y-8 max-w-xl w-full"
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl leading-tight md:text-left text-center">
-              Invest in
+            <h1
+              className={`text-4xl md:text-5xl lg:text-6xl leading-tight ${
+                isArabic ? "md:text-right" : "text-left"
+              }  text-center`}
+            >
+              <span>{t("hero.headlinePrefix")}</span>{" "}
               <span className="font-bold">
                 Mc
-                <span
-                  className="text-[#EC3B3B] inline-block"
-                  style={{ fontFamily: "inherit" }}
-                >
-                  C
-                </span>
-                <span className="inline-block" style={{ color: "#fff" }}>
-                  o
-                </span>
+                <span className="text-[#EC3B3B] inline-block">C</span>
+                <span className="inline-block text-white">o</span>
                 in
               </span>
               <br />
-              <span className="text-white">Way to Trade</span>
+              <span className="text-white">{t("hero.subheadline")}</span>
             </h1>
-            <p className="text-lg text-slate-300 max-w-lg ml-2 md:text-left text-center ">
-              The global crypto currency exchange
-            </p>
+            <div
+              className={`text-lg text-slate-300 max-w-lg ml-2 ${
+                isArabic ? "md:text-right" : "md:text-left"
+              } text-center`}
+            >
+              <p>{t("hero.description")}</p>
+            </div>
             {/* Email input with floating Register button */}
             <div className="relative max-w-md w-full mt-8 mx-auto md:mx-0">
               <Input
                 type="email"
-                placeholder="Email address"
+                placeholder={t("form.emailPlaceholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="bg-[#050E27] border border-slate-600 text-white placeholder-[#8CA3D5] rounded-full pl-6 pr-40 py-4 text-base focus:ring-0 focus:outline-none shadow-none"
@@ -119,7 +123,7 @@ export default function HomePage() {
                   className="absolute right-0 top-1/2 -translate-y-1/2 rounded-full bg-[#EC3B3B] hover:bg-[#D13535] px-7 font-normal text-base shadow-none"
                   style={{ minWidth: 120 }}
                 >
-                  Register now
+                  {t("form.registerButton")}
                 </Button>
               </Link>
             </div>
@@ -134,7 +138,7 @@ export default function HomePage() {
           >
             <div className="w-full max-w-md">
               <h2 className="text-2xl mb-8 ml-2 text-white">
-                Crypto Calculator
+                {t("calculator.title")}
               </h2>
               <div className="space-y-4">
                 {/* From Currency */}
@@ -153,7 +157,7 @@ export default function HomePage() {
                       onValueChange={setFromCurrency}
                     >
                       <SelectTrigger className="bg-transparent border-none text-white px-0 focus:ring-0 focus:outline-none">
-                        <SelectValue placeholder="Currency" />
+                        <SelectValue placeholder={t("calculator.from")} />
                       </SelectTrigger>
                       <SelectContent className="bg-[#07153B] border-none hover:bg-[#07153B]">
                         <SelectItem
@@ -181,7 +185,7 @@ export default function HomePage() {
                     <DollarSign className="h-4 w-4 text-[#fff]" />
                     <Select value={toCurrency} onValueChange={setToCurrency}>
                       <SelectTrigger className="bg-transparent border-none text-white px-0 focus:ring-0 focus:outline-none">
-                        <SelectValue placeholder="Currency" />
+                        <SelectValue placeholder={t("calculator.to")} />
                       </SelectTrigger>
                       <SelectContent className="bg-[#050E27] border-[#22304A]">
                         <SelectItem value="USD">USD</SelectItem>
@@ -195,10 +199,10 @@ export default function HomePage() {
                     onClick={calculateConversion}
                     className="flex-1 rounded-full border border-[#EC3B3B] bg-transparent text-[#8CA3D5] hover:bg-[#10194A] shadow-none"
                   >
-                    Calculate
+                    {t("calculator.calculate")}
                   </Button>
                   <Button className="flex-1 rounded-full bg-[#EC3B3B] hover:bg-[#D13535] text-white shadow-none">
-                    Buy now
+                    {t("calculator.buyNow")}
                   </Button>
                 </div>
               </div>

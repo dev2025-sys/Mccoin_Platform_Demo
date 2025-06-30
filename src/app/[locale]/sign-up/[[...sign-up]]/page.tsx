@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useSignUp, useAuth } from "@clerk/nextjs";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,6 +15,9 @@ import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import RotatingIcons from "@/components/custom/RotatingIcons";
+import { FaArrowLeft } from "react-icons/fa";
+import { FaArrowRight } from "react-icons/fa";
+import { useLocale } from "next-intl";
 
 const signUpSchema = z
   .object({
@@ -31,6 +35,8 @@ const codeSchema = z.object({
 });
 
 export default function SignUpPage() {
+  const t = useTranslations("signUp");
+  const isArabic = useLocale() === "ar";
   const router = useRouter();
   const { isSignedIn } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
@@ -118,38 +124,40 @@ export default function SignUpPage() {
         }}
       >
         {/* Back button */}
-        <button className="flex items-center text-sm text-[#8CA3D5] hover:text-white transition-colors">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4 mr-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+        {isArabic ? (
+          <button
+            className="flex items-center text-sm text-[#8CA3D5] hover:text-white transition-colors"
+            style={{
+              direction: isArabic ? "rtl" : "ltr",
+            }}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-          Back to Home
-        </button>
+            <FaArrowRight className="ml-1 w-4 h-4" />
+            {t("back")}
+          </button>
+        ) : (
+          <button
+            className="flex items-center text-sm text-[#8CA3D5] hover:text-white transition-colors"
+            style={{
+              direction: isArabic ? "rtl" : "ltr",
+            }}
+          >
+            <FaArrowLeft className="mr-1 w-4 h-4" />
+            {t("back")}
+          </button>
+        )}
 
         {/* Headings */}
         <div className="space-y-2">
           <h1 className="text-4xl text-white tracking-wider leading-7">
-            The Global
+            {t("headline1")}
           </h1>
           <h1 className="text-4xl text-white leading-7 tracking-wider">
-            Cryptocurrency
+            {t("headline2")}
           </h1>
           <h1 className="text-4xl text-white leading-7 tracking-wider">
-            Exchange
+            {t("headline3")}
           </h1>
-          <p className="text-sm text-slate-400 mt-6">
-            Serving 200+ Countries/Regions Worldwide
-          </p>
+          <p className="text-sm text-slate-400 mt-6">{t("tagline")}</p>
         </div>
         <RotatingIcons />
       </motion.div>
@@ -166,23 +174,21 @@ export default function SignUpPage() {
             width={40}
             height={40}
           />
-          <h2 className="text-2xl mt-2">Create your</h2>
+          <h2 className="text-2xl mt-2">{t("title1")}</h2>
           <h2 className="text-2xl">
-            <span className="text-[#EC3B3B]">McCoin</span> account
+            <span className="text-[#EC3B3B]">{t("title2")}</span> {t("title3")}
           </h2>
 
-          <p className="text-[#DAE6EA] mt-2 text-sm">
-            Please create your account with the McCoin
-          </p>
+          <p className="text-[#DAE6EA] mt-2 text-sm">{t("subtitle")}</p>
         </div>
 
         {!pendingVerification ? (
           <form onSubmit={handleSubmit(onSignUp)} className="space-y-5">
-            <div>
-              <label>Email</label>
+            <div className="flex flex-col gap-2">
+              <label>{t("email")}</label>
               <Input
                 {...register("email")}
-                placeholder="you@example.com"
+                placeholder={t("email")}
                 className="p-6"
               />
               {errors.email && (
@@ -190,17 +196,19 @@ export default function SignUpPage() {
               )}
             </div>
 
-            <div>
-              <label>Password</label>
+            <div className="flex flex-col gap-2">
+              <label>{t("password")}</label>
               <div className="relative">
                 <Input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter password"
+                  placeholder={t("password")}
                   {...register("password")}
                   className="p-6"
                 />
                 <div
-                  className="absolute right-3 top-3.5 cursor-pointer text-white"
+                  className={`absolute ${
+                    isArabic ? "left-3" : "right-3"
+                  } top-3.5 cursor-pointer text-white`}
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -213,17 +221,19 @@ export default function SignUpPage() {
               )}
             </div>
 
-            <div>
-              <label>Repeat Password</label>
+            <div className="flex flex-col gap-2">
+              <label>{t("repeatPassword")}</label>
               <div className="relative">
                 <Input
                   type={showConfirm ? "text" : "password"}
-                  placeholder="Repeat password"
+                  placeholder={t("repeatPassword")}
                   {...register("confirmPassword")}
                   className="p-6"
                 />
                 <div
-                  className="absolute right-3 top-3.5 cursor-pointer text-white"
+                  className={`absolute ${
+                    isArabic ? "left-3" : "right-3"
+                  } top-3.5 cursor-pointer text-white`}
                   onClick={() => setShowConfirm(!showConfirm)}
                 >
                   {showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -243,24 +253,21 @@ export default function SignUpPage() {
               type="submit"
               disabled={loading}
             >
-              {loading ? "Signing up..." : "Sign up"}
+              {loading ? t("signingUp") : t("button")}
             </Button>
 
             <p className="text-center text-sm text-[#DAE6EA]">
-              Already have an account?{" "}
+              {t("haveAccount")}{" "}
               <Link href="/sign-in" className="text-[#EC3B3B] underline">
-                Log in
+                {t("login")}
               </Link>
             </p>
           </form>
         ) : (
           <form onSubmit={handleCodeSubmit(onVerifyCode)} className="space-y-5">
             <div>
-              <label>Verification Code</label>
-              <Input
-                {...registerCode("code")}
-                placeholder="Enter 6-digit code"
-              />
+              <label>{t("verificationCode")}</label>
+              <Input {...registerCode("code")} placeholder={t("enterCode")} />
               {codeErrors.code && (
                 <p className="text-red-400 text-sm">
                   {codeErrors.code.message}
@@ -273,7 +280,7 @@ export default function SignUpPage() {
               type="submit"
               disabled={loading}
             >
-              {loading ? "Verifying..." : "Verify & Continue"}
+              {loading ? t("verifying") : t("verifyButton")}
             </Button>
           </form>
         )}

@@ -1,0 +1,499 @@
+{
+  "homepage": {
+    "hero": {
+      "headlinePrefix": "Invest in",
+      "headline": "Invest in McCoin",
+      "subheadline": "Way to Trade",
+      "description": "The global crypto currency exchange"
+    },
+    "form": {
+      "emailPlaceholder": "Email address",
+      "registerButton": "Register now"
+    },
+    "calculator": {
+      "title": "Crypto Calculator",
+      "from": "From",
+      "to": "To",
+      "calculate": "Calculate",
+      "buyNow": "Buy now"
+    }
+  },
+  "shared": {
+    "profile": "My Profile",
+    "preferences": "Preferences",
+    "logout": "Logout"
+  },
+  "navbar": {
+    "market": "Market",
+    "spot": "Spot",
+    "about": "About",
+    "profile": "My Profile",
+    "preferences": "Preferences",
+    "logout": "Logout",
+    "language": "Eng"
+  },
+  "footer": {
+    "tagline": "Making Crypto Trading Easier",
+    "copyright": "All Rights Reserved.",
+    "market": "Market",
+    "spot": "Spot",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "about": "About",
+    "partners": "McCoin Partners",
+    "help": "Help Center"
+  },
+  "signIn": {
+    "back": "Back to homepage",
+    "title1": "Log in to your",
+    "title2": "McCoin",
+    "title3": "account",
+    "subtitle": "Please login with your account credentials",
+    "email": "Email",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "button": "Log in",
+    "noAccount": "Don’t have an account?",
+    "registerNow": "Register now!",
+    "title4_1": "Invest in",
+    "title5": "The global crypto currency exchange",
+    "title6": "way to trade"
+  },
+  "signUp": {
+    "title1": "Create your",
+    "title2": "McCoin",
+    "title3": "account",
+    "subtitle": "Sign up with your email and password",
+    "email": "Email",
+    "password": "Password",
+    "repeatPassword": "Repeat Password",
+    "button": "Sign up",
+    "haveAccount": "Already have an account?",
+    "login": "Log in",
+    "verifying": "Verifying...",
+    "verifyButton": "Verify & Continue",
+    "verificationCode": "Verification Code",
+    "enterCode": "Enter 6-digit code",
+    "signingUp": "Signing up...",
+    "codeSent": "Verification code sent to your email",
+    "success": "Account created successfully!",
+    "error": "Sign-up failed",
+    "invalidCode": "Invalid code",
+    "back": "Back to Home",
+    "headline1": "The Global",
+    "headline2": "Cryptocurrency",
+    "headline3": "Exchange",
+    "tagline": "Serving 200+ Countries/Regions Worldwide"
+  },
+  "forgotPassword": {
+    "title": "Reset your password",
+    "subtitle": "Enter your email to receive a reset code.",
+    "subtitleWithEmail": "Enter the code sent to {email} and your new password.",
+    "email": "Email",
+    "code": "Code",
+    "password": "New Password",
+    "confirmPassword": "Confirm Password",
+    "sendCode": "Send reset code",
+    "sending": "Sending...",
+    "reset": "Reset Password",
+    "resetting": "Resetting...",
+    "success": "Password reset successful",
+    "error": "Error requesting reset",
+    "invalidCode": "Reset failed",
+    "passwordsMustMatch": "Passwords must match",
+    "enterCode": "6-digit code",
+    "enterNewPassword": "Enter new password",
+    "repeatNewPassword": "Repeat new password"
+  },
+  "dashboard": {
+    "sidebar": {
+      "profile": "My Profile",
+      "spot": "Spot",
+      "assets": "Assets",
+      "deposit": "Deposit",
+      "records": "Deposit Records",
+      "orderHistory": "Order History",
+      "preferences": "Preferences",
+      "logout": "Logout"
+    },
+    "profile": {
+      "accountVerification": "Account Verification",
+      "email": "Email",
+      "verified": "✔️ Verified",
+      "mobile": "Mobile",
+      "addPhone": "Add phone number",
+      "connect": "Connect",
+      "totp": "TOTP",
+      "enterCode": "Enter verification code",
+      "advancedSettings": "Advanced Settings",
+      "password": "Password",
+      "passwordDesc": "Set a permanent password to login to your account",
+      "resetPassword": "Reset password",
+      "loginStatus": "Login Status Management",
+      "loginHistory": "Login History",
+      "logout": "Logout",
+      "table": {
+        "time": "Time",
+        "device": "Device",
+        "ip": "IP",
+        "location": "Location",
+        "operation": "Operation"
+      }
+    },
+    "orders": {
+      "title": "Order History",
+      "filters": {
+        "orderType": "Order Type",
+        "market": "Market",
+        "side": "Side",
+        "time": "Time",
+        "all": "All",
+        "limit": "Limit",
+        "marketOrder": "Market",
+        "buy": "Buy",
+        "sell": "Sell",
+        "24h": "24H",
+        "7d": "7D",
+        "pickDate": "Pick a date",
+        "clear": "Clear Filters",
+        "export": "Export"
+      },
+      "empty": {
+        "message": "Nothing here",
+        "alt": "Nothing here"
+      },
+      "table": {
+        "time": "TIME",
+        "currency": "CURRENCY",
+        "amount": "AMOUNT",
+        "network": "NETWORK",
+        "blockConfirmation": "BLOCK CONFIRMATION",
+        "depositAddress": "DEPOSIT ADDRESS",
+        "transactionId": "TRANSACTION ID",
+        "depositId": "DEPOSIT ID",
+        "state": "STATE"
+      }
+    },
+    "preferences": {
+      "title": "Preferences",
+      "currency": "Currency",
+      "language": "Language",
+      "darkMode": "Dark mode",
+      "selectCurrency": "Select currency",
+      "selectLanguage": "Select language",
+      "currencies": {
+        "USD": "USD",
+        "EUR": "EUR",
+        "AED": "AED"
+      },
+      "languages": {
+        "English": "English",
+        "Arabic": "Arabic",
+        "French": "French"
+      }
+    },
+    "spot": {
+      "title": "Spot"
+    },
+    "assets": {
+      "estimated": "Est. Assets",
+      "deposit": "Deposit",
+      "assets": "Assets",
+      "searchPlaceholder": "Search among 321 coins",
+      "table": {
+        "coin": "Coin",
+        "available": "Available",
+        "frozen": "Frozen",
+        "operation": "Operation"
+      }
+    },
+    "deposit": {
+      "totalAssets": "Total Assets",
+      "available": "Available",
+      "frozen": "Frozen",
+      "attention": "⚠ Attention",
+      "minimumDeposit": "Minimum Deposit",
+      "minValue": "0.00000001 USDT",
+      "crediting": "Crediting",
+      "allConfirmed": "All OK!!",
+      "confirmationsLeft": "{count} Confirmation(s) Left",
+      "depositTitle": "Deposit",
+      "selectCoin": "Select Coin / Token",
+      "selectCoinPlaceholder": "Select Coin",
+      "generateAddress": "Generate Deposit Address",
+      "riskTitle": "USDT-OKTC Risk Reminder",
+      "riskMessage": "The address is ONLY available for USDT-Optimism deposit. Deposit of other assets will lead to permanent asset loss.",
+      "checkboxLabel": "I am aware of the risks and would like to proceed.",
+      "confirm": "Confirm"
+    },
+    "records": {
+      "states": {
+        "completed": "Completed",
+        "pending": "Pending",
+        "failed": "Failed"
+      },
+      "asset": "Asset",
+      "time": "Time",
+      "last30Days": "Last 30 days",
+      "last60Days": "Last 60 days",
+      "last90Days": "Last 90 days",
+      "all": "All",
+      "selectDate": "Select date",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "exportCSV": "Export CSV",
+      "table": {
+        "time": "Time",
+        "currency": "Currency",
+        "amount": "Amount",
+        "network": "Network",
+        "blockConfirmation": "Block Confirmation",
+        "depositAddress": "Deposit Address",
+        "transactionId": "Transaction ID",
+        "depositId": "Deposit ID",
+        "state": "State"
+      },
+      "empty": {
+        "title": "Nothing here",
+        "desc": "No deposit records found matching your filters"
+      }
+    }
+  },
+  "marketOverview": {
+    "title": "Market Overview",
+    "loading": "Loading market data...",
+    "error": "Failed to fetch market data",
+    "topGainers": "Top Gainers",
+    "topLosers": "Top Losers",
+    "valueLeaders": "Value Leaders",
+    "marketCap": "Market Cap",
+    "topVolume": "Top Volume",
+    "orderDistribution": "Order Distribution",
+    "priceChangeDistribution": "Price Change Distribution",
+    "historicalValue": "Historical Market Value",
+    "historicalChart": {
+      "btc": "BTC",
+      "eth": "ETH",
+      "bnb": "BNB",
+      "tether": "TETHER",
+      "solana": "SOLANA",
+      "value": "Value",
+      "timeframe_6h": "6h",
+      "timeframe_24h": "24h",
+      "timeframe_7d": "7d",
+      "timeframe_30d": "30d",
+      "legend": "Legend",
+      "title": "Historical Chart",
+      "k_suffix": "K"
+    },
+    "marketChart": {
+      "title": "Market Chart",
+      "timeframe_6h": "6h",
+      "timeframe_24h": "24h",
+      "timeframe_7d": "7d",
+      "timeframe_30d": "30d",
+      "buy": "Buy",
+      "sell": "Sell",
+      "priceUp": "Price up",
+      "priceDown": "Price down",
+      "priceChangeDistribution": "Price Change Distribution",
+      "labels": {
+        "up_3": "3%",
+        "up_5": "5%",
+        "up_7": "7%",
+        "up_10": "10%",
+        "up_gt_10": ">10%",
+        "down_3": "-3%",
+        "down_5": "-5%",
+        "down_7": "-7%",
+        "down_10": "-10%",
+        "down_lt_10": "<-10%"
+      }
+    },
+    "marketStats": {
+      "title": "Market Stats",
+      "coin": "Coin",
+      "marketCap": "Market Cap",
+      "volume24h": "Volume(24h)",
+      "change24h": "24h Change"
+    },
+    "topMovers": {
+      "title": "Top Movers",
+      "coin": "Coin",
+      "price": "Price (USD)",
+      "change24h": "24h Change",
+      "marketCap": "Market Cap",
+      "volume24h": "Volume(24h)"
+    }
+  },
+  "spot": {
+    "header": {
+      "pair": "BTC/USDT",
+      "change24h": "24h Change",
+      "high24h": "24h High",
+      "low24h": "24h Low",
+      "volume24h": "24h Volume",
+      "about": "About BTC/USDT"
+    },
+    "markets": {
+      "title": "Markets",
+      "searchPlaceholder": "Search",
+      "latestExecutions": "Latest Executions",
+      "price": "Price (USDT)",
+      "amount": "Amount (BTC)",
+      "time": "Time"
+    },
+    "orderbook": {
+      "tabs": {
+        "book": "Order Book",
+        "trades": "Last Trades"
+      },
+      "status": {
+        "realtime": "Real-time",
+        "disconnected": "Disconnected"
+      },
+      "columns": {
+        "price": "Price (USDT)",
+        "amount": "Amount (BTC)",
+        "total": "Total",
+        "time": "Time"
+      },
+      "asks": {
+        "label": "Asks",
+        "pressure": "Selling pressure"
+      },
+      "bids": {
+        "label": "Bids",
+        "pressure": "Buying pressure"
+      },
+      "spread": "Spread",
+      "summary": {
+        "bidVolume": "Bid Volume",
+        "askVolume": "Ask Volume"
+      },
+      "noTrades": "No recent trades"
+    },
+    "portfolio": {
+      "tabs": {
+        "orders": "Open Orders",
+        "history": "Order History",
+        "balances": "Portfolio"
+      },
+      "orders": {
+        "headers": {
+          "pair": "Pair",
+          "type": "Type",
+          "side": "Side",
+          "amount": "Amount",
+          "price": "Price",
+          "total": "Total",
+          "action": "Action"
+        },
+        "noOrders": "No open orders",
+        "placePrompt": "Place an order to get started",
+        "cancelConfirm": "Are you sure you want to cancel this order?"
+      },
+      "history": {
+        "headers": {
+          "date": "Date",
+          "pair": "Pair",
+          "type": "Type",
+          "side": "Side",
+          "amount": "Amount",
+          "price": "Price",
+          "status": "Status"
+        },
+        "noHistory": "No trading history",
+        "historyPrompt": "Your completed orders will appear here"
+      },
+      "balances": {
+        "summary": {
+          "title": "Portfolio Summary",
+          "total": "Total Value",
+          "pnl": "24h P&L",
+          "available": "Available",
+          "inOrders": "In Orders"
+        },
+        "assets": {
+          "title": "Asset Balances",
+          "headers": {
+            "asset": "Asset",
+            "balance": "Balance",
+            "value": "Value (USDT)",
+            "allocation": "Allocation"
+          }
+        },
+        "transactions": {
+          "title": "Recent Transactions"
+        }
+      }
+    },
+    "tradingChart": {
+      "title": "Chart",
+      "timeframes": {
+        "5m": "5m",
+        "15m": "15m",
+        "1h": "1h",
+        "4h": "4h",
+        "1d": "1d"
+      },
+      "chartTypes": {
+        "candlesticks": "Candlesticks",
+        "line": "Line",
+        "area": "Area"
+      },
+      "priceInfo": {
+        "o": "O:",
+        "h": "H:",
+        "l": "L:",
+        "c": "C:",
+        "vol": "Vol:"
+      },
+      "controls": {
+        "drawingTools": "📏 Drawing Tools",
+        "indicators": "📊 Indicators",
+        "settings": "⚙️ Settings"
+      },
+      "lastUpdate": "Last update",
+      "fullscreen": {
+        "enter": "⤢",
+        "exit": "⤓"
+      }
+    },
+    "tradingForm": {
+      "spot_trading": "Spot Trading",
+      "buy_btc": "Buy BTC",
+      "sell_btc": "Sell BTC",
+      "available_usdt": "Available: {amount} USDT",
+      "available_btc": "Available: {amount} BTC",
+      "price_usdt": "Price (USDT)",
+      "amount_btc": "Amount (BTC)",
+      "total_usdt": "Total (USDT)",
+      "post_only": "Post-Only",
+      "reduce_only": "Reduce Only",
+      "stop_loss": "Stop Loss",
+      "buy_button": "Buy BTC",
+      "sell_button": "Sell BTC",
+      "limit": "Limit",
+      "market": "Market",
+      "advanced_limit": "Advanced Limit",
+      "trail_stop": "Trail Stop",
+      "trigger": "Trigger",
+      "tp_sl": "TP/SL",
+      "trading_fee": "Trading Fee:",
+      "estimated_total": "Est. Total:",
+      "drawing_tools": "📏 Drawing Tools",
+      "indicators": "📊 Indicators",
+      "settings": "⚙️ Settings",
+      "last_update": "Last update: {time}",
+      "percent_label": "{value}%",
+      "error_invalid_amount": "Please enter a valid amount",
+      "error_invalid_price": "Please enter a valid price",
+      "error_insufficient_usdt": "Insufficient USDT balance. Available: {amount} USDT",
+      "error_insufficient_btc": "Insufficient BTC balance. Available: {amount} BTC",
+      "success_buy_order": "Buy order placed: {amount} BTC at {price} USDT",
+      "success_sell_order": "Sell order placed: {amount} BTC at {price} USDT"
+    }
+  }
+}

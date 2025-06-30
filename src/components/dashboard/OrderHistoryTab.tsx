@@ -16,8 +16,11 @@ import {
 } from "@/components/ui/select";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ordersData } from "@/data/orders";
-
+import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 export default function OrdersHistoryTab() {
+  const t = useTranslations("dashboard.orders");
+  const isArabic = useLocale() === "ar";
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
   const [filters, setFilters] = useState({
@@ -84,42 +87,42 @@ export default function OrdersHistoryTab() {
       <Card className="bg-[#081935] border-[0.5px] rounded-md border-[#DAE6EA]">
         <CardHeader>
           <CardTitle className="text-white text-xl font-semibold">
-            Order History
+            {t("title")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Filters */}
           <div className="flex flex-wrap items-center gap-4 text-[#DAE6EA]">
             <div className="flex items-center gap-2">
-              <span className="text-sm">Order Type</span>
+              <span className="text-sm">{t("filters.orderType")}</span>
               <Select
                 onValueChange={(value) =>
                   setFilters({ ...filters, type: value })
                 }
               >
                 <SelectTrigger className="w-[110px] bg-[#0f294d] text-white border border-[#DAE6EA]">
-                  <SelectValue placeholder="All" />
+                  <SelectValue placeholder={t("filters.all")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="limit">Limit</SelectItem>
-                  <SelectItem value="market">Market</SelectItem>
+                  <SelectItem value="all">{t("filters.all")}</SelectItem>
+                  <SelectItem value="limit">{t("filters.limit")}</SelectItem>
+                  <SelectItem value="market">{t("filters.market")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm">Market</span>
+              <span className="text-sm">{t("filters.market")}</span>
               <Select
                 onValueChange={(value) =>
                   setFilters({ ...filters, market: value })
                 }
               >
                 <SelectTrigger className="w-[110px] bg-[#0f294d] text-white border border-[#DAE6EA]">
-                  <SelectValue placeholder="All" />
+                  <SelectValue placeholder={t("filters.all")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="all">{t("filters.all")}</SelectItem>
                   <SelectItem value="btc">BTC</SelectItem>
                   <SelectItem value="eth">ETH</SelectItem>
                 </SelectContent>
@@ -127,37 +130,37 @@ export default function OrdersHistoryTab() {
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm">Side</span>
+              <span className="text-sm">{t("filters.side")}</span>
               <Select
                 onValueChange={(value) =>
                   setFilters({ ...filters, side: value })
                 }
               >
                 <SelectTrigger className="w-[110px] bg-[#0f294d] text-white border border-[#DAE6EA]">
-                  <SelectValue placeholder="All" />
+                  <SelectValue placeholder={t("filters.all")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="buy">Buy</SelectItem>
-                  <SelectItem value="sell">Sell</SelectItem>
+                  <SelectItem value="all">{t("filters.all")}</SelectItem>
+                  <SelectItem value="buy">{t("filters.buy")}</SelectItem>
+                  <SelectItem value="sell">{t("filters.sell")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm">Time</span>
+              <span className="text-sm">{t("filters.time")}</span>
               <Select
                 onValueChange={(value) =>
                   setFilters({ ...filters, time: value })
                 }
               >
                 <SelectTrigger className="w-[110px] bg-[#0f294d] text-white border border-[#DAE6EA]">
-                  <SelectValue placeholder="All" />
+                  <SelectValue placeholder={t("filters.all")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="24h">24H</SelectItem>
-                  <SelectItem value="7d">7D</SelectItem>
+                  <SelectItem value="all">{t("filters.all")}</SelectItem>
+                  <SelectItem value="24h">{t("filters.24h")}</SelectItem>
+                  <SelectItem value="7d">{t("filters.7d")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -190,14 +193,14 @@ export default function OrdersHistoryTab() {
               variant="outline"
               className="text-red-600 border border-red-400  hover:bg-white hover:text-[#081935]"
             >
-              Clear Filters
+              {t("filters.clear")}
             </Button>
             <Button
               onClick={handleExport}
               variant="ghost"
               className="text-red-500 border border-red-500 hover:bg-red-600 hover:text-white"
             >
-              Export
+              {t("filters.export")}
             </Button>
           </div>
 
@@ -211,28 +214,76 @@ export default function OrdersHistoryTab() {
                 height={100}
                 className="mx-auto mb-4"
               />
-              <p className="text-[#DAE6EA] text-lg">Nothing here</p>
+              <p className="text-[#DAE6EA] text-lg">{t("empty.message")}</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-white">
                 <thead className="text-[#DAE6EA]/80 font-light">
                   <tr className="font-light">
-                    <th className="text-left py-2 font-light">TIME</th>
-                    <th className="text-left py-2 font-light">CURRENCY</th>
-                    <th className="text-left py-2 font-light">AMOUNT</th>
-                    <th className="text-left py-2 font-light">NETWORK</th>
-                    <th className="text-left py-2 font-light">
-                      BLOCK CONFIRMATION
+                    <th
+                      className={`text-left py-2 font-light ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {t("table.time")}
                     </th>
-                    <th className="text-left py-2 font-light">
-                      DEPOSIT ADDRESS
+                    <th
+                      className={`text-left py-2 font-light ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {t("table.currency")}
                     </th>
-                    <th className="text-left py-2 font-light">
-                      TRANSACTION ID
+                    <th
+                      className={`text-left py-2 font-light ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {t("table.amount")}
                     </th>
-                    <th className="text-left py-2 font-light">DEPOSIT ID</th>
-                    <th className="text-left py-2 font-light">STATE</th>
+                    <th
+                      className={`text-left py-2 font-light ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {t("table.network")}
+                    </th>
+                    <th
+                      className={`text-left py-2 font-light ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {t("table.blockConfirmation")}
+                    </th>
+                    <th
+                      className={`text-left py-2 font-light ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {t("table.depositAddress")}
+                    </th>
+                    <th
+                      className={`text-left py-2 font-light ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {t("table.transactionId")}
+                    </th>
+                    <th
+                      className={`text-left py-2 font-light ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {t("table.depositId")}
+                    </th>
+                    <th
+                      className={`text-left py-2 font-light ${
+                        isArabic ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {t("table.state")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>

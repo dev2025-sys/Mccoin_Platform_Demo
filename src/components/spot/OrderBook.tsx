@@ -1,13 +1,14 @@
 import { useTrading } from "@/context/TradingContext";
 import type React from "react";
 import { useState } from "react";
-
+import { useTranslations } from "next-intl";
 interface OrderBookProps {
   className?: string;
 }
 
 const OrderBook: React.FC<OrderBookProps> = ({ className = "" }) => {
   const { state } = useTrading();
+  const t = useTranslations("spot.orderbook");
   const [activeTab, setActiveTab] = useState<"book" | "trades">("book");
   const [depthMode, setDepthMode] = useState<"spread" | "all">("spread");
 
@@ -52,7 +53,7 @@ const OrderBook: React.FC<OrderBookProps> = ({ className = "" }) => {
                 : "text-gray-400 hover:text-white"
             }`}
           >
-            Order Book
+            {t("tabs.book")}
           </button>
           <button
             onClick={() => setActiveTab("trades")}
@@ -62,7 +63,7 @@ const OrderBook: React.FC<OrderBookProps> = ({ className = "" }) => {
                 : "text-gray-400 hover:text-white"
             }`}
           >
-            Last Trades
+            {t("tabs.trades")}
           </button>
         </div>
 
@@ -72,12 +73,12 @@ const OrderBook: React.FC<OrderBookProps> = ({ className = "" }) => {
             {state.isConnected ? (
               <>
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-green-400">Real-time</span>
+                <span className="text-green-400">{t("status.realtime")}</span>
               </>
             ) : (
               <>
                 <div className="w-2 h-2 bg-red-500 rounded-full" />
-                <span className="text-red-400">Disconnected</span>
+                <span className="text-red-400">{t("status.disconnected")}</span>
               </>
             )}
           </div>
@@ -98,16 +99,18 @@ const OrderBook: React.FC<OrderBookProps> = ({ className = "" }) => {
         <div className="p-4">
           {/* Column headers */}
           <div className="grid grid-cols-3 gap-2 text-xs text-gray-400 mb-3">
-            <span>Price (USDT)</span>
-            <span className="text-right">Amount (BTC)</span>
-            <span className="text-right">Total</span>
+            <span>{t("columns.price")} (USDT)</span>
+            <span className="text-right">{t("columns.amount")} (BTC)</span>
+            <span className="text-right">{t("columns.total")}</span>
           </div>
 
           {/* Asks (Sell orders) - Red */}
           <div className="space-y-1 mb-4">
             <div className="text-xs text-gray-400 mb-2 flex justify-between">
-              <span>Asks ({state.orderBook.asks.length})</span>
-              <span className="text-red-400">Selling pressure</span>
+              <span>
+                {t("asks.label")} ({state.orderBook.asks.length})
+              </span>
+              <span className="text-red-400">{t("asks.pressure")}</span>
             </div>
             {state.orderBook.asks
               .slice(0, 10)
@@ -153,7 +156,7 @@ const OrderBook: React.FC<OrderBookProps> = ({ className = "" }) => {
               ≈ ${formatPrice(state.currentPrice.price)}
             </div>
             <div className="text-xs mt-1">
-              <span className="text-gray-400">Spread: </span>
+              <span className="text-gray-400">{t("spread")}: </span>
               <span
                 className={
                   spreadPercent > 0.1 ? "text-red-400" : "text-green-400"
@@ -167,8 +170,10 @@ const OrderBook: React.FC<OrderBookProps> = ({ className = "" }) => {
           {/* Bids (Buy orders) - Green */}
           <div className="space-y-1">
             <div className="text-xs text-gray-400 mb-2 flex justify-between">
-              <span>Bids ({state.orderBook.bids.length})</span>
-              <span className="text-green-400">Buying pressure</span>
+              <span>
+                {t("bids.label")} ({state.orderBook.bids.length})
+              </span>
+              <span className="text-green-400">{t("bids.pressure")}</span>
             </div>
             {state.orderBook.bids.slice(0, 15).map((bid, i) => {
               const depthPercent = calculateDepthPercent(bid.total, maxTotal);
@@ -206,7 +211,7 @@ const OrderBook: React.FC<OrderBookProps> = ({ className = "" }) => {
           <div className="mt-4 pt-4 border-t border-slate-700 text-xs">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <div className="text-gray-400">Bid Volume</div>
+                <div className="text-gray-400">{t("summary.bidVolume")}</div>
                 <div className="text-green-400 font-mono">
                   {state.orderBook.bids
                     .reduce((sum, bid) => sum + bid.amount, 0)
@@ -215,7 +220,7 @@ const OrderBook: React.FC<OrderBookProps> = ({ className = "" }) => {
                 </div>
               </div>
               <div>
-                <div className="text-gray-400">Ask Volume</div>
+                <div className="text-gray-400">{t("summary.askVolume")}</div>
                 <div className="text-red-400 font-mono">
                   {state.orderBook.asks
                     .reduce((sum, ask) => sum + ask.amount, 0)
@@ -230,9 +235,9 @@ const OrderBook: React.FC<OrderBookProps> = ({ className = "" }) => {
         /* Last Trades Tab */
         <div className="p-4">
           <div className="grid grid-cols-3 gap-2 text-xs text-gray-400 mb-3">
-            <span>Price (USDT)</span>
-            <span className="text-right">Amount (BTC)</span>
-            <span className="text-right">Time</span>
+            <span>{t("columns.price")} (USDT)</span>
+            <span className="text-right">{t("columns.amount")} (BTC)</span>
+            <span className="text-right">{t("columns.time")}</span>
           </div>
 
           <div className="space-y-1">
@@ -268,7 +273,7 @@ const OrderBook: React.FC<OrderBookProps> = ({ className = "" }) => {
 
           {state.transactions.length === 0 && (
             <div className="text-center py-8 text-gray-400">
-              No recent trades
+              {t("noTrades")}
             </div>
           )}
         </div>

@@ -11,6 +11,7 @@ import { Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 const emailSchema = z.object({
   email: z.string().email(),
@@ -28,6 +29,7 @@ const resetSchema = z
   });
 
 export default function ForgotPasswordPage() {
+  const t = useTranslations("forgotPassword");
   const { signIn, isLoaded, setActive } = useSignIn();
   const router = useRouter();
   const [pendingReset, setPendingReset] = useState(false);
@@ -125,19 +127,17 @@ export default function ForgotPasswordPage() {
         className="w-full max-w-md p-6 space-y-6 bg-[#081935] rounded-xl shadow-xl"
       >
         <div className="text-center">
-          <h2 className="text-3xl font-bold">Reset your password</h2>
+          <h2 className="text-3xl font-bold">{t("title")}</h2>
           <p className="text-[#DAE6EA] mt-2 text-sm">
-            {pendingReset
-              ? `Enter the code sent to ${email} and your new password.`
-              : "Enter your email to receive a reset code."}
+            {pendingReset ? t("subtitleWithEmail", { email }) : t("subtitle")}
           </p>
         </div>
 
         {!pendingReset ? (
           <form onSubmit={handleSubmit(onRequestReset)} className="space-y-5">
-            <div>
-              <label>Email</label>
-              <Input {...register("email")} placeholder="you@example.com" />
+            <div className="flex flex-col gap-2">
+              <label>{t("email")}</label>
+              <Input {...register("email")} placeholder={t("email")} />
               {errors.email && (
                 <p className="text-red-400 text-sm">{errors.email.message}</p>
               )}
@@ -148,7 +148,7 @@ export default function ForgotPasswordPage() {
               className="w-full bg-[#EC3B3B] hover:bg-red-600"
               disabled={loading}
             >
-              {loading ? "Sending..." : "Send reset code"}
+              {loading ? t("sending") : t("sendCode")}
             </Button>
           </form>
         ) : (
@@ -157,8 +157,8 @@ export default function ForgotPasswordPage() {
             className="space-y-5"
           >
             <div>
-              <label>Code</label>
-              <Input {...registerReset("code")} placeholder="6-digit code" />
+              <label>{t("code")}</label>
+              <Input {...registerReset("code")} placeholder={t("enterCode")} />
               {resetErrors.code && (
                 <p className="text-red-400 text-sm">
                   {resetErrors.code.message}
@@ -167,12 +167,12 @@ export default function ForgotPasswordPage() {
             </div>
 
             <div>
-              <label>New Password</label>
+              <label>{t("password")}</label>
               <div className="relative">
                 <Input
                   type={showPassword ? "text" : "password"}
                   {...registerReset("password")}
-                  placeholder="Enter new password"
+                  placeholder={t("enterNewPassword")}
                 />
                 <div
                   className="absolute right-3 top-2.5 cursor-pointer"
@@ -189,12 +189,12 @@ export default function ForgotPasswordPage() {
             </div>
 
             <div>
-              <label>Confirm Password</label>
+              <label>{t("confirmPassword")}</label>
               <div className="relative">
                 <Input
                   type={showConfirm ? "text" : "password"}
                   {...registerReset("confirmPassword")}
-                  placeholder="Repeat new password"
+                  placeholder={t("repeatNewPassword")}
                 />
                 <div
                   className="absolute right-3 top-2.5 cursor-pointer"
@@ -215,7 +215,7 @@ export default function ForgotPasswordPage() {
               className="w-full bg-[#EC3B3B] hover:bg-red-600"
               disabled={loading}
             >
-              {loading ? "Resetting..." : "Reset Password"}
+              {loading ? t("resetting") : t("reset")}
             </Button>
           </form>
         )}

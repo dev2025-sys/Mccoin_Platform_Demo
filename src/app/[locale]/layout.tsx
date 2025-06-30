@@ -1,3 +1,6 @@
+import { NextIntlClientProvider, hasLocale } from "next-intl";
+import { notFound } from "next/navigation";
+import { routing } from "@/i18n/routing";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -20,30 +23,29 @@ export const metadata: Metadata = {
   description: "McCoin Platform Staging",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }>) {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) {
+    notFound();
+  }
+  const isRTL = locale === "ar";
   return (
-    <ClerkProvider
-      appearance={{
-        baseTheme: undefined,
-        signIn: {
-          baseTheme: undefined,
-        },
-        signUp: {
-          baseTheme: undefined,
-        },
-      }}
-    >
+    <ClerkProvider>
       <TradingProvider>
-        <html lang="en">
+        <html lang={locale} dir={isRTL ? "rtl" : "ltr"}>
           <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
           >
-            <main>{children}</main>
-            <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
+            <NextIntlClientProvider>
+              <main>{children}</main>
+              <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
+            </NextIntlClientProvider>
           </body>
         </html>
       </TradingProvider>

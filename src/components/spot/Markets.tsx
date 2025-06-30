@@ -1,10 +1,14 @@
 import { useTrading } from "@/context/TradingContext";
 import type React from "react";
-
+import { useTranslations } from "next-intl";
+import { Search } from "lucide-react";
+import { useLocale } from "next-intl";
 // Markets component for the left sidebar
 const Markets: React.FC = () => {
   const { state } = useTrading();
-
+  const t = useTranslations("spot.markets");
+  const locale = useLocale();
+  const isArabic = locale === "ar";
   const marketData = [
     { symbol: "USDT", price: 1.0001, change: 0.0, pair: "USDT" },
     {
@@ -58,7 +62,7 @@ const Markets: React.FC = () => {
       {/* Markets Section */}
       <div className="p-4">
         <h3 className="text-sm font-semibold mb-3 flex items-center space-x-2">
-          <span>Markets</span>
+          <span>{t("title")}</span>
           {state.isConnected && (
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
           )}
@@ -67,10 +71,16 @@ const Markets: React.FC = () => {
         <div className="relative mb-4">
           <input
             type="text"
-            placeholder="Search"
+            placeholder={t("searchPlaceholder")}
             className="w-full bg-slate-700 text-white px-3 py-2 rounded text-sm placeholder-gray-400"
           />
-          <span className="absolute right-3 top-2.5 text-gray-400">🔍</span>
+          <Search
+            className={`absolute ${
+              isArabic ? "left-3" : "right-3"
+            } top-2.5 text-gray-400 `}
+            size={16}
+            strokeWidth={1.5}
+          />
         </div>
 
         {/* Market List */}
@@ -105,12 +115,12 @@ const Markets: React.FC = () => {
 
       {/* Latest Executions */}
       <div className="p-4 border-t border-slate-700">
-        <h3 className="text-sm font-semibold mb-3">Latest Executions</h3>
+        <h3 className="text-sm font-semibold mb-3">{t("latestExecutions")}</h3>
         <div className="space-y-2 text-xs">
           <div className="grid grid-cols-3 gap-2 text-gray-400">
-            <span>Price (USDT)</span>
-            <span>Amount (BTC)</span>
-            <span>Time</span>
+            <span>{t("price")} (USDT)</span>
+            <span>{t("amount")} (BTC)</span>
+            <span>{t("time")}</span>
           </div>
 
           {latestExecutions.map((execution, index) => (

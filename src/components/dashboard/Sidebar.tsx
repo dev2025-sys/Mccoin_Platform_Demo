@@ -14,10 +14,12 @@ import {
 } from "lucide-react";
 import { useClerk } from "@clerk/nextjs";
 import { useTranslations, useLocale } from "next-intl";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Sidebar = () => {
   const t = useTranslations("dashboard");
   const [spotExpanded, setSpotExpanded] = useState(false);
+  const [showLogoutPrompt, setShowLogoutPrompt] = useState(false);
   const { signOut } = useClerk();
   const pathname = usePathname();
   const locale = useLocale();
@@ -129,11 +131,51 @@ const Sidebar = () => {
         {/* Logout */}
         <div
           className="flex items-center gap-2 hover:text-red-500 cursor-pointer px-2"
-          onClick={() => signOut()}
+          onClick={() => setShowLogoutPrompt(true)}
         >
           <LogOut className="w-5 h-5" /> {t("sidebar.logout")}
         </div>
       </nav>
+      {/* Logout Confirmation Modal */}
+      <AnimatePresence>
+        {showLogoutPrompt && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-[#101C36] rounded-xl shadow-2xl p-8 w-full max-w-sm text-center relative"
+              initial={{ scale: 0.8, opacity: 0, y: 40 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 40 }}
+              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            >
+              <div className="text-lg font-semibold mb-4 text-white">
+                {t("logoutPrompt")}
+              </div>
+              <div className="flex justify-center gap-4 mt-6">
+                <button
+                  className="px-6 py-2 rounded-md bg-[#EC3B3B] text-white font-medium hover:bg-[#D13535] transition-colors"
+                  onClick={() => {
+                    setShowLogoutPrompt(false);
+                    setTimeout(() => signOut(), 300); // allow animation to finish
+                  }}
+                >
+                  {t("yes")}
+                </button>
+                <button
+                  className="px-6 py-2 rounded-md bg-[#22304A] text-white font-medium hover:bg-[#1a2536] transition-colors"
+                  onClick={() => setShowLogoutPrompt(false)}
+                >
+                  {t("no")}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </aside>
   );
 };

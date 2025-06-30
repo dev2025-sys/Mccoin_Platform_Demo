@@ -44,7 +44,34 @@ export default async function RootLayout({
           >
             <NextIntlClientProvider>
               <main>{children}</main>
-              <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  duration: 4000,
+                  style: {
+                    background: "#101C36",
+                    color: "#fff",
+                    borderRadius: "10px",
+                    boxShadow: "0 4px 24px 0 rgba(0,0,0,0.25)",
+                    padding: "16px 24px",
+                    minWidth: "320px",
+                    fontSize: "15px",
+                    border: "1px solid #22304A",
+                  },
+                  success: {
+                    iconTheme: {
+                      primary: "#22C55E",
+                      secondary: "#101C36",
+                    },
+                  },
+                  error: {
+                    iconTheme: {
+                      primary: "#EF4444",
+                      secondary: "#101C36",
+                    },
+                  },
+                }}
+              />
             </NextIntlClientProvider>
           </body>
         </html>

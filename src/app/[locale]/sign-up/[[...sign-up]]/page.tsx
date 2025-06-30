@@ -78,9 +78,9 @@ export default function SignUpPage() {
 
       setEmailAddress(data.email);
       setPendingVerification(true);
-      toast.success("Verification code sent to your email");
+      toast.success(t("verification_code_sent"));
     } catch (err: any) {
-      toast.error(err.errors?.[0]?.message || "Sign-up failed");
+      toast.error(err.errors?.[0]?.message || t("signup_failed"));
     } finally {
       setLoading(false);
     }
@@ -96,13 +96,13 @@ export default function SignUpPage() {
 
       if (complete.status === "complete") {
         await setActive({ session: complete.createdSessionId });
-        toast.success("Account created successfully!");
+        toast.success(t("verification_success"));
         push("/");
       } else {
-        toast.error("Verification incomplete");
+        toast.error(t("verification_failed"));
       }
     } catch (err: any) {
-      toast.error(err.errors?.[0]?.message || "Invalid code");
+      toast.error(err.errors?.[0]?.message || t("verification_failed"));
     } finally {
       setLoading(false);
     }

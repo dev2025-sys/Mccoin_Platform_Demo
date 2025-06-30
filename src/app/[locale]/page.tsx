@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import Link from "next/link";
 import Footer from "@/components/shared/Footer";
+import toast from "react-hot-toast";
 
 // Crypto exchange rates (can be replaced with API calls)
 const EXCHANGE_RATES = {

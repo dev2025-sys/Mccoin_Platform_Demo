@@ -1,7 +1,7 @@
 import { useTrading } from "@/context/TradingContext";
-import type React from "react";
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import type React from "react";
 
 interface SliderProps {
   value: number;
@@ -48,30 +48,20 @@ const Slider: React.FC<SliderProps> = ({
           }}
         />
         <style jsx>{`
-          .slider-buy::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: #22c55e;
-            border: 2px solid #22c55e;
-            cursor: pointer;
-            transition: all 0.15s ease-in-out;
-          }
-          .slider-buy::-webkit-slider-thumb:hover {
-            box-shadow: 0 0 0 8px rgba(34, 197, 94, 0.1);
-          }
+          .slider-buy::-webkit-slider-thumb,
           .slider-sell::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             width: 16px;
             height: 16px;
             border-radius: 50%;
-            background: #ef4444;
-            border: 2px solid #ef4444;
+            background: ${type === "buy" ? "#22c55e" : "#ef4444"};
+            border: 2px solid ${type === "buy" ? "#22c55e" : "#ef4444"};
             cursor: pointer;
             transition: all 0.15s ease-in-out;
+          }
+          .slider-buy::-webkit-slider-thumb:hover {
+            box-shadow: 0 0 0 8px rgba(34, 197, 94, 0.1);
           }
           .slider-sell::-webkit-slider-thumb:hover {
             box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.1);
@@ -120,113 +110,63 @@ const Slider: React.FC<SliderProps> = ({
   );
 };
 
-interface TradingFormProps {
-  className?: string;
-}
-
-const TradingForm: React.FC<TradingFormProps> = ({ className = "" }) => {
+const TradingForm: React.FC = () => {
   const { state, placeOrder } = useTrading();
-  const [activeTab, setActiveTab] = useState<"limit" | "market">("limit");
   const t = useTranslations("spot.tradingForm");
+  const [activeTab, setActiveTab] = useState<"limit" | "market">("limit");
+
   const [buyForm, setBuyForm] = useState({
-    amount: "",
-    price: "",
-    total: "",
+    amount: "0",
+    price: "0",
+    total: "0",
     postOnly: false,
     reduceOnly: false,
     sliderValue: 20,
   });
+
   const [sellForm, setSellForm] = useState({
-    amount: "",
-    price: "",
-    total: "",
+    amount: "0",
+    price: "0",
+    total: "0",
     postOnly: false,
     stopLoss: false,
     sliderValue: 80,
   });
 
-  // Auto-fill current price for limit orders and initial amounts based on slider values
   useEffect(() => {
-    if (activeTab === "limit") {
-      const price = state.currentPrice.price;
-      setBuyForm((prev) => ({
-        ...prev,
-        price: price.toFixed(2),
-      }));
-      setSellForm((prev) => ({
-        ...prev,
-        price: price.toFixed(2),
-      }));
-
-      // Set initial amounts based on slider values
-      const availableUSDT = state.portfolio.balances.USDT || 0;
-      const availableBTC = state.portfolio.balances.BTC || 0;
-
-      const buyAmount = (
-        ((availableUSDT / price) * buyForm.sliderValue) /
-        100
-      ).toFixed(8);
-      const sellAmount = ((availableBTC * sellForm.sliderValue) / 100).toFixed(
-        8
-      );
-
-      setBuyForm((prev) => ({
-        ...prev,
-        amount: buyAmount,
-      }));
-      setSellForm((prev) => ({
-        ...prev,
-        amount: sellAmount,
-      }));
-    }
-  }, [state.currentPrice.price, activeTab, state.portfolio.balances]);
-
-  // Calculate totals when amount or price changes
-  useEffect(() => {
-    const amount = Number.parseFloat(buyForm.amount) || 0;
-    const price = Number.parseFloat(buyForm.price) || 0;
+    if (activeTab !== "limit") return;
+    const amount = parseFloat(buyForm.amount) || 0;
+    const price = parseFloat(buyForm.price) || 0;
     setBuyForm((prev) => ({ ...prev, total: (amount * price).toFixed(2) }));
-  }, [buyForm.amount, buyForm.price]);
+  }, [buyForm.amount, buyForm.price, activeTab]);
 
   useEffect(() => {
-    const amount = Number.parseFloat(sellForm.amount) || 0;
-    const price = Number.parseFloat(sellForm.price) || 0;
+    if (activeTab !== "limit") return;
+    const amount = parseFloat(sellForm.amount) || 0;
+    const price = parseFloat(sellForm.price) || 0;
     setSellForm((prev) => ({ ...prev, total: (amount * price).toFixed(2) }));
-  }, [sellForm.amount, sellForm.price]);
+  }, [sellForm.amount, sellForm.price, activeTab]);
 
   const handleBuySubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const amount = Number.parseFloat(buyForm.amount);
+    const amount = parseFloat(buyForm.amount);
     const price =
       activeTab === "market"
         ? state.currentPrice.price
-        : Number.parseFloat(buyForm.price);
+        : parseFloat(buyForm.price);
     const total = amount * price;
 
-    // Validate form
-    if (!amount || amount <= 0) {
+    if (!amount || amount <= 0 || !price || price <= 0) {
       alert(t("error_invalid_amount"));
       return;
     }
 
-    if (activeTab === "limit" && (!price || price <= 0)) {
-      alert(t("error_invalid_price"));
+    const available = state.portfolio.balances.USDT || 0;
+    if (total > available) {
+      alert(t("error_insufficient_usdt", { amount: available.toFixed(2) }));
       return;
     }
 
-    // Check balance
-    const availableBalance = state.portfolio.balances.USDT || 0;
-    if (total > availableBalance) {
-      alert(
-        t("error_insufficient_usdt", {
-          amount: availableBalance.toFixed(2),
-        })
-      );
-      return;
-    }
-
-    // Place order
     placeOrder({
       symbol: "BTC/USDT",
       side: "buy",
@@ -236,52 +176,37 @@ const TradingForm: React.FC<TradingFormProps> = ({ className = "" }) => {
       status: "pending",
     });
 
-    // Reset form
     setBuyForm({
-      amount: "",
-      price: activeTab === "limit" ? state.currentPrice.price.toFixed(2) : "",
-      total: "",
+      amount: "0",
+      price: "0",
+      total: "0",
       postOnly: false,
       reduceOnly: false,
       sliderValue: 0,
     });
 
-    // Show success message
-    alert(t("success_buy_order", { amount: amount, price: price.toFixed(2) }));
+    alert(t("success_buy_order", { amount, price: price.toFixed(2) }));
   };
 
   const handleSellSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const amount = Number.parseFloat(sellForm.amount);
+    const amount = parseFloat(sellForm.amount);
     const price =
       activeTab === "market"
         ? state.currentPrice.price
-        : Number.parseFloat(sellForm.price);
+        : parseFloat(sellForm.price);
 
-    // Validate form
-    if (!amount || amount <= 0) {
+    if (!amount || amount <= 0 || !price || price <= 0) {
       alert(t("error_invalid_amount"));
       return;
     }
 
-    if (activeTab === "limit" && (!price || price <= 0)) {
-      alert(t("error_invalid_price"));
+    const available = state.portfolio.balances.BTC || 0;
+    if (amount > available) {
+      alert(t("error_insufficient_btc", { amount: available.toFixed(8) }));
       return;
     }
 
-    // Check balance
-    const availableBalance = state.portfolio.balances.BTC || 0;
-    if (amount > availableBalance) {
-      alert(
-        t("error_insufficient_btc", {
-          amount: availableBalance.toFixed(8),
-        })
-      );
-      return;
-    }
-
-    // Place order
     placeOrder({
       symbol: "BTC/USDT",
       side: "sell",
@@ -291,66 +216,39 @@ const TradingForm: React.FC<TradingFormProps> = ({ className = "" }) => {
       status: "pending",
     });
 
-    // Reset form
     setSellForm({
-      amount: "",
-      price: activeTab === "limit" ? state.currentPrice.price.toFixed(2) : "",
-      total: "",
+      amount: "0",
+      price: "0",
+      total: "0",
       postOnly: false,
       stopLoss: false,
       sliderValue: 0,
     });
 
-    // Show success message
-    alert(t("success_sell_order", { amount: amount, price: price.toFixed(2) }));
+    alert(t("success_sell_order", { amount, price: price.toFixed(2) }));
   };
-
-  const setMaxBuyAmount = () => {
-    const availableBalance = state.portfolio.balances.USDT || 0;
-    const price =
-      activeTab === "market"
-        ? state.currentPrice.price
-        : Number.parseFloat(buyForm.price) || state.currentPrice.price;
-    const maxAmount = availableBalance / price;
-    setBuyForm((prev) => ({ ...prev, amount: maxAmount.toFixed(8) }));
-  };
-
-  const setMaxSellAmount = () => {
-    const availableBalance = state.portfolio.balances.BTC || 0;
-    setSellForm((prev) => ({ ...prev, amount: availableBalance.toFixed(8) }));
-  };
-
-  const quickAmounts = [0.25, 0.5, 0.75, 1.0];
 
   const handleBuySliderChange = (value: number) => {
-    const availableBalance = state.portfolio.balances.USDT || 0;
+    const available = state.portfolio.balances.USDT || 0;
     const price =
       activeTab === "market"
         ? state.currentPrice.price
-        : Number.parseFloat(buyForm.price) || state.currentPrice.price;
-    const maxAmount = availableBalance / price;
-    const newAmount = ((maxAmount * value) / 100).toFixed(8);
-
-    setBuyForm((prev) => ({
-      ...prev,
-      amount: newAmount,
-      sliderValue: value,
-    }));
+        : parseFloat(buyForm.price) || 1;
+    const max = available / price;
+    const newAmount = ((max * value) / 100).toFixed(8);
+    setBuyForm((prev) => ({ ...prev, amount: newAmount, sliderValue: value }));
   };
 
   const handleSellSliderChange = (value: number) => {
-    const availableBalance = state.portfolio.balances.BTC || 0;
-    const newAmount = ((availableBalance * value) / 100).toFixed(8);
-
-    setSellForm((prev) => ({
-      ...prev,
-      amount: newAmount,
-      sliderValue: value,
-    }));
+    const available = state.portfolio.balances.BTC || 0;
+    const newAmount = ((available * value) / 100).toFixed(8);
+    setSellForm((prev) => ({ ...prev, amount: newAmount, sliderValue: value }));
   };
 
+  const quickAmounts = [0.25, 0.5, 0.75, 1];
+
   return (
-    <div className={`bg-[#07153b] border-t border-slate-700 ${className}`}>
+    <div className="bg-[#07153b] border-t border-slate-700 p-4">
       <div className="p-4">
         <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
           <span>{t("spot_trading")}</span>

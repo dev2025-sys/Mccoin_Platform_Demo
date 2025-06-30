@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Upload } from "lucide-react";
+import { FaBitcoin } from "react-icons/fa";
+import { BiMoneyWithdraw } from "react-icons/bi";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
@@ -48,9 +50,18 @@ export default function AssetsTab() {
             <p className="text-sm text-[#DAE6EA]">{t("estimated")}</p>
             <h2 className="text-3xl font-semibold">0 USD</h2>
           </div>
-          <Button className="bg-[#EC3B3B] hover:bg-[#d02f2f] cursor-pointer">
-            <Upload className="w-4 h-4 mr-2" /> {t("deposit")}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button className="bg-[#EC3B3B] hover:bg-[#d02f2f] cursor-pointer text-white w-[120px]">
+              <Upload className="w-4 h-4 mr-2" /> {t("deposit")}
+            </Button>
+            <Button className="bg-[#EC3B3B] hover:bg-[#d02f2f] cursor-pointer text-white w-[120px] flex items-center">
+              <FaBitcoin className="w-4 h-4 mr-2" /> {t("buy")}
+            </Button>
+            <Button className="bg-[#EC3B3B] hover:bg-[#d02f2f] cursor-pointer text-white w-[120px]">
+              <BiMoneyWithdraw className="w-4 h-4 mr-2" />
+              <span>{t("withdraw")}</span>
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

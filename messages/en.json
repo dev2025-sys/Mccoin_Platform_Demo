@@ -44,6 +44,8 @@
     "help": "Help Center"
   },
   "signIn": {
+    "login_success": "Login successful",
+    "login_failed": "Login failed",
     "back": "Back to homepage",
     "title1": "Log in to your",
     "title2": "McCoin",
@@ -61,6 +63,11 @@
     "title6": "way to trade"
   },
   "signUp": {
+    "signup_success": "Signup successful",
+    "signup_failed": "Signup failed",
+    "verification_success": "Verification successful",
+    "verification_failed": "Verification failed",
+    "verification_code_sent": "Verification code sent to your email",
     "title1": "Create your",
     "title2": "McCoin",
     "title3": "account",
@@ -107,6 +114,9 @@
     "repeatNewPassword": "Repeat new password"
   },
   "dashboard": {
+    "logoutPrompt": "Are you sure you want to logout?",
+    "yes": "Yes",
+    "no": "No",
     "sidebar": {
       "profile": "My Profile",
       "spot": "Spot",
@@ -197,6 +207,8 @@
       "title": "Spot"
     },
     "assets": {
+      "buy": "Buy",
+      "withdraw": "Withdraw",
       "estimated": "Est. Assets",
       "deposit": "Deposit",
       "assets": "Assets",

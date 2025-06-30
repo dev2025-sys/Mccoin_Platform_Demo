@@ -44,6 +44,8 @@
     "help": "مركز المساعدة"
   },
   "signIn": {
+    "login_success": "تسجيل الدخول بنجاح",
+    "login_failed": "تسجيل الدخول فشل ",
     "back": "العودة إلى الصفحة الرئيسية",
     "title1": "تسجيل الدخول إلى حسابك في",
     "title2": "McCoin",
@@ -61,6 +63,11 @@
     "title6": "الطريق للتداول"
   },
   "signUp": {
+    "signup_success": "تسجيل الإنشاء بنجاح",
+    "signup_failed": "تسجيل الإنشاء فشل",
+    "verification_success": "التحقق بنجاح",
+    "verification_failed": "التحقق فشل",
+    "verification_code_sent": "تم إرسال كود التحقق إلى بريدك الإلكتروني",
     "title1": "إنشاء حسابك في",
     "title2": "McCoin",
     "title3": "",
@@ -107,6 +114,9 @@
     "repeatNewPassword": "أعد كتابة كلمة المرور الجديدة"
   },
   "dashboard": {
+    "logoutPrompt": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+    "yes": "نعم",
+    "no": "لا",
     "sidebar": {
       "profile": "الحساب الشخصي",
       "spot": "السوق الفوري",
@@ -197,6 +207,8 @@
       "title": "Spot"
     },
     "assets": {
+      "buy": "شراء",
+      "withdraw": "سحب",
       "estimated": "الأصول المقدرة",
       "deposit": "إيداع",
       "assets": "الأصول",

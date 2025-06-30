@@ -54,13 +54,13 @@ export default function SignInPage() {
 
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
-        toast.success("Welcome back!");
+        toast.success(t("login_success"));
         push("/");
       } else {
-        toast.error("Login not complete");
+        toast.error(t("login_failed"));
       }
     } catch (err: any) {
-      toast.error(err.errors?.[0]?.message || "Login failed");
+      toast.error(err.errors?.[0]?.message || t("login_failed"));
     } finally {
       setLoading(false);
     }

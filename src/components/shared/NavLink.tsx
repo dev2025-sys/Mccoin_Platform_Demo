@@ -11,7 +11,7 @@ type NavLinkProps = {
 
 export default function NavLink({ href, label }: NavLinkProps) {
   const locale = useLocale(); // 'en' | 'ar' | …
-  const pathname = usePathname(); // e.g. '/ar/market-overview'
+  const pathname = usePathname() || "/"; // Add default value
   const fullHref = `/${locale}${href}`; // '/ar/market-overview'
 
   const isActive = pathname === fullHref || pathname.startsWith(`${fullHref}/`);

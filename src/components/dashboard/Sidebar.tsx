@@ -21,7 +21,7 @@ const Sidebar = () => {
   const [spotExpanded, setSpotExpanded] = useState(false);
   const [showLogoutPrompt, setShowLogoutPrompt] = useState(false);
   const { signOut } = useClerk();
-  const pathname = usePathname();
+  const pathname = usePathname() || "/";
   const locale = useLocale();
 
   const isActive = (path: string) => pathname === `/${locale}${path}`;

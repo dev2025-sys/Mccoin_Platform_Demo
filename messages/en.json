@@ -22,7 +22,9 @@
     "profile": "My Profile",
     "verify": "Verify your account",
     "preferences": "Preferences",
-    "logout": "Logout"
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register"
   },
   "navbar": {
     "market": "Market",
@@ -58,7 +60,7 @@
     "rememberMe": "Remember me",
     "forgotPassword": "Forgot password?",
     "button": "Log in",
-    "noAccount": "Don’t have an account?",
+    "noAccount": "Don't have an account?",
     "registerNow": "Register now!",
     "title4_1": "Invest in",
     "title5": "The global crypto currency exchange",

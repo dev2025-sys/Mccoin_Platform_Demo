@@ -83,7 +83,8 @@ export default function SignInPage() {
       >
         {/* Back button */}
         {isArabic ? (
-          <button
+          <Link
+            href="/"
             className="flex items-center text-sm text-[#8CA3D5] hover:text-white transition-colors"
             style={{
               direction: isArabic ? "rtl" : "ltr",
@@ -91,9 +92,10 @@ export default function SignInPage() {
           >
             <FaArrowRight className="ml-1 w-4 h-4" />
             {t("back")}
-          </button>
+          </Link>
         ) : (
-          <button
+          <Link
+            href="/"
             className="flex items-center text-sm text-[#8CA3D5] hover:text-white transition-colors"
             style={{
               direction: isArabic ? "rtl" : "ltr",
@@ -101,7 +103,7 @@ export default function SignInPage() {
           >
             <FaArrowLeft className="mr-1 w-4 h-4" />
             {t("back")}
-          </button>
+          </Link>
         )}
 
         {/* Headings */}

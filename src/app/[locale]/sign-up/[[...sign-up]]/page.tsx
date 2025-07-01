@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -38,6 +38,7 @@ export default function SignUpPage() {
   const t = useTranslations("signUp");
   const isArabic = useLocale() === "ar";
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { isSignedIn } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -46,15 +47,12 @@ export default function SignUpPage() {
   const [pendingVerification, setPendingVerification] = useState(false);
   const [emailAddress, setEmailAddress] = useState("");
   const [loading, setLoading] = useState(false);
-  useEffect(() => {
-    if (isSignedIn) {
-      router.replace("/");
-    }
-  }, [isSignedIn, router]);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm({ resolver: zodResolver(signUpSchema) });
 
   const {
@@ -62,6 +60,17 @@ export default function SignUpPage() {
     handleSubmit: handleCodeSubmit,
     formState: { errors: codeErrors },
   } = useForm({ resolver: zodResolver(codeSchema) });
+
+  useEffect(() => {
+    if (isSignedIn) {
+      router.replace("/");
+    }
+    // Pre-fill email from URL parameter
+    const emailParam = searchParams.get("email");
+    if (emailParam) {
+      setValue("email", emailParam);
+    }
+  }, [isSignedIn, router, searchParams, setValue]);
 
   const onSignUp = async (data: any) => {
     if (!isLoaded) return;
@@ -125,7 +134,8 @@ export default function SignUpPage() {
       >
         {/* Back button */}
         {isArabic ? (
-          <button
+          <Link
+            href="/"
             className="flex items-center text-sm text-[#8CA3D5] hover:text-white transition-colors"
             style={{
               direction: isArabic ? "rtl" : "ltr",
@@ -133,9 +143,10 @@ export default function SignUpPage() {
           >
             <FaArrowRight className="ml-1 w-4 h-4" />
             {t("back")}
-          </button>
+          </Link>
         ) : (
-          <button
+          <Link
+            href="/"
             className="flex items-center text-sm text-[#8CA3D5] hover:text-white transition-colors"
             style={{
               direction: isArabic ? "rtl" : "ltr",
@@ -143,7 +154,7 @@ export default function SignUpPage() {
           >
             <FaArrowLeft className="mr-1 w-4 h-4" />
             {t("back")}
-          </button>
+          </Link>
         )}
 
         {/* Headings */}

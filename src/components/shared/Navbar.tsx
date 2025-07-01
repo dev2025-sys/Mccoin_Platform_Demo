@@ -13,10 +13,6 @@ const Navbar = () => {
   const t = useTranslations("navbar");
   const { user, isLoaded } = useUser();
   const pathname = usePathname();
-  // Don't render navbar if user is not loaded or not authenticated
-  if (!isLoaded || !user) {
-    return null;
-  }
 
   return (
     <nav className="mx-auto h-16 xl:max-w-[70%] bg-[#07153B] text-white px-6 flex items-center justify-between shadow-lg">
@@ -26,7 +22,7 @@ const Navbar = () => {
 
       <div className="hidden md:flex gap-10 text-sm tracking-wide text-[#DAE6EA]">
         <NavLink href="/market-overview" label={t("market")} />
-        <NavLink href="/spot" label={t("spot")} />
+        {isLoaded && user && <NavLink href="/spot" label={t("spot")} />}
         <NavLink href="/news" label={t("news")} />
       </div>
 

@@ -13,6 +13,11 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 const combinedMiddleware = clerkMiddleware(async (auth, req) => {
+  // Skip next-intl middleware for API routes
+  if (req.nextUrl.pathname.startsWith("/api/")) {
+    return NextResponse.next();
+  }
+
   // Run next-intl middleware first
   const intlResult = intlMiddleware(req);
   if (intlResult) return intlResult;

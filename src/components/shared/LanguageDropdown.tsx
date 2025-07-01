@@ -4,13 +4,13 @@ import { useTransition } from "react";
 import { Globe } from "lucide-react";
 
 const languages = [
-  { code: "en", label: "English" },
-  { code: "ar", label: "العربية" },
+  { code: "en", label: "EN" },
+  { code: "ar", label: "AR" },
 ];
 
 export default function LanguageDropdown() {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname() || "/";
   const [isPending, startTransition] = useTransition();
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -30,7 +30,7 @@ export default function LanguageDropdown() {
       <select
         onChange={handleChange}
         defaultValue={pathname.split("/")[1]}
-        className="appearance-none pl-9 pr-6 py-2 rounded-full bg-[#081935] border border-[#22304A] text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#EC3B3B] transition-colors hover:border-[#EC3B3B] cursor-pointer min-w-[110px]"
+        className="appearance-none pl-9 pr-8 py-2 rounded-full bg-[#081935] border border-[#22304A] text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#EC3B3B] transition-colors hover:border-[#EC3B3B] cursor-pointer "
         disabled={isPending}
         style={{ boxShadow: "none" }}
       >

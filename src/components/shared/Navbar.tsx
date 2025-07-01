@@ -27,7 +27,7 @@ const Navbar = () => {
       <div className="hidden md:flex gap-10 text-sm tracking-wide text-[#DAE6EA]">
         <NavLink href="/market-overview" label={t("market")} />
         <NavLink href="/spot" label={t("spot")} />
-        <NavLink href="/about" label={t("about")} />
+        <NavLink href="/news" label={t("news")} />
       </div>
 
       <div className="flex items-center gap-4">

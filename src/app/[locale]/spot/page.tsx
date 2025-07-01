@@ -19,7 +19,7 @@ const SpotPage: React.FC = () => {
   return (
     <section className="bg-[#07153b]">
       <Navbar />
-      <div className="bg-[#07153b] text-white min-h-screen flex flex-col max-w-[70%] mx-auto">
+      <div className="bg-[#07153b] text-white min-h-screen flex flex-col xl:max-w-[70%] mx-auto">
         {/* Header */}
         <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 

@@ -20,13 +20,15 @@ export default function Footer() {
           >
             McCoin
           </div>
-          <div className="text-[#8CA3D5] text-sm">{t("tagline")}</div>
-          <div className="text-[#8CA3D5] text-xs mt-12">
+          <div className="text-[#8CA3D5] text-sm md:text-left text-center">
+            {t("tagline")}
+          </div>
+          <div className="text-[#8CA3D5] text-xs mt-12 md:text-left text-center">
             ©2025 McCoin.Com. {t("copyright")}
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 text-white text-sm col-span-2 md:col-span-2 md:items-center">
+        <div className="flex flex-col gap-2 text-white text-sm col-span-2 md:col-span-2 items-center">
           <Link href="#" className="hover:underline">
             {t("market")}
           </Link>
@@ -44,8 +46,8 @@ export default function Footer() {
           </Link>
         </div>
 
-        <div className="flex flex-col gap-14 col-span-1 md:col-span-1 items-start md:items-end">
-          <div className="flex flex-col gap-4 text-white text-sm w-full md:items-end">
+        <div className="flex flex-col gap-14 col-span-1 md:col-span-1 items-center md:items-end">
+          <div className="flex flex-col gap-4 text-white text-sm w-full items-center md:items-end">
             <Link href="#" className="flex items-center gap-2 hover:underline">
               <Heart className="w-4 h-4 text-[#EC3B3B]" /> {t("partners")}
             </Link>
@@ -53,7 +55,7 @@ export default function Footer() {
               <LifeBuoy className="w-4 h-4 text-[#EC3B3B]" /> {t("help")}
             </Link>
           </div>
-          <div className="flex gap-4  items-center mt-4 md:mt-0 w-full md:justify-end">
+          <div className="flex gap-4  items-center mt-4 md:mt-0 w-full justify-center md:justify-end">
             <a
               href="#"
               aria-label="Instagram"

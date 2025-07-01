@@ -46,6 +46,14 @@ export default function UserAvatarDropdown() {
           <User size={16} /> {t("profile")}
         </DropdownMenuItem>
         <DropdownMenuItem
+          onClick={() => router.push("/verify")}
+          className={`flex items-center gap-2 cursor-pointer ${
+            isArabic ? "flex-row-reverse" : "flex-row"
+          }`}
+        >
+          <User size={16} /> {t("verify")}
+        </DropdownMenuItem>
+        <DropdownMenuItem
           onClick={() => router.push("/dashboard/preferences")}
           className={`flex items-center gap-2 cursor-pointer ${
             isArabic ? "flex-row-reverse" : "flex-row"

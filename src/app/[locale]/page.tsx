@@ -77,18 +77,18 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#07153B] text-white">
       <Navbar />
-      <main className="mx-auto xl:max-w-[70%] py-12 md:pt-40">
+      <main className="mx-auto xl:max-w-[70%] py-12 md:pt-40 xl:px-0 px-4">
         <section className="flex flex-col lg:flex-row gap-12 items-center justify-between w-full">
           {/* Left Content */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
-            className="flex-1 space-y-8 max-w-xl w-full"
+            className="flex lg:block flex-col items-center  flex-1 space-y-8 max-w-xl w-full"
           >
             <h1
               className={`text-4xl md:text-5xl lg:text-6xl leading-tight ${
-                isArabic ? "md:text-right" : "text-left"
+                isArabic ? "md:text-right" : "md:text-left"
               }  text-center`}
             >
               <span>{t("hero.headlinePrefix")}</span>{" "}

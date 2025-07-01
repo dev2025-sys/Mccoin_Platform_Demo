@@ -20,6 +20,7 @@
   },
   "shared": {
     "profile": "My Profile",
+    "verify": "Verify your account",
     "preferences": "Preferences",
     "logout": "Logout"
   },
@@ -30,7 +31,8 @@
     "profile": "My Profile",
     "preferences": "Preferences",
     "logout": "Logout",
-    "language": "Eng"
+    "language": "Eng",
+    "news": "News"
   },
   "footer": {
     "tagline": "Making Crypto Trading Easier",

@@ -2,6 +2,7 @@ import { useTrading } from "@/context/TradingContext";
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import type React from "react";
+import { toast } from "react-hot-toast";
 
 interface SliderProps {
   value: number;
@@ -157,13 +158,15 @@ const TradingForm: React.FC = () => {
     const total = amount * price;
 
     if (!amount || amount <= 0 || !price || price <= 0) {
-      alert(t("error_invalid_amount"));
+      toast.error(t("error_invalid_amount"));
       return;
     }
 
     const available = state.portfolio.balances.USDT || 0;
     if (total > available) {
-      alert(t("error_insufficient_usdt", { amount: available.toFixed(2) }));
+      toast.error(
+        t("error_insufficient_usdt", { amount: available.toFixed(2) })
+      );
       return;
     }
 
@@ -185,7 +188,7 @@ const TradingForm: React.FC = () => {
       sliderValue: 0,
     });
 
-    alert(t("success_buy_order", { amount, price: price.toFixed(2) }));
+    toast.success(t("success_buy_order", { amount, price: price.toFixed(2) }));
   };
 
   const handleSellSubmit = (e: React.FormEvent) => {
@@ -197,13 +200,15 @@ const TradingForm: React.FC = () => {
         : parseFloat(sellForm.price);
 
     if (!amount || amount <= 0 || !price || price <= 0) {
-      alert(t("error_invalid_amount"));
+      toast.error(t("error_invalid_amount"));
       return;
     }
 
     const available = state.portfolio.balances.BTC || 0;
     if (amount > available) {
-      alert(t("error_insufficient_btc", { amount: available.toFixed(8) }));
+      toast.error(
+        t("error_insufficient_btc", { amount: available.toFixed(8) })
+      );
       return;
     }
 
@@ -225,7 +230,7 @@ const TradingForm: React.FC = () => {
       sliderValue: 0,
     });
 
-    alert(t("success_sell_order", { amount, price: price.toFixed(2) }));
+    toast.success(t("success_sell_order", { amount, price: price.toFixed(2) }));
   };
 
   const handleBuySliderChange = (value: number) => {

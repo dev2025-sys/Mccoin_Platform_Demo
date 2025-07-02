@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+import { useUser, useClerk } from "@clerk/nextjs";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -9,6 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
+import { MdCancel } from "react-icons/md";
+import { FaPause } from "react-icons/fa";
+import { GoVerified } from "react-icons/go";
 const loginData = [
   {
     time: "Mon, Jan 22 2024 5:45:52 PM",
@@ -31,6 +34,7 @@ const loginData = [
 ];
 
 export default function ProfileTab() {
+  const { openUserProfile, signOut } = useClerk();
   const { user } = useUser();
   const router = useRouter();
   const t = useTranslations("dashboard.profile");
@@ -75,32 +79,33 @@ export default function ProfileTab() {
                   className="bg-[#0f294d] text-[#DAE6EA] cursor-not-allowed p-6"
                 />
                 <Button className="p-6" variant="secondary" disabled>
-                  ✔️ {t("verified")}
+                  {t("verified")}{" "}
+                  <GoVerified className="w-6 h-6 text-green-500" />
                 </Button>
               </div>
             </div>
-            <div className="flex flex-col gap-2 mb-4">
-              <label className="text-[#DAE6EA]">{t("mobile")}</label>
-              <div className="flex items-center gap-2">
-                <Input
-                  placeholder={t("addPhone")}
-                  className="bg-[#0f294d] text-[#DAE6EA] p-6"
-                />
-                <Button className="p-6" variant="outline">
-                  {t("connect")}
-                </Button>
-              </div>
-            </div>
-            <div className="flex flex-col gap-2 mb-4">
-              <label className="text-[#DAE6EA]">{t("totp")}</label>
-              <div className="flex items-center gap-2">
-                <Input
-                  className="bg-[#0f294d] text-[#DAE6EA] p-6"
-                  placeholder={t("enterCode")}
-                />
-                <Button className="p-6" variant="outline">
-                  {t("connect")}
-                </Button>
+            <div className="flex flex-col gap-2 my-4 pt-4">
+              <h1 className="text-[#DAE6EA] text-2xl font-semibold">
+                {t("account_control")}
+              </h1>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <label className="text-[#DAE6EA]">{t("action")}</label>
+                <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
+                  <Button
+                    className="p-4 sm:p-6 cursor-pointer w-full sm:w-auto"
+                    variant="destructive"
+                  >
+                    <FaPause className="mr-2" />
+                    {t("freeze_account")}
+                  </Button>
+                  <Button
+                    className="p-4 sm:p-6 cursor-pointer w-full sm:w-auto"
+                    variant="destructive"
+                  >
+                    <MdCancel className="mr-2" />
+                    {t("cancel_account")}
+                  </Button>
+                </div>
               </div>
             </div>
           </CardContent>
@@ -121,7 +126,10 @@ export default function ProfileTab() {
               </div>
               <Button
                 variant="outline"
-                onClick={() => router.push("/forgot-password")}
+                onClick={async () => {
+                  await signOut(); // end current session
+                  router.push("/forgot-password");
+                }}
               >
                 {t("resetPassword")}
               </Button>
@@ -136,94 +144,96 @@ export default function ProfileTab() {
               {t("loginStatus")}
             </CardTitle>
           </CardHeader>
-          <CardContent className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="text-[#DAE6EA]">
-                <tr>
-                  <th
-                    className={`text-left py-2 ${
-                      isArabic ? "text-right" : "text-left"
-                    }`}
-                  >
-                    {t("table.time")}
-                  </th>
-                  <th
-                    className={`text-left py-2 ${
-                      isArabic ? "text-right" : "text-left"
-                    }`}
-                  >
-                    {t("table.device")}
-                  </th>
-                  <th
-                    className={`text-left py-2 ${
-                      isArabic ? "text-right" : "text-left"
-                    }`}
-                  >
-                    {t("table.ip")}
-                  </th>
-                  <th
-                    className={`text-left py-2 ${
-                      isArabic ? "text-right" : "text-left"
-                    }`}
-                  >
-                    {t("table.location")}
-                  </th>
-                  <th
-                    className={`text-left py-2 ${
-                      isArabic ? "text-right" : "text-left"
-                    }`}
-                  >
-                    {t("table.operation")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {loginData.map((entry, idx) => (
-                  <tr
-                    key={idx}
-                    className="border-t border-[#0f294d] text-[#DAE6EA]"
-                  >
-                    <td
-                      className={`py-2 ${
+          <CardContent className="overflow-x-auto -mx-6 sm:mx-0">
+            <div className="min-w-[600px] px-6 sm:px-0">
+              <table className="w-full text-sm">
+                <thead className="text-[#DAE6EA]">
+                  <tr>
+                    <th
+                      className={`text-left py-2 ${
                         isArabic ? "text-right" : "text-left"
                       }`}
                     >
-                      {entry.time}
-                    </td>
-                    <td
-                      className={`py-2 ${
+                      {t("table.time")}
+                    </th>
+                    <th
+                      className={`text-left py-2 ${
                         isArabic ? "text-right" : "text-left"
                       }`}
                     >
-                      {entry.device}
-                    </td>
-                    <td
-                      className={`py-2 ${
+                      {t("table.device")}
+                    </th>
+                    <th
+                      className={`text-left py-2 ${
                         isArabic ? "text-right" : "text-left"
                       }`}
                     >
-                      {entry.ip}
-                    </td>
-                    <td
-                      className={`py-2 ${
+                      {t("table.ip")}
+                    </th>
+                    <th
+                      className={`text-left py-2 ${
                         isArabic ? "text-right" : "text-left"
                       }`}
                     >
-                      {entry.location}
-                    </td>
-                    <td
-                      className={`py-2 ${
+                      {t("table.location")}
+                    </th>
+                    <th
+                      className={`text-left py-2 ${
                         isArabic ? "text-right" : "text-left"
                       }`}
                     >
-                      <Button variant="ghost" className="text-red-400">
-                        {t("logout")}
-                      </Button>
-                    </td>
+                      {t("table.operation")}
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {loginData.map((entry, idx) => (
+                    <tr
+                      key={idx}
+                      className="border-t border-[#0f294d] text-[#DAE6EA]"
+                    >
+                      <td
+                        className={`py-2 ${
+                          isArabic ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {entry.time}
+                      </td>
+                      <td
+                        className={`py-2 ${
+                          isArabic ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {entry.device}
+                      </td>
+                      <td
+                        className={`py-2 ${
+                          isArabic ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {entry.ip}
+                      </td>
+                      <td
+                        className={`py-2 ${
+                          isArabic ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {entry.location}
+                      </td>
+                      <td
+                        className={`py-2 ${
+                          isArabic ? "text-right" : "text-left"
+                        }`}
+                      >
+                        <Button variant="ghost" className="text-red-400">
+                          {t("logout")}
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </CardContent>
         </Card>
         <div className="h-[1px] bg-[#0f294d] w-full"></div>
@@ -234,94 +244,96 @@ export default function ProfileTab() {
               {t("loginHistory")}
             </CardTitle>
           </CardHeader>
-          <CardContent className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="text-[#DAE6EA]">
-                <tr>
-                  <th
-                    className={`text-left py-2 ${
-                      isArabic ? "text-right" : "text-left"
-                    }`}
-                  >
-                    {t("table.time")}
-                  </th>
-                  <th
-                    className={`text-left py-2 ${
-                      isArabic ? "text-right" : "text-left"
-                    }`}
-                  >
-                    {t("table.device")}
-                  </th>
-                  <th
-                    className={`text-left py-2 ${
-                      isArabic ? "text-right" : "text-left"
-                    }`}
-                  >
-                    {t("table.ip")}
-                  </th>
-                  <th
-                    className={`text-left py-2 ${
-                      isArabic ? "text-right" : "text-left"
-                    }`}
-                  >
-                    {t("table.location")}
-                  </th>
-                  <th
-                    className={`text-left py-2 ${
-                      isArabic ? "text-right" : "text-left"
-                    }`}
-                  >
-                    {t("table.operation")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {loginData.map((entry, idx) => (
-                  <tr
-                    key={idx}
-                    className="border-t border-[#0f294d] text-[#DAE6EA]"
-                  >
-                    <td
-                      className={`py-2 ${
+          <CardContent className="overflow-x-auto -mx-6 sm:mx-0">
+            <div className="min-w-[600px] px-6 sm:px-0">
+              <table className="w-full text-sm">
+                <thead className="text-[#DAE6EA]">
+                  <tr>
+                    <th
+                      className={`text-left py-2 ${
                         isArabic ? "text-right" : "text-left"
                       }`}
                     >
-                      {entry.time}
-                    </td>
-                    <td
-                      className={`py-2 ${
+                      {t("table.time")}
+                    </th>
+                    <th
+                      className={`text-left py-2 ${
                         isArabic ? "text-right" : "text-left"
                       }`}
                     >
-                      {entry.device}
-                    </td>
-                    <td
-                      className={`py-2 ${
+                      {t("table.device")}
+                    </th>
+                    <th
+                      className={`text-left py-2 ${
                         isArabic ? "text-right" : "text-left"
                       }`}
                     >
-                      {entry.ip}
-                    </td>
-                    <td
-                      className={`py-2 ${
+                      {t("table.ip")}
+                    </th>
+                    <th
+                      className={`text-left py-2 ${
                         isArabic ? "text-right" : "text-left"
                       }`}
                     >
-                      {entry.location}
-                    </td>
-                    <td
-                      className={`py-2 ${
+                      {t("table.location")}
+                    </th>
+                    <th
+                      className={`text-left py-2 ${
                         isArabic ? "text-right" : "text-left"
                       }`}
                     >
-                      <Button variant="ghost" className="text-red-400">
-                        {t("logout")}
-                      </Button>
-                    </td>
+                      {t("table.operation")}
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {loginData.map((entry, idx) => (
+                    <tr
+                      key={idx}
+                      className="border-t border-[#0f294d] text-[#DAE6EA]"
+                    >
+                      <td
+                        className={`py-2 ${
+                          isArabic ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {entry.time}
+                      </td>
+                      <td
+                        className={`py-2 ${
+                          isArabic ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {entry.device}
+                      </td>
+                      <td
+                        className={`py-2 ${
+                          isArabic ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {entry.ip}
+                      </td>
+                      <td
+                        className={`py-2 ${
+                          isArabic ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {entry.location}
+                      </td>
+                      <td
+                        className={`py-2 ${
+                          isArabic ? "text-right" : "text-left"
+                        }`}
+                      >
+                        <Button variant="ghost" className="text-red-400">
+                          {t("logout")}
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </CardContent>
         </Card>
       </motion.div>

@@ -235,11 +235,18 @@ export default function HomePage() {
               </div>
               {/* Buttons */}
               <div className="flex gap-4 pt-2">
-                <Link href="/spot" className="w-full">
-                  <Button className="w-full rounded-full bg-[#EC3B3B] hover:bg-[#D13535] text-white shadow-none">
-                    {t("calculator.buyNow")}
-                  </Button>
-                </Link>
+                <Button
+                  onClick={() => {
+                    if (!isSignedIn) {
+                      router.push("/sign-in");
+                    } else {
+                      router.push("/dashboard/assets");
+                    }
+                  }}
+                  className="w-full rounded-full bg-[#EC3B3B] hover:bg-[#D13535] text-white shadow-none"
+                >
+                  {t("calculator.buyNow")}
+                </Button>
               </div>
             </div>
           </div>

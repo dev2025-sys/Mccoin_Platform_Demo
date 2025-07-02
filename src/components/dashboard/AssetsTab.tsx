@@ -11,6 +11,9 @@ import { BiMoneyWithdraw } from "react-icons/bi";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
+import { BuyCryptoModal } from "./BuyCryptoModal";
+
 interface Coin {
   id: string;
   symbol: string;
@@ -19,6 +22,7 @@ interface Coin {
 }
 
 export default function AssetsTab() {
+  const router = useRouter();
   const t = useTranslations("dashboard.assets");
   const isArabic = useLocale() === "ar";
   const [coins, setCoins] = useState<Coin[]>([]);
@@ -51,13 +55,17 @@ export default function AssetsTab() {
             <h2 className="text-3xl font-semibold">0 USD</h2>
           </div>
           <div className="flex items-center gap-2">
-            <Button className="bg-[#EC3B3B] hover:bg-[#d02f2f] cursor-pointer text-white w-[120px]">
+            <Button
+              onClick={() => router.push("/dashboard/deposit")}
+              className="bg-[#EC3B3B] hover:bg-[#d02f2f] cursor-pointer text-white w-[120px]"
+            >
               <Upload className="w-4 h-4 mr-2" /> {t("deposit")}
             </Button>
-            <Button className="bg-[#EC3B3B] hover:bg-[#d02f2f] cursor-pointer text-white w-[120px] flex items-center">
-              <FaBitcoin className="w-4 h-4 mr-2" /> {t("buy")}
-            </Button>
-            <Button className="bg-[#EC3B3B] hover:bg-[#d02f2f] cursor-pointer text-white w-[120px]">
+            <BuyCryptoModal />
+            <Button
+              onClick={() => router.push("/dashboard/withdraw")}
+              className="bg-[#EC3B3B] hover:bg-[#d02f2f] cursor-pointer text-white w-[120px]"
+            >
               <BiMoneyWithdraw className="w-4 h-4 mr-2" />
               <span>{t("withdraw")}</span>
             </Button>

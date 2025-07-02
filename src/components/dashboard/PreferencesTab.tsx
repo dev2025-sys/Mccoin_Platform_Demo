@@ -41,13 +41,13 @@ export default function PreferencesTab() {
         <CardContent>
           <div className="flex flex-col gap-6">
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
                 <Label className="text-[#DAE6EA]">{t("currency")}</Label>
                 <Select value={currency} onValueChange={setCurrency}>
-                  <SelectTrigger className="bg-[#0f294d] text-white w-24 px-3">
+                  <SelectTrigger className="bg-[#0f294d] text-white w-full sm:w-32 px-3">
                     <SelectValue placeholder={t("selectCurrency")} />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#081935] text-white">
+                  <SelectContent className="bg-[#081935] text-white min-w-[8rem]">
                     <SelectItem value="USD">{t("currencies.USD")}</SelectItem>
                     <SelectItem value="EUR">{t("currencies.EUR")}</SelectItem>
                     <SelectItem value="AED">{t("currencies.AED")}</SelectItem>
@@ -55,27 +55,27 @@ export default function PreferencesTab() {
                 </Select>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
                 <Label className="text-[#DAE6EA]">{t("language")}</Label>
                 <Select value={language} onValueChange={setLanguage}>
-                  <SelectTrigger className="bg-[#0f294d] text-white w-24 px-3">
+                  <SelectTrigger className="bg-[#0f294d] text-white w-full sm:w-32 px-3">
                     <SelectValue placeholder={t("selectLanguage")} />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#081935] text-white">
+                  <SelectContent className="bg-[#081935] text-white min-w-[8rem]">
                     <SelectItem value="English" dir={isArabic ? "rtl" : "ltr"}>
                       {t("languages.English")}
                     </SelectItem>
                     <SelectItem
                       value="Arabic"
                       dir={isArabic ? "rtl" : "ltr"}
-                      className="text-right"
+                      className={isArabic ? "text-right" : ""}
                     >
                       {t("languages.Arabic")}
                     </SelectItem>
                     <SelectItem
                       value="French"
                       dir={isArabic ? "rtl" : "ltr"}
-                      className="text-right"
+                      className={isArabic ? "text-right" : ""}
                     >
                       {t("languages.French")}
                     </SelectItem>
@@ -83,7 +83,7 @@ export default function PreferencesTab() {
                 </Select>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
                 <Label className="text-[#DAE6EA]">{t("darkMode")}</Label>
                 <Switch
                   checked={darkMode}
@@ -91,7 +91,8 @@ export default function PreferencesTab() {
                   className={`data-[state=checked]:bg-[#EC3B3B] 
               data-[state=unchecked]:bg-slate-500 
               data-[state=unchecked]:border 
-              data-[state=unchecked]:border-gray-400`}
+              data-[state=unchecked]:border-gray-400
+              h-6 w-11`}
                 />
               </div>
             </div>

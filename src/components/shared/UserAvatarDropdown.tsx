@@ -10,13 +10,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { LogOut, Settings, User, LogIn, UserPlus } from "lucide-react";
+import { LogOut, Settings, User, LogIn, UserPlus, Power } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import { FaRegCircleUser } from "react-icons/fa6";
+import { HiMiniArrowRightStartOnRectangle } from "react-icons/hi2";
 export default function UserAvatarDropdown() {
   const t = useTranslations("shared");
   const t2 = useTranslations("dashboard");
@@ -30,74 +30,122 @@ export default function UserAvatarDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="rounded-full outline-none">
-        <Avatar className="h-8 w-8">
+        <Avatar className="h-8 w-8 cursor-pointer">
           {isLoaded && user ? (
             <>
               <AvatarImage src={user.imageUrl} alt={user.fullName ?? ""} />
               <AvatarFallback>{user.fullName?.charAt(0)}</AvatarFallback>
             </>
           ) : (
-            <AvatarFallback>G</AvatarFallback>
+            <Power size={24} className="mt-1 text-white" />
           )}
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-44 mt-2 rounded-md bg-[#081935] text-white border border-[#0f294d] shadow-lg">
-        {isLoaded && user ? (
-          <>
-            <DropdownMenuItem
-              onClick={() => router.push("/dashboard/profile")}
-              className={`flex items-center gap-2 cursor-pointer ${
-                isArabic ? "flex-row-reverse" : "flex-row"
-              }`}
-            >
-              <User size={16} /> {t("profile")}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => router.push("/verify")}
-              className={`flex items-center gap-2 cursor-pointer ${
-                isArabic ? "flex-row-reverse" : "flex-row"
-              }`}
-            >
-              <User size={16} /> {t("verify")}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => router.push("/dashboard/preferences")}
-              className={`flex items-center gap-2 cursor-pointer ${
-                isArabic ? "flex-row-reverse" : "flex-row"
-              }`}
-            >
-              <Settings size={16} /> {t("preferences")}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator className="bg-[#0f294d]" />
-            <DropdownMenuItem
-              onClick={() => setShowLogoutPrompt(true)}
-              className={`flex items-center gap-2 text-red-500 cursor-pointer ${
-                isArabic ? "flex-row-reverse" : "flex-row"
-              }`}
-            >
-              <LogOut size={16} /> {t("logout")}
-            </DropdownMenuItem>
-          </>
-        ) : (
-          <>
-            <DropdownMenuItem
-              onClick={() => router.push("/sign-in")}
-              className={`flex items-center gap-2 cursor-pointer ${
-                isArabic ? "flex-row-reverse" : "flex-row"
-              }`}
-            >
-              <LogIn size={16} /> {t("login")}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => router.push("/sign-up")}
-              className={`flex items-center gap-2 cursor-pointer ${
-                isArabic ? "flex-row-reverse" : "flex-row"
-              }`}
-            >
-              <UserPlus size={16} /> {t("register")}
-            </DropdownMenuItem>
-          </>
-        )}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+        >
+          {isLoaded && user ? (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 }}
+              >
+                <DropdownMenuItem
+                  onClick={() => router.push("/dashboard/profile")}
+                  className={`flex items-center gap-2 cursor-pointer hover:bg-[#0f294d] transition-colors duration-200 ${
+                    isArabic ? "flex-row-reverse" : "flex-row"
+                  }`}
+                >
+                  <User size={16} /> {t("profile")}
+                </DropdownMenuItem>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.15 }}
+              >
+                <DropdownMenuItem
+                  onClick={() => router.push("/verify")}
+                  className={`flex items-center gap-2 cursor-pointer hover:bg-[#0f294d] transition-colors duration-200 ${
+                    isArabic ? "flex-row-reverse" : "flex-row"
+                  }`}
+                >
+                  <User size={16} /> {t("verify")}
+                </DropdownMenuItem>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                <DropdownMenuItem
+                  onClick={() => router.push("/dashboard/preferences")}
+                  className={`flex items-center gap-2 cursor-pointer hover:bg-[#0f294d] transition-colors duration-200 ${
+                    isArabic ? "flex-row-reverse" : "flex-row"
+                  }`}
+                >
+                  <Settings size={16} /> {t("preferences")}
+                </DropdownMenuItem>
+              </motion.div>
+
+              <DropdownMenuSeparator className="bg-[#0f294d]" />
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.25 }}
+              >
+                <DropdownMenuItem
+                  onClick={() => setShowLogoutPrompt(true)}
+                  className={`flex items-center gap-2 text-red-500 cursor-pointer hover:bg-[#0f294d] transition-colors duration-200 ${
+                    isArabic ? "flex-row-reverse" : "flex-row"
+                  }`}
+                >
+                  <LogOut size={16} /> {t("logout")}
+                </DropdownMenuItem>
+              </motion.div>
+            </>
+          ) : (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 }}
+              >
+                <DropdownMenuItem
+                  onClick={() => router.push("/sign-in")}
+                  className={`flex items-center gap-2 cursor-pointer hover:bg-[#0f294d] transition-colors duration-200 ${
+                    isArabic ? "flex-row-reverse" : "flex-row"
+                  }`}
+                >
+                  <LogIn size={16} /> {t("login")}
+                </DropdownMenuItem>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.15 }}
+              >
+                <DropdownMenuItem
+                  onClick={() => router.push("/sign-up")}
+                  className={`flex items-center gap-2 cursor-pointer hover:bg-[#0f294d] transition-colors duration-200 ${
+                    isArabic ? "flex-row-reverse" : "flex-row"
+                  }`}
+                >
+                  <UserPlus size={16} /> {t("register")}
+                </DropdownMenuItem>
+              </motion.div>
+            </>
+          )}
+        </motion.div>
       </DropdownMenuContent>
       <AnimatePresence>
         {showLogoutPrompt && (

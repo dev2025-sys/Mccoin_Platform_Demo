@@ -92,216 +92,236 @@ export default function OrdersHistoryTab() {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Filters */}
-          <div className="flex flex-wrap items-center gap-4 text-[#DAE6EA]">
-            <div className="flex items-center gap-2">
-              <span className="text-sm">{t("filters.orderType")}</span>
-              <Select
-                onValueChange={(value) =>
-                  setFilters({ ...filters, type: value })
-                }
-              >
-                <SelectTrigger className="w-[110px] bg-[#0f294d] text-white border border-[#DAE6EA]">
-                  <SelectValue placeholder={t("filters.all")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("filters.all")}</SelectItem>
-                  <SelectItem value="limit">{t("filters.limit")}</SelectItem>
-                  <SelectItem value="market">{t("filters.market")}</SelectItem>
-                </SelectContent>
-              </Select>
+          <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4 text-[#DAE6EA]">
+            <div className="grid grid-cols-2 sm:flex items-center gap-4 w-full sm:w-auto">
+              <div className="flex items-center gap-2">
+                <span className="text-sm whitespace-nowrap">
+                  {t("filters.orderType")}
+                </span>
+                <Select
+                  onValueChange={(value) =>
+                    setFilters({ ...filters, type: value })
+                  }
+                >
+                  <SelectTrigger className="w-[110px] bg-[#0f294d] text-white border border-[#DAE6EA]">
+                    <SelectValue placeholder={t("filters.all")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t("filters.all")}</SelectItem>
+                    <SelectItem value="limit">{t("filters.limit")}</SelectItem>
+                    <SelectItem value="market">
+                      {t("filters.market")}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-sm whitespace-nowrap">
+                  {t("filters.market")}
+                </span>
+                <Select
+                  onValueChange={(value) =>
+                    setFilters({ ...filters, market: value })
+                  }
+                >
+                  <SelectTrigger className="w-[110px] bg-[#0f294d] text-white border border-[#DAE6EA]">
+                    <SelectValue placeholder={t("filters.all")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t("filters.all")}</SelectItem>
+                    <SelectItem value="btc">BTC</SelectItem>
+                    <SelectItem value="eth">ETH</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-sm">{t("filters.market")}</span>
-              <Select
-                onValueChange={(value) =>
-                  setFilters({ ...filters, market: value })
-                }
-              >
-                <SelectTrigger className="w-[110px] bg-[#0f294d] text-white border border-[#DAE6EA]">
-                  <SelectValue placeholder={t("filters.all")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("filters.all")}</SelectItem>
-                  <SelectItem value="btc">BTC</SelectItem>
-                  <SelectItem value="eth">ETH</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 sm:flex items-center gap-4 w-full sm:w-auto">
+              <div className="flex items-center gap-2">
+                <span className="text-sm whitespace-nowrap">
+                  {t("filters.side")}
+                </span>
+                <Select
+                  onValueChange={(value) =>
+                    setFilters({ ...filters, side: value })
+                  }
+                >
+                  <SelectTrigger className="w-[110px] bg-[#0f294d] text-white border border-[#DAE6EA]">
+                    <SelectValue placeholder={t("filters.all")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t("filters.all")}</SelectItem>
+                    <SelectItem value="buy">{t("filters.buy")}</SelectItem>
+                    <SelectItem value="sell">{t("filters.sell")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-sm whitespace-nowrap">
+                  {t("filters.time")}
+                </span>
+                <Select
+                  onValueChange={(value) =>
+                    setFilters({ ...filters, time: value })
+                  }
+                >
+                  <SelectTrigger className="w-[110px] bg-[#0f294d] text-white border border-[#DAE6EA]">
+                    <SelectValue placeholder={t("filters.all")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t("filters.all")}</SelectItem>
+                    <SelectItem value="24h">{t("filters.24h")}</SelectItem>
+                    <SelectItem value="7d">{t("filters.7d")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-sm">{t("filters.side")}</span>
-              <Select
-                onValueChange={(value) =>
-                  setFilters({ ...filters, side: value })
-                }
-              >
-                <SelectTrigger className="w-[110px] bg-[#0f294d] text-white border border-[#DAE6EA]">
-                  <SelectValue placeholder={t("filters.all")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("filters.all")}</SelectItem>
-                  <SelectItem value="buy">{t("filters.buy")}</SelectItem>
-                  <SelectItem value="sell">{t("filters.sell")}</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-4 w-full sm:w-auto">
+              <div className="relative w-full sm:w-auto">
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-auto flex gap-2 bg-[#0f294d] text-white border border-slate-500"
+                  onClick={() => setShowCalendar(!showCalendar)}
+                >
+                  <CalendarIcon size={16} />
+                  {date ? format(date, "dd MMM yyyy") : "Pick a date"}
+                </Button>
+                {showCalendar && (
+                  <div className="absolute z-50 mt-2 left-0 sm:left-auto right-0 sm:right-auto rounded-md shadow-lg bg-[#0f294d] p-2 border border-slate-600">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={(d) => {
+                        setDate(d);
+                        setShowCalendar(false);
+                      }}
+                      className="rounded-md bg-[#081935] text-white border border-slate-600"
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <Button
+                  onClick={clearFilters}
+                  variant="outline"
+                  className="flex-1 sm:flex-none text-red-600 border border-red-400 hover:bg-white hover:text-[#081935]"
+                >
+                  {t("filters.clear")}
+                </Button>
+                <Button
+                  onClick={handleExport}
+                  variant="ghost"
+                  className="flex-1 sm:flex-none text-red-500 border border-red-500 hover:bg-red-600 hover:text-white"
+                >
+                  {t("filters.export")}
+                </Button>
+              </div>
             </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-sm">{t("filters.time")}</span>
-              <Select
-                onValueChange={(value) =>
-                  setFilters({ ...filters, time: value })
-                }
-              >
-                <SelectTrigger className="w-[110px] bg-[#0f294d] text-white border border-[#DAE6EA]">
-                  <SelectValue placeholder={t("filters.all")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("filters.all")}</SelectItem>
-                  <SelectItem value="24h">{t("filters.24h")}</SelectItem>
-                  <SelectItem value="7d">{t("filters.7d")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="relative">
-              <Button
-                variant="outline"
-                className="flex gap-2 bg-[#0f294d] text-white border border-slate-500"
-                onClick={() => setShowCalendar(!showCalendar)}
-              >
-                <CalendarIcon size={16} />
-                {date ? format(date, "dd MMM yyyy") : "Pick a date"}
-              </Button>
-              {showCalendar && (
-                <div className="absolute z-50 mt-2 rounded-md shadow-lg bg-[#0f294d] p-2 border border-slate-600">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={(d) => {
-                      setDate(d);
-                      setShowCalendar(false);
-                    }}
-                    className="rounded-md bg-[#081935] text-white border border-slate-600"
-                  />
-                </div>
-              )}
-            </div>
-            <Button
-              onClick={clearFilters}
-              variant="outline"
-              className="text-red-600 border border-red-400  hover:bg-white hover:text-[#081935]"
-            >
-              {t("filters.clear")}
-            </Button>
-            <Button
-              onClick={handleExport}
-              variant="ghost"
-              className="text-red-500 border border-red-500 hover:bg-red-600 hover:text-white"
-            >
-              {t("filters.export")}
-            </Button>
           </div>
 
           {/* Table or Empty State */}
           {filteredOrders.length === 0 ? (
-            <div className="text-center py-16">
+            <div className="text-center py-8 sm:py-16">
               <Image
                 src="/images/nothing-here.svg"
                 alt="Nothing here"
                 width={300}
                 height={100}
-                className="mx-auto mb-4"
+                className="mx-auto mb-4 w-48 sm:w-auto"
               />
               <p className="text-[#DAE6EA] text-lg">{t("empty.message")}</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-white">
-                <thead className="text-[#DAE6EA]/80 font-light">
-                  <tr className="font-light">
-                    <th
-                      className={`text-left py-2 font-light ${
-                        isArabic ? "text-right" : "text-left"
-                      }`}
-                    >
-                      {t("table.time")}
-                    </th>
-                    <th
-                      className={`text-left py-2 font-light ${
-                        isArabic ? "text-right" : "text-left"
-                      }`}
-                    >
-                      {t("table.currency")}
-                    </th>
-                    <th
-                      className={`text-left py-2 font-light ${
-                        isArabic ? "text-right" : "text-left"
-                      }`}
-                    >
-                      {t("table.amount")}
-                    </th>
-                    <th
-                      className={`text-left py-2 font-light ${
-                        isArabic ? "text-right" : "text-left"
-                      }`}
-                    >
-                      {t("table.network")}
-                    </th>
-                    <th
-                      className={`text-left py-2 font-light ${
-                        isArabic ? "text-right" : "text-left"
-                      }`}
-                    >
-                      {t("table.blockConfirmation")}
-                    </th>
-                    <th
-                      className={`text-left py-2 font-light ${
-                        isArabic ? "text-right" : "text-left"
-                      }`}
-                    >
-                      {t("table.depositAddress")}
-                    </th>
-                    <th
-                      className={`text-left py-2 font-light ${
-                        isArabic ? "text-right" : "text-left"
-                      }`}
-                    >
-                      {t("table.transactionId")}
-                    </th>
-                    <th
-                      className={`text-left py-2 font-light ${
-                        isArabic ? "text-right" : "text-left"
-                      }`}
-                    >
-                      {t("table.depositId")}
-                    </th>
-                    <th
-                      className={`text-left py-2 font-light ${
-                        isArabic ? "text-right" : "text-left"
-                      }`}
-                    >
-                      {t("table.state")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredOrders.map((entry, idx) => (
-                    <tr key={idx} className="border-t border-[#0f294d]">
-                      <td className="py-2">{entry.time}</td>
-                      <td>{entry.currency}</td>
-                      <td>{entry.amount}</td>
-                      <td>{entry.network}</td>
-                      <td>{entry.blockConfirmation}</td>
-                      <td>{entry.depositAddress}</td>
-                      <td>{entry.transactionId}</td>
-                      <td>{entry.depositId}</td>
-                      <td>{entry.state}</td>
+            <div className="overflow-x-auto -mx-6 sm:mx-0">
+              <div className="min-w-[900px] px-6 sm:px-0">
+                <table className="w-full text-sm text-white">
+                  <thead className="text-[#DAE6EA]/80 font-light">
+                    <tr className="font-light">
+                      <th
+                        className={`text-left py-2 font-light ${
+                          isArabic ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {t("table.time")}
+                      </th>
+                      <th
+                        className={`text-left py-2 font-light ${
+                          isArabic ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {t("table.currency")}
+                      </th>
+                      <th
+                        className={`text-left py-2 font-light ${
+                          isArabic ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {t("table.amount")}
+                      </th>
+                      <th
+                        className={`text-left py-2 font-light ${
+                          isArabic ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {t("table.network")}
+                      </th>
+                      <th
+                        className={`text-left py-2 font-light ${
+                          isArabic ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {t("table.blockConfirmation")}
+                      </th>
+                      <th
+                        className={`text-left py-2 font-light ${
+                          isArabic ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {t("table.depositAddress")}
+                      </th>
+                      <th
+                        className={`text-left py-2 font-light ${
+                          isArabic ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {t("table.transactionId")}
+                      </th>
+                      <th
+                        className={`text-left py-2 font-light ${
+                          isArabic ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {t("table.depositId")}
+                      </th>
+                      <th
+                        className={`text-left py-2 font-light ${
+                          isArabic ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {t("table.state")}
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {filteredOrders.map((entry, idx) => (
+                      <tr key={idx} className="border-t border-[#0f294d]">
+                        <td className="py-2">{entry.time}</td>
+                        <td>{entry.currency}</td>
+                        <td>{entry.amount}</td>
+                        <td>{entry.network}</td>
+                        <td>{entry.blockConfirmation}</td>
+                        <td>{entry.depositAddress}</td>
+                        <td>{entry.transactionId}</td>
+                        <td>{entry.depositId}</td>
+                        <td>{entry.state}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </CardContent>

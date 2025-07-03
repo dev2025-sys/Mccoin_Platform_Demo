@@ -25,9 +25,9 @@ import toast from "react-hot-toast";
 
 // Crypto exchange rates (can be replaced with API calls)
 const EXCHANGE_RATES = {
-  BTC: { USD: 68542.73, EUR: 63500.52, AED: 251753.82 },
-  ETH: { USD: 3821.45, EUR: 3542.89, AED: 14034.72 },
-  SOL: { USD: 142.67, EUR: 132.23, AED: 523.96 },
+  BTC: { USD: 109375, EUR: 100000, AED: 390000 },
+  ETH: { USD: 2589.8, EUR: 2300, AED: 9000 },
+  SOL: { USD: 155.65, EUR: 132.23, AED: 523.96 },
 };
 
 export default function HomePage() {

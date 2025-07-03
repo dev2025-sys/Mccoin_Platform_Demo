@@ -107,7 +107,7 @@ export function TopNewsHero() {
 
           {/* Content */}
           <div className="relative h-full flex flex-col justify-end md:justify-center p-4 md:p-8 text-white">
-            <div className="max-w-2xl bg-[#07153b]/70 md:bg-transparent p-4 md:p-0 rounded-lg md:rounded-none">
+            {/* <div className="max-w-2xl bg-[#07153b]/70 md:bg-transparent p-4 md:p-0 rounded-lg md:rounded-none">
               <Badge className="mb-2 md:mb-4 bg-[#ffb400] hover:bg-[#ffb400]/90">
                 Hot Updates
               </Badge>
@@ -137,7 +137,7 @@ export function TopNewsHero() {
                 <span className="mx-2">•</span>
                 <span>{articles[activeIndex]?.source?.name}</span>
               </motion.div>
-            </div>
+            </div> */}
 
             {/* Swiper-based news list */}
             <div className="absolute right-0 bottom-0 md:right-8 md:bottom-auto md:top-1/2 md:transform md:-translate-y-1/2 w-full md:w-[25%] px-4 md:px-0 py-3 md:py-0">

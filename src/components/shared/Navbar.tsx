@@ -35,6 +35,13 @@ const Navbar = () => {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex gap-10 text-sm tracking-wide text-[#DAE6EA]">
+          <Link
+            target="_blank"
+            href="https://mc-coin-new-website.vercel.app/en"
+            className="text-white"
+          >
+            {t("home")}
+          </Link>
           <NavLink href="/market-overview" label={t("market")} />
           {isLoaded && user && <NavLink href="/spot" label={t("spot")} />}
           <NavLink href="/news" label={t("news")} />
@@ -85,6 +92,14 @@ const Navbar = () => {
               className="absolute right-0 top-16 w-64 bg-[#07153B] h-[calc(100vh-4rem)] shadow-xl"
             >
               <div className="flex flex-col p-4 space-y-4 text-[#DAE6EA]">
+                <Link
+                  target="_blank"
+                  href="https://mc-coin-new-website.vercel.app/en"
+                  onClick={closeMobileMenu}
+                  className={`px-4 py-2 rounded-md transition-colors duration-200 text-white`}
+                >
+                  {t("home")}
+                </Link>
                 <Link
                   href="/market-overview"
                   onClick={closeMobileMenu}

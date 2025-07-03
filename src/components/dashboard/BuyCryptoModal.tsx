@@ -136,7 +136,7 @@ export function BuyCryptoModal() {
             <FaBitcoin className="w-4 h-4 mr-2" /> Buy Crypto
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px] bg-[#DAE6EA]">
+        <DialogContent className="sm:max-w-[425px] bg-[#DAE6EA] max-h-[90vh] overflow-y-auto w-full p-4 sm:p-8">
           <DialogHeader>
             <DialogTitle className="text-[#07153B] text-xl font-semibold flex items-center gap-2">
               <FaBitcoin className="w-6 h-6 text-[#EC3B3B]" />
@@ -144,7 +144,10 @@ export function BuyCryptoModal() {
             </DialogTitle>
           </DialogHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4 sm:space-y-6"
+            >
               <FormField
                 control={form.control}
                 name="cryptocurrency"
@@ -165,7 +168,7 @@ export function BuyCryptoModal() {
                       }}
                     >
                       <FormControl>
-                        <SelectTrigger className="bg-white border-2 border-[#07153B]/10 focus:border-[#EC3B3B] focus:ring-[#EC3B3B] h-12">
+                        <SelectTrigger className="bg-white border-2 border-[#07153B]/10 focus:border-[#EC3B3B] focus:ring-[#EC3B3B] h-12 w-full">
                           <SelectValue placeholder="Select a cryptocurrency" />
                         </SelectTrigger>
                       </FormControl>
@@ -200,7 +203,7 @@ export function BuyCryptoModal() {
                         <Input
                           type="number"
                           placeholder="Enter amount (min $10)"
-                          className="bg-white pl-10 border-2 border-[#07153B]/10 focus:border-[#EC3B3B] focus:ring-[#EC3B3B] h-12"
+                          className="bg-white pl-10 border-2 border-[#07153B]/10 focus:border-[#EC3B3B] focus:ring-[#EC3B3B] h-12 w-full"
                           min="10"
                           {...field}
                           onChange={(e) => {
@@ -231,7 +234,7 @@ export function BuyCryptoModal() {
                     value={`${estimatedAmount} ${
                       form.getValues("cryptocurrency") || "---"
                     }`}
-                    className="bg-white pl-10 border-2 border-[#07153B]/10 h-12"
+                    className="bg-white pl-10 border-2 border-[#07153B]/10 h-12 w-full"
                     readOnly
                   />
                   {form.getValues("cryptocurrency") && (
@@ -301,18 +304,18 @@ export function BuyCryptoModal() {
                 )}
               />
 
-              <div className="flex justify-end space-x-2 pt-4">
+              <div className="flex flex-col sm:flex-row justify-end sm:space-x-2 space-y-2 sm:space-y-0 pt-4 w-full">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setOpen(false)}
-                  className="bg-white border-2 border-[#07153B]/10 hover:bg-[#07153B]/5"
+                  className="bg-white border-2 border-[#07153B]/10 hover:bg-[#07153B]/5 w-full sm:w-auto"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  className="bg-[#EC3B3B] hover:bg-[#d02f2f] text-white"
+                  className="bg-[#EC3B3B] hover:bg-[#d02f2f] text-white w-full sm:w-auto"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (

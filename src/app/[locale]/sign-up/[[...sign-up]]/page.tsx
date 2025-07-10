@@ -18,6 +18,7 @@ import RotatingIcons from "@/components/custom/RotatingIcons";
 import { FaArrowLeft } from "react-icons/fa";
 import { FaArrowRight } from "react-icons/fa";
 import { useLocale } from "next-intl";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const signUpSchema = z
   .object({
@@ -47,6 +48,10 @@ export default function SignUpPage() {
   const [pendingVerification, setPendingVerification] = useState(false);
   const [emailAddress, setEmailAddress] = useState("");
   const [loading, setLoading] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [recaptchaError, setRecaptchaError] = useState<string | null>(null);
+
+  const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 
   const {
     register,
@@ -74,11 +79,18 @@ export default function SignUpPage() {
 
   const onSignUp = async (data: any) => {
     if (!isLoaded) return;
+    if (!recaptchaToken) {
+      setRecaptchaError("Please complete the reCAPTCHA challenge.");
+      return;
+    }
+    setRecaptchaError(null);
     try {
       setLoading(true);
+      // Optionally, send recaptchaToken to your backend for verification here
       await signUp.create({
         emailAddress: data.email,
         password: data.password,
+        // recaptchaToken, // (future: send to backend)
       });
 
       await signUp.prepareEmailAddressVerification({
@@ -257,7 +269,19 @@ export default function SignUpPage() {
               )}
             </div>
 
-            <div id="clerk-captcha" className="mt-2" />
+            <div className="flex flex-col gap-2">
+              <ReCAPTCHA
+                sitekey={RECAPTCHA_SITE_KEY}
+                onChange={(token: string | null) => {
+                  setRecaptchaToken(token);
+                  setRecaptchaError(null);
+                }}
+                onExpired={() => setRecaptchaToken(null)}
+              />
+              {recaptchaError && (
+                <span className="text-red-500 text-xs">{recaptchaError}</span>
+              )}
+            </div>
 
             <Button
               className="w-full bg-[#EC3B3B] hover:bg-red-600 transition-all duration-200 p-6"

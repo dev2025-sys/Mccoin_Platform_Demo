@@ -11,7 +11,7 @@ export default function MarketStats({ title, type, data }: MarketStatsProps) {
   const t = useTranslations("marketOverview.marketStats");
   return (
     <div className="bg-[#050E27] rounded-lg p-4">
-      <h2 className="text-lg font-medium mb-4">{t("title")}</h2>
+      <h2 className="text-lg font-medium mb-4">{title}</h2>
 
       {/* Header */}
       <div className="grid grid-cols-12 text-xs text-slate-400 mb-2 px-2">

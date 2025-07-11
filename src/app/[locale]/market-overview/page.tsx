@@ -19,6 +19,7 @@ import Navbar from "@/components/shared/Navbar";
 import Image from "next/image";
 import Footer from "@/components/shared/Footer";
 import { useTranslations } from "next-intl";
+import PricesTable from "@/components/market-overview/PricesTable";
 
 export default function MarketOverview() {
   const t = useTranslations("marketOverview");
@@ -73,18 +74,21 @@ export default function MarketOverview() {
   return (
     <section className="bg-[#07153b]">
       <Navbar />
-      <main className="min-h-screen bg-[#07153b] text-white py-6 max-w-[70%] mx-auto">
-        <div className="flex items-center gap-2 mb-6">
+      <main className="min-h-screen bg-[#07153b] px-4 xl:px-0 text-white py-6 xl:max-w-[70%] mx-auto">
+        <div className="flex items-center gap-2 xl:px-0 px-4">
           <Image
             src="/images/market_icon.svg"
             alt="Market Overview"
             width={30}
             height={30}
-            className="mt-[-1rem]"
+            className=""
           />
-          <h1 className="text-2xl font-semibold mb-6">{t("title")}</h1>
+          <h1 className="text-2xl font-semibold">{t("title")}</h1>
         </div>
-
+        <PricesTable />
+        <h1 className="text-center text-3xl text-[#FFF] font-semibold mb-4">
+          Market Analysis
+        </h1>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Top Gainers */}
           <TopMovers title={t("topGainers")} type="gainers" data={gainers} />
@@ -103,14 +107,14 @@ export default function MarketOverview() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           {/* Market Cap */}
           <MarketStats
-            title={t("marketCap")}
+            title="Market Cap"
             type="market-cap"
             data={marketCapLeaders}
           />
 
-          {/* Top Searchers */}
+          {/* Market Volume */}
           <MarketStats
-            title={t("topVolume")}
+            title="Market Volume"
             type="top-search"
             data={volumeLeaders}
           />

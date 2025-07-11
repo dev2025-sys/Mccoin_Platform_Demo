@@ -172,7 +172,11 @@ export default function PricesTable() {
                     </div>
                   </th>
                 ))}
-                <th className="py-4 px-2 select-none">Wishlist</th>
+                {isSignedIn ? (
+                  <th className="py-4 px-2 select-none">Wishlist</th>
+                ) : (
+                  ""
+                )}
               </tr>
             </thead>
             <tbody>
@@ -246,24 +250,28 @@ export default function PricesTable() {
                           positive={coin.percent_change_7d >= 0}
                         />
                       </td>
-                      <td className="p-2 text-center">
-                        <motion.button
-                          whileTap={{ scale: 0.8 }}
-                          onClick={() => toggleWishlist(coin)}
-                          aria-label={
-                            wishlist.some((c) => c.id === coin.id)
-                              ? "Remove from wishlist"
-                              : "Add to wishlist"
-                          }
-                          className="focus:outline-none"
-                        >
-                          {wishlist.some((c) => c.id === coin.id) ? (
-                            <Star className="w-6 h-6 text-yellow-400 fill-yellow-400" />
-                          ) : (
-                            <Star className="w-6 h-6 text-[#DAE6EA]" />
-                          )}
-                        </motion.button>
-                      </td>
+                      {isSignedIn ? (
+                        <td className="p-2 text-center">
+                          <motion.button
+                            whileTap={{ scale: 0.8 }}
+                            onClick={() => toggleWishlist(coin)}
+                            aria-label={
+                              wishlist.some((c) => c.id === coin.id)
+                                ? "Remove from wishlist"
+                                : "Add to wishlist"
+                            }
+                            className="focus:outline-none"
+                          >
+                            {wishlist.some((c) => c.id === coin.id) ? (
+                              <Star className="w-6 h-6 text-yellow-400 fill-yellow-400" />
+                            ) : (
+                              <Star className="w-6 h-6 text-[#DAE6EA]" />
+                            )}
+                          </motion.button>
+                        </td>
+                      ) : (
+                        ""
+                      )}
                     </tr>
                   ))}
             </tbody>

@@ -17,6 +17,7 @@ import Image from "next/image";
 import { useLocale } from "next-intl";
 import { FaArrowLeft } from "react-icons/fa";
 import { FaArrowRight } from "react-icons/fa";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -32,6 +33,9 @@ export default function SignInPage() {
   const { push } = useRouter();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [recaptchaError, setRecaptchaError] = useState<string | null>(null);
+  const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
   useEffect(() => {
     if (isSignedIn) {
       router.replace("/");
@@ -45,11 +49,18 @@ export default function SignInPage() {
 
   const onSubmit = async (data: any) => {
     if (!isLoaded) return;
+    if (!recaptchaToken) {
+      setRecaptchaError("Please complete the reCAPTCHA challenge.");
+      return;
+    }
+    setRecaptchaError(null);
     try {
       setLoading(true);
+      // Optionally, send recaptchaToken to your backend for verification here
       const result = await signIn.create({
         identifier: data.email,
         password: data.password,
+        // recaptchaToken, // (future: send to backend)
       });
 
       if (result.status === "complete") {
@@ -227,6 +238,21 @@ export default function SignInPage() {
             </div>
             {errors.password && (
               <p className="text-red-400 text-sm">{errors.password.message}</p>
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="w-full flex justify-center">
+              <ReCAPTCHA
+                sitekey={RECAPTCHA_SITE_KEY}
+                onChange={(token: string | null) => {
+                  setRecaptchaToken(token);
+                  setRecaptchaError(null);
+                }}
+                onExpired={() => setRecaptchaToken(null)}
+              />
+            </div>
+            {recaptchaError && (
+              <span className="text-red-500 text-xs">{recaptchaError}</span>
             )}
           </div>
 

@@ -137,7 +137,7 @@ export default function SignUpPage() {
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="w-full max-w-md md:h-[600px] p-6 space-y-6 shadow-2xl backdrop-blur-sm"
+        className="w-full max-w-md md:h-[700px] p-6 space-y-6 shadow-2xl backdrop-blur-sm"
         style={{
           background: "linear-gradient(135deg, #1A0A2E 0%, #2A1A4A 100%)",
           boxShadow: "0px 10px 25px rgba(0, 0, 0, 0.3)",
@@ -188,7 +188,7 @@ export default function SignUpPage() {
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="w-full h-[600px] max-w-md pt-12 px-6 space-y-6 bg-[#050E27] shadow-xl"
+        className="w-full h-[700px] max-w-md pt-12 px-6 space-y-6 bg-[#050E27] shadow-xl"
       >
         <div>
           <Image
@@ -270,14 +270,16 @@ export default function SignUpPage() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <ReCAPTCHA
-                sitekey={RECAPTCHA_SITE_KEY}
-                onChange={(token: string | null) => {
-                  setRecaptchaToken(token);
-                  setRecaptchaError(null);
-                }}
-                onExpired={() => setRecaptchaToken(null)}
-              />
+              <div className="w-full flex justify-center">
+                <ReCAPTCHA
+                  sitekey={RECAPTCHA_SITE_KEY}
+                  onChange={(token: string | null) => {
+                    setRecaptchaToken(token);
+                    setRecaptchaError(null);
+                  }}
+                  onExpired={() => setRecaptchaToken(null)}
+                />
+              </div>
               {recaptchaError && (
                 <span className="text-red-500 text-xs">{recaptchaError}</span>
               )}

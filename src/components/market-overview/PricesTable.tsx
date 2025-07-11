@@ -125,7 +125,7 @@ export default function PricesTable() {
 
   return (
     <section className="mx-auto py-8 px-4 xl:px-0 flex lg:flex-row flex-col gap-2">
-      <div className="lg:flex-[3]">
+      <div className={`${isSignedIn ? "lg:flex-[3]" : "w-full"}`}>
         <div className="flex justify-start items-center">
           <Input
             placeholder="Search any column..."
@@ -293,8 +293,12 @@ export default function PricesTable() {
           </button>
         </div>
       </div>
-      <div className="lg:flex-[1.5]">
-        <CoinsWishlistTable wishlist={wishlist} loading={loading} />
+      <div className={`${isSignedIn ? "lg:flex-[1.5]" : ""}`}>
+        {isSignedIn ? (
+          <CoinsWishlistTable wishlist={wishlist} loading={loading} />
+        ) : (
+          ""
+        )}
       </div>
     </section>
   );

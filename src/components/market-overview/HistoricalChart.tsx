@@ -6,9 +6,32 @@ interface HistoricalChartProps {
   title: string;
 }
 
+// Generate time labels based on timeframe
+const generateTimeLabels = (timeframe: string, count: number) => {
+  const now = new Date();
+  const labels = [];
+  
+  // Define intervals in minutes
+  const intervals = {
+    "6h": 360 / count, // 6 hours divided by number of points
+    "24h": 1440 / count, // 24 hours divided by number of points
+    "7d": 10080 / count, // 7 days divided by number of points
+    "30d": 43200 / count, // 30 days divided by number of points
+  };
+  
+  const intervalMinutes = intervals[timeframe as keyof typeof intervals] || intervals["6h"];
+  
+  for (let i = count - 1; i >= 0; i--) {
+    const time = new Date(now.getTime() - i * intervalMinutes * 60 * 1000);
+    labels.push(time);
+  }
+  
+  return labels;
+};
+
 // Mock data to match the design
 const mockData = {
-  labels: Array.from({ length: 50 }, (_, i) => i), // More data points for smoother lines
+  labels: generateTimeLabels("6h", 50), // Generate time labels instead of numbers
   datasets: [
     {
       label: "BTC",
@@ -100,10 +123,16 @@ export default function HistoricalChart({ title }: HistoricalChartProps) {
 
     const ctx = canvasRef.current.getContext("2d");
     if (!ctx) return;
+    
+    // Update labels when timeframe changes
+    const updatedData = {
+      ...mockData,
+      labels: generateTimeLabels(timeframe, 50),
+    };
 
     const config: ChartConfiguration = {
       type: "line",
-      data: mockData,
+      data: updatedData,
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -122,6 +151,16 @@ export default function HistoricalChart({ title }: HistoricalChartProps) {
                 size: 11,
                 weight: 500,
               },
+              maxRotation: 0,
+              autoSkip: true,
+              maxTicksLimit: 8,
+              // Format time as HH:MM
+              callback: function(value: any, index: number, ticks: any) {
+                const date = new Date(value);
+                const hours = date.getHours().toString().padStart(2, '0');
+                const minutes = date.getMinutes().toString().padStart(2, '0');
+                return `${hours}:${minutes}`;
+              }
             },
             border: {
               display: false,

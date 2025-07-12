@@ -6,9 +6,41 @@ interface HistoricalChartProps {
   title: string;
 }
 
+// Generate timestamps based on timeframe
+const generateTimestamps = (count: number, timeframe: string) => {
+  const timestamps = [];
+  const now = new Date();
+  
+  let totalMinutes;
+  switch (timeframe) {
+    case "6h":
+      totalMinutes = 6 * 60;
+      break;
+    case "24h":
+      totalMinutes = 24 * 60;
+      break;
+    case "7d":
+      totalMinutes = 7 * 24 * 60;
+      break;
+    case "30d":
+      totalMinutes = 30 * 24 * 60;
+      break;
+    default:
+      totalMinutes = 6 * 60;
+  }
+  
+  const intervalMinutes = totalMinutes / count;
+  
+  for (let i = count - 1; i >= 0; i--) {
+    const time = new Date(now.getTime() - i * intervalMinutes * 60 * 1000);
+    timestamps.push(time);
+  }
+  return timestamps;
+};
+
 // Mock data to match the design
 const mockData = {
-  labels: Array.from({ length: 50 }, (_, i) => i), // More data points for smoother lines
+  labels: generateTimestamps(50, "6h"), // Generate 50 timestamps over 24 hours
   datasets: [
     {
       label: "BTC",
@@ -101,9 +133,15 @@ export default function HistoricalChart({ title }: HistoricalChartProps) {
     const ctx = canvasRef.current.getContext("2d");
     if (!ctx) return;
 
+    // Generate data with current timeframe
+    const chartData = {
+      labels: generateTimestamps(50, timeframe),
+      datasets: mockData.datasets,
+    };
+
     const config: ChartConfiguration = {
       type: "line",
-      data: mockData,
+      data: chartData,
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -113,6 +151,14 @@ export default function HistoricalChart({ title }: HistoricalChartProps) {
         },
         scales: {
           x: {
+            type: "time",
+            time: {
+              displayFormats: {
+                hour: "HH:mm",
+                minute: "HH:mm",
+              },
+              tooltipFormat: "HH:mm",
+            },
             grid: {
               display: false,
             },
@@ -122,6 +168,7 @@ export default function HistoricalChart({ title }: HistoricalChartProps) {
                 size: 11,
                 weight: 500,
               },
+              maxTicksLimit: 8, // Limit number of ticks for better readability
             },
             border: {
               display: false,

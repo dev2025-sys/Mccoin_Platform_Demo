@@ -128,6 +128,14 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
         borderColor: "#334155",
         timeVisible: true,
         secondsVisible: false,
+        tickMarkFormatter: (time: number) => {
+          const date = new Date(time * 1000);
+          return date.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false 
+          });
+        },
       },
     });
 

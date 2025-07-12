@@ -8,7 +8,13 @@ interface HistoricalChartProps {
 
 // Mock data to match the design
 const mockData = {
-  labels: Array.from({ length: 50 }, (_, i) => i), // More data points for smoother lines
+  labels: Array.from({ length: 50 }, (_, i) => {
+    const date = new Date();
+    date.setHours(date.getHours() - (50 - i));
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }), // Time labels in HH:MM format
   datasets: [
     {
       label: "BTC",

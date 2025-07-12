@@ -25,9 +25,11 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
   const t = useTranslations("spot.tradingChart");
   useEffect(() => {
     if (state.currentPrice.timestamp) {
-      setLastUpdate(
-        new Date(state.currentPrice.timestamp).toLocaleTimeString()
-      );
+      const date = new Date(state.currentPrice.timestamp);
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      const seconds = date.getSeconds().toString().padStart(2, '0');
+      setLastUpdate(`${hours}:${minutes}:${seconds}`);
     }
   }, [state.currentPrice.timestamp]);
 
@@ -128,6 +130,14 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
         borderColor: "#334155",
         timeVisible: true,
         secondsVisible: false,
+      },
+      localization: {
+        timeFormatter: (time: number) => {
+          const date = new Date(time * 1000);
+          const hours = date.getHours().toString().padStart(2, '0');
+          const minutes = date.getMinutes().toString().padStart(2, '0');
+          return `${hours}:${minutes}`;
+        },
       },
     });
 

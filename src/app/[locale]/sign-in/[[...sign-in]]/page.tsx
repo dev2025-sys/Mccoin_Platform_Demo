@@ -49,10 +49,10 @@ export default function SignInPage() {
 
   const onSubmit = async (data: any) => {
     if (!isLoaded) return;
-    // if (!recaptchaToken) {
-    //   setRecaptchaError("Please complete the reCAPTCHA challenge.");
-    //   return;
-    // }
+    if (!recaptchaToken) {
+      setRecaptchaError("Please complete the reCAPTCHA challenge.");
+      return;
+    }
     setRecaptchaError(null);
     try {
       setLoading(true);

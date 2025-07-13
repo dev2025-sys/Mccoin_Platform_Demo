@@ -40,7 +40,7 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen bg-[#07153B] text-white">
       <Navbar />
-      <div className="flex md:flex-row flex-col">
+      <div className="flex lg:flex-row flex-col">
         <Sidebar />
         <main className="flex-1 p-6">{children}</main>
       </div>

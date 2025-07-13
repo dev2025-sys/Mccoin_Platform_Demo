@@ -27,7 +27,7 @@ const Sidebar = () => {
   const isActive = (path: string) => pathname === `/${locale}${path}`;
 
   return (
-    <aside className="w-full md:w-64 bg-[#081935] p-4 space-y-4 shadow-2xl">
+    <aside className="w-full lg:w-64 bg-[#081935] p-4 space-y-4 shadow-2xl">
       <nav className="space-y-2">
         {/* My Profile */}
         <Link

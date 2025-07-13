@@ -1,5 +1,6 @@
-import AssetsTab from "@/components/dashboard/AssetsTab";
+import { redirect } from "next/navigation";
 
 export default function AssetsPage() {
-  return <AssetsTab />;
+  redirect("/dashboard/assets/overview");
+  return null;
 }

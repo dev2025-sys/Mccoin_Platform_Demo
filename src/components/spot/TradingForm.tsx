@@ -1,8 +1,9 @@
 import { useTrading } from "@/context/TradingContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import type React from "react";
 import { toast } from "react-hot-toast";
+import { useBalanceManager } from "@/lib/balance-manager";
 
 interface SliderProps {
   value: number;
@@ -113,8 +114,25 @@ const Slider: React.FC<SliderProps> = ({
 
 const TradingForm: React.FC = () => {
   const { state, placeOrder } = useTrading();
+  const { balances } = useBalanceManager();
   const t = useTranslations("spot.tradingForm");
   const [activeTab, setActiveTab] = useState<"limit" | "market">("limit");
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Get trading account balances from local storage (unified with dashboard)
+  const tradingBalances = useMemo(
+    () => ({
+      USDT: balances.trading.totalBalanceUSDT,
+      BTC: 0.5432, // Default BTC balance for demo
+      ETH: 2.1234, // Default ETH balance for demo
+      BNB: 45.67, // Default BNB balance for demo
+    }),
+    [balances.trading.totalBalanceUSDT]
+  );
 
   const [buyForm, setBuyForm] = useState({
     amount: "0",
@@ -162,7 +180,7 @@ const TradingForm: React.FC = () => {
       return;
     }
 
-    const available = state.portfolio.balances.USDT || 0;
+    const available = tradingBalances.USDT || 0;
     if (total > available) {
       toast.error(
         t("error_insufficient_usdt", { amount: available.toFixed(2) })
@@ -204,7 +222,7 @@ const TradingForm: React.FC = () => {
       return;
     }
 
-    const available = state.portfolio.balances.BTC || 0;
+    const available = tradingBalances.BTC || 0;
     if (amount > available) {
       toast.error(
         t("error_insufficient_btc", { amount: available.toFixed(8) })
@@ -234,7 +252,7 @@ const TradingForm: React.FC = () => {
   };
 
   const handleBuySliderChange = (value: number) => {
-    const available = state.portfolio.balances.USDT || 0;
+    const available = tradingBalances.USDT || 0;
     const price =
       activeTab === "market"
         ? state.currentPrice.price
@@ -245,7 +263,7 @@ const TradingForm: React.FC = () => {
   };
 
   const handleSellSliderChange = (value: number) => {
-    const available = state.portfolio.balances.BTC || 0;
+    const available = tradingBalances.BTC || 0;
     const newAmount = ((available * value) / 100).toFixed(8);
     setSellForm((prev) => ({ ...prev, amount: newAmount, sliderValue: value }));
   };
@@ -300,11 +318,15 @@ const TradingForm: React.FC = () => {
             </div>
 
             {/* Available balance */}
-            <div className="text-xs text-gray-400">
-              {t("available_usdt", {
-                amount: (state.portfolio.balances.USDT || 0).toFixed(2),
-              })}
-            </div>
+            {isClient ? (
+              <div className="text-xs text-gray-400">
+                {t("available_usdt", {
+                  amount: (tradingBalances.USDT || 0).toFixed(2),
+                })}
+              </div>
+            ) : (
+              <div className="text-xs text-gray-400">Available: Loading...</div>
+            )}
 
             {/* Price input (for limit orders) */}
             {activeTab === "limit" && (
@@ -361,7 +383,7 @@ const TradingForm: React.FC = () => {
                   key={percent}
                   type="button"
                   onClick={() => {
-                    const availableBalance = state.portfolio.balances.USDT || 0;
+                    const availableBalance = tradingBalances.USDT || 0;
                     const price =
                       activeTab === "market"
                         ? state.currentPrice.price
@@ -452,11 +474,15 @@ const TradingForm: React.FC = () => {
             </div>
 
             {/* Available balance */}
-            <div className="text-xs text-gray-400">
-              {t("available_btc", {
-                amount: (state.portfolio.balances.BTC || 0).toFixed(8),
-              })}
-            </div>
+            {isClient ? (
+              <div className="text-xs text-gray-400">
+                {t("available_btc", {
+                  amount: (tradingBalances.BTC || 0).toFixed(8),
+                })}
+              </div>
+            ) : (
+              <div className="text-xs text-gray-400">Available: Loading...</div>
+            )}
 
             {/* Price input (for limit orders) */}
             {activeTab === "limit" && (
@@ -509,7 +535,7 @@ const TradingForm: React.FC = () => {
                   key={percent}
                   type="button"
                   onClick={() => {
-                    const availableBalance = state.portfolio.balances.BTC || 0;
+                    const availableBalance = tradingBalances.BTC || 0;
                     const amount = availableBalance * percent;
                     setSellForm((prev) => ({
                       ...prev,

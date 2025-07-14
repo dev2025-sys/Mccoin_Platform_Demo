@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import {
   createChart,
   type IChartApi,
@@ -66,9 +66,9 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
 
     const interval =
       intervals[timeframe as keyof typeof intervals] || intervals["5m"];
-    const count = 50; // Reduced number of candles for testing
+    const count = 100; // More realistic number of candles
 
-    let basePrice = currentPrice - Math.random() * 1000;
+    let basePrice = currentPrice;
 
     // Generate data points from oldest to newest
     for (let i = count; i >= 0; i--) {
@@ -78,8 +78,8 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
         timeframe
       );
 
-      const volatility = currentPrice * 0.02;
-      const trend = (Math.random() - 0.5) * 0.01;
+      const volatility = currentPrice * 0.015; // Reduced volatility for more realistic data
+      const trend = (Math.random() - 0.5) * 0.005; // Smaller trend changes
 
       const open = basePrice;
       const high = open + Math.random() * volatility;
@@ -217,13 +217,17 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
     state.chartTimeframe,
   ]);
 
-  const timeframes = [
-    { key: "5m", label: "5m" },
-    { key: "15m", label: "15m" },
-    { key: "1h", label: "1h" },
-    { key: "4h", label: "4h" },
-    { key: "1d", label: "1d" },
-  ] as const;
+  const timeframes = useMemo(
+    () =>
+      [
+        { key: "5m", label: "5m" },
+        { key: "15m", label: "15m" },
+        { key: "1h", label: "1h" },
+        { key: "4h", label: "4h" },
+        { key: "1d", label: "1d" },
+      ] as const,
+    []
+  );
 
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);

@@ -217,7 +217,13 @@ export default function OverviewTab() {
               </div>
             </div>
 
-            <div className="text-4xl font-bold flex items-end gap-2 text-white">
+            <motion.div
+              key={data.totalBalanceUSDT}
+              initial={{ scale: 1 }}
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 0.3 }}
+              className="text-4xl font-bold flex items-end gap-2 text-white"
+            >
               {showBTC
                 ? balanceBTC.toLocaleString(undefined, {
                     maximumFractionDigits: 5,
@@ -228,7 +234,7 @@ export default function OverviewTab() {
               <span className="text-lg font-semibold text-[#3b82f6]">
                 {showBTC ? "BTC" : "USDT"}
               </span>
-            </div>
+            </motion.div>
 
             <div className="text-sm flex items-center gap-2 text-white/80">
               <span className="text-white/60">≈</span>
@@ -241,7 +247,7 @@ export default function OverviewTab() {
                 value={fiat}
                 onValueChange={(value: string) => setFiat(value as typeof fiat)}
               >
-                <SelectTrigger className="w-20 h-7 bg-[#0c1e4e] border-[#22304A] text-xs text-white hover:bg-[#0c1e4e]/80 transition-colors">
+                <SelectTrigger className="w-20 h-7 bg-[#0c1e4e] border-[#22304A] text-xs text-white hover:bg-[#FFF] transition-colors">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-[#081935] border-[#22304A] shadow-lg">
@@ -249,7 +255,7 @@ export default function OverviewTab() {
                     <SelectItem
                       key={c}
                       value={c}
-                      className="text-xs text-white hover:bg-[#0c1e4e] focus:bg-[#0c1e4e] hover:text-white"
+                      className="text-xs text-white hover:bg-[#0c1e4e] focus:bg-[#0c1e4e] hover:text-white!"
                     >
                       {c}
                     </SelectItem>

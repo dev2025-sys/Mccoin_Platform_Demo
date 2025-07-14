@@ -201,50 +201,48 @@ const TradingContext = createContext<TradingContextType | undefined>(undefined);
 export function TradingProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(tradingReducer, initialState);
 
-  // Mock WebSocket connection for live updates
+  // Real API connection for live updates
   useEffect(() => {
     dispatch({ type: "SET_CONNECTION", payload: true });
 
-    // Simulate price updates
-    const priceInterval = setInterval(() => {
-      const change = (Math.random() - 0.5) * 100; // Random price change
-      const newPrice = Math.max(state.currentPrice.price + change, 1000);
+    // Function to fetch live crypto data (uses CoinGecko API key if available)
+    const fetchCryptoData = async () => {
+      try {
+        const response = await fetch(
+          "/api/crypto-data?symbol=BTC&orderBook=true"
+        );
+        if (response.ok) {
+          const data = await response.json();
 
-      dispatch({
-        type: "UPDATE_PRICE",
-        payload: {
-          ...state.currentPrice,
-          price: newPrice,
-          timestamp: Date.now(),
-        },
-      });
-    }, 2000);
+          // Update price data
+          if (data.priceData) {
+            dispatch({
+              type: "UPDATE_PRICE",
+              payload: data.priceData,
+            });
+          }
 
-    // Simulate order book updates
-    const orderBookInterval = setInterval(() => {
-      const generateOrderBookLevel = (basePrice: number, isBid: boolean) => ({
-        price: isBid
-          ? basePrice - Math.random() * 10
-          : basePrice + Math.random() * 10,
-        amount: Math.random() * 0.5,
-        total: Math.random() * 20,
-      });
+          // Update order book data
+          if (data.orderBook) {
+            dispatch({
+              type: "UPDATE_ORDER_BOOK",
+              payload: data.orderBook,
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching crypto data:", error);
+        dispatch({ type: "SET_CONNECTION", payload: false });
+      }
+    };
 
-      const newBids = Array.from({ length: 15 }, (_, i) =>
-        generateOrderBookLevel(state.currentPrice.price, true)
-      ).sort((a, b) => b.price - a.price);
+    // Initial fetch
+    fetchCryptoData();
 
-      const newAsks = Array.from({ length: 15 }, (_, i) =>
-        generateOrderBookLevel(state.currentPrice.price, false)
-      ).sort((a, b) => a.price - b.price);
+    // Set up polling for live updates (optimized for API rate limits)
+    const priceInterval = setInterval(fetchCryptoData, 30000); // Update every 30 seconds
 
-      dispatch({
-        type: "UPDATE_ORDER_BOOK",
-        payload: { bids: newBids, asks: newAsks },
-      });
-    }, 1000);
-
-    // Simulate order fills
+    // Simulate order fills (keeping this for demo purposes)
     const orderFillInterval = setInterval(() => {
       if (state.openOrders.length > 0) {
         const randomOrder =
@@ -271,11 +269,10 @@ export function TradingProvider({ children }: { children: ReactNode }) {
 
     return () => {
       clearInterval(priceInterval);
-      clearInterval(orderBookInterval);
       clearInterval(orderFillInterval);
       dispatch({ type: "SET_CONNECTION", payload: false });
     };
-  }, [state.currentPrice.price, state.openOrders.length]);
+  }, [state.openOrders.length]);
 
   const placeOrder = (orderData: Omit<Order, "id" | "timestamp">) => {
     const order: Order = {

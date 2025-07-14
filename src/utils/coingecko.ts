@@ -9,7 +9,7 @@ export interface CoinData {
   market_cap: number;
 }
 
-const COINGECKO_API = "https://api.coingecko.com/api/v3";
+const COINGECKO_API = "https://pro-api.coingecko.com/api/v3";
 
 export async function getTopCoins(limit: number = 100): Promise<CoinData[]> {
   try {

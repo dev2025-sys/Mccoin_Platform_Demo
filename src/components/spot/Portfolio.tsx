@@ -1,17 +1,36 @@
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Trash2, X } from "lucide-react";
 import { useTrading } from "@/context/TradingContext";
 import { useTranslations } from "next-intl";
+import { useBalanceManager } from "@/lib/balance-manager";
+
 interface PortfolioProps {
   className?: string;
 }
 
 const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
   const { state, cancelOrder } = useTrading();
+  const { balances } = useBalanceManager();
   const t = useTranslations("spot.portfolio");
   const [activeTab, setActiveTab] = useState<"orders" | "history" | "balances">(
     "orders"
+  );
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Get trading account balances from local storage (unified with dashboard)
+  const tradingBalances = useMemo(
+    () => ({
+      USDT: balances.trading.totalBalanceUSDT,
+      BTC: 0.5432, // Default BTC balance for demo
+      ETH: 2.1234, // Default ETH balance for demo
+      BNB: 45.67, // Default BNB balance for demo
+    }),
+    [balances.trading.totalBalanceUSDT]
   );
 
   const formatPrice = (price: number) => {
@@ -52,7 +71,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
     }
   };
 
-  const totalPortfolioValue = Object.entries(state.portfolio.balances).reduce(
+  const totalPortfolioValue = Object.entries(tradingBalances).reduce(
     (total, [symbol, balance]) => {
       if (symbol === "USDT") return total + balance;
       if (symbol === "BTC") return total + balance * state.currentPrice.price;
@@ -278,14 +297,23 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
                   </div>
                   <div className="text-sm text-green-400">+2.5%</div>
                 </div>
-                <div>
-                  <div className="text-sm text-gray-400">
-                    {t("balances.summary.available")}
+                {isClient ? (
+                  <div>
+                    <div className="text-sm text-gray-400">
+                      {t("balances.summary.available")}
+                    </div>
+                    <div className="text-lg font-semibold">
+                      ${formatPrice(tradingBalances.USDT || 0)}
+                    </div>
                   </div>
-                  <div className="text-lg font-semibold">
-                    ${formatPrice(state.portfolio.balances.USDT || 0)}
+                ) : (
+                  <div>
+                    <div className="text-sm text-gray-400">
+                      {t("balances.summary.available")}
+                    </div>
+                    <div className="text-lg font-semibold">Loading...</div>
                   </div>
-                </div>
+                )}
                 <div>
                   <div className="text-sm text-gray-400">
                     {t("balances.summary.inOrders")}
@@ -324,7 +352,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
                 </div>
 
                 {/* Balance rows */}
-                {Object.entries(state.portfolio.balances)
+                {Object.entries(tradingBalances)
                   .filter(([_, balance]) => balance > 0)
                   .map(([symbol, balance]) => {
                     const price =

@@ -217,7 +217,54 @@
       }
     },
     "spot": {
-      "title": "Spot"
+      "title": "Spot",
+      "portfolio": {
+        "tabs": {
+          "orders": "Open Orders",
+          "history": "Order History",
+          "balances": "Portfolio"
+        },
+        "orders": {
+          "headers": {
+            "pair": "Pair",
+            "type": "Type",
+            "side": "Side",
+            "amount": "Amount",
+            "price": "Price",
+            "total": "Total",
+            "action": "Action",
+            "date": "Date",
+            "status": "Status"
+          },
+          "noOrders": "No open orders",
+          "placePrompt": "Place your first order to get started"
+        },
+        "history": {
+          "noHistory": "No order history",
+          "historyPrompt": "Your completed orders will appear here"
+        },
+        "balances": {
+          "summary": {
+            "title": "Portfolio Summary",
+            "total": "Total Value",
+            "pnl": "P&L (24h)",
+            "available": "Available",
+            "inOrders": "In Orders"
+          },
+          "assets": {
+            "title": "Asset Balances",
+            "headers": {
+              "asset": "Asset",
+              "balance": "Balance",
+              "value": "Value",
+              "allocation": "Allocation"
+            }
+          },
+          "transactions": {
+            "title": "Recent Transactions"
+          }
+        }
+      }
     },
     "assets": {
       "buy": "Buy",
@@ -360,6 +407,31 @@
       "low24h": "24h Low",
       "volume24h": "24h Volume",
       "about": "About BTC/USDT"
+    },
+    "tradingForm": {
+      "spot_trading": "Spot Trading",
+      "limit": "Limit",
+      "market": "Market",
+      "advanced_limit": "Advanced Limit",
+      "trail_stop": "Trail Stop",
+      "trigger": "Trigger",
+      "tp_sl": "TP/SL",
+      "buy_btc": "Buy BTC",
+      "sell_btc": "Sell BTC",
+      "available_usdt": "Available: {amount} USDT",
+      "available_btc": "Available: {amount} BTC",
+      "price_usdt": "Price (USDT)",
+      "amount_btc": "Amount (BTC)",
+      "total_usdt": "Total (USDT)",
+      "post_only": "Post Only",
+      "reduce_only": "Reduce Only",
+      "buy_button": "Buy BTC",
+      "sell_button": "Sell BTC",
+      "error_invalid_amount": "Please enter a valid amount",
+      "error_insufficient_usdt": "Insufficient USDT. Available: {amount}",
+      "error_insufficient_btc": "Insufficient BTC. Available: {amount}",
+      "success_buy_order": "Buy order placed: {amount} BTC @ {price}",
+      "success_sell_order": "Sell order placed: {amount} BTC @ {price}"
     },
     "markets": {
       "title": "Markets",
@@ -519,6 +591,38 @@
       "error_insufficient_btc": "Insufficient BTC balance. Available: {amount} BTC",
       "success_buy_order": "Buy order placed: {amount} BTC at {price} USDT",
       "success_sell_order": "Sell order placed: {amount} BTC at {price} USDT"
+    },
+    "tradingChart": {
+      "title": "Chart",
+      "timeframes": {
+        "5m": "5m",
+        "15m": "15m",
+        "1h": "1h",
+        "4h": "4h",
+        "1d": "1d"
+      },
+      "chartTypes": {
+        "candlesticks": "Candlesticks",
+        "line": "Line",
+        "area": "Area"
+      },
+      "priceInfo": {
+        "o": "O",
+        "h": "H",
+        "l": "L",
+        "c": "C",
+        "vol": "Vol"
+      },
+      "controls": {
+        "drawingTools": "📏 Drawing Tools",
+        "indicators": "📊 Indicators",
+        "settings": "⚙️ Settings"
+      },
+      "lastUpdate": "Last update",
+      "fullscreen": {
+        "enter": "⤢",
+        "exit": "⤓"
+      }
     }
   }
 }

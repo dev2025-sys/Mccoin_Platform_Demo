@@ -2,14 +2,18 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
+    // Get API key from environment
+    const apiKey = process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
+
     // Fetch crypto prices in multiple fiat currencies
     const cryptoResponse = await fetch(
-      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether&vs_currencies=usd,aed,gbp,eur,cad",
+      "https://pro-api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether&vs_currencies=usd,aed,gbp,eur,cad",
       {
         headers: {
           Accept: "application/json",
+          ...(apiKey && { "x-cg-pro-api-key": apiKey }),
         },
-        next: { revalidate: 30 }, // Cache for 30 seconds
+        next: { revalidate: 60 }, // Cache for 60 seconds to reduce API calls
       }
     );
 

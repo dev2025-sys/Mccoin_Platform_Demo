@@ -69,6 +69,11 @@
     "error": "خطأ",
     "form_submit_error": "حدث خطأ أثناء إرسال النموذج."
   },
+  "verification": {
+    "verified": "مُتحقق",
+    "not_verified": "غير مُتحقق",
+    "verification_pending": "التحقق معلق"
+  },
   "footer": {
     "tagline": "جعل التداول في العملات المشفرة أسهل",
     "copyright": "جميع الحقوق محفوظة.",

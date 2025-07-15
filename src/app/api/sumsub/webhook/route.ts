@@ -33,18 +33,36 @@ export async function POST(req: Request) {
   );
   if (sig !== computedSig) return new Response("Forbidden", { status: 403 });
 
-  const { type, applicantId, reviewResult } = JSON.parse(rawBody);
-  console.log(type, applicantId, reviewResult);
+  const data = JSON.parse(rawBody);
+  console.log("Webhook data:", data);
 
-  if (type === "applicantReviewed" && reviewResult?.reviewAnswer === "GREEN") {
+  // Handle the new object structure
+  if (
+    data.review?.reviewAnswer === "GREEN" &&
+    data.review?.reviewStatus === "completed"
+  ) {
     // 🔁 Search all users to find who has this applicantId
     const clerk = await clerkClient();
     const { data: users } = await clerk.users.getUserList();
     for (const user of users) {
-      if (user.publicMetadata?.applicantId === applicantId) {
+      if (user.publicMetadata?.applicantId === data.id) {
         await clerk.users.updateUserMetadata(user.id, {
           publicMetadata: { ...user.publicMetadata, kycVerified: true },
         });
+        console.log(`User ${user.id} KYC verified successfully`);
+        break;
+      }
+    }
+  } else if (data.review?.reviewAnswer === "RED") {
+    // Handle rejected verification
+    const clerk = await clerkClient();
+    const { data: users } = await clerk.users.getUserList();
+    for (const user of users) {
+      if (user.publicMetadata?.applicantId === data.id) {
+        await clerk.users.updateUserMetadata(user.id, {
+          publicMetadata: { ...user.publicMetadata, kycVerified: false },
+        });
+        console.log(`User ${user.id} KYC verification rejected`);
         break;
       }
     }

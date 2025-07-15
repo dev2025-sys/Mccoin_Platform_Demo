@@ -17,6 +17,8 @@ import { useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { HiMiniArrowRightStartOnRectangle } from "react-icons/hi2";
+import { useVerificationStatus } from "@/hooks/useVerificationStatus";
+import VerificationBadge from "./VerificationBadge";
 export default function UserAvatarDropdown() {
   const t = useTranslations("shared");
   const t2 = useTranslations("dashboard");
@@ -26,20 +28,27 @@ export default function UserAvatarDropdown() {
   const locale = useLocale();
   const isArabic = locale === "ar";
   const [showLogoutPrompt, setShowLogoutPrompt] = useState(false);
+  const { isVerified, isLoading: isVerificationLoading } =
+    useVerificationStatus();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="rounded-full outline-none">
-        <Avatar className="h-8 w-8 cursor-pointer">
-          {isLoaded && user ? (
-            <>
-              <AvatarImage src={user.imageUrl} alt={user.fullName ?? ""} />
-              <AvatarFallback>{user.fullName?.charAt(0)}</AvatarFallback>
-            </>
-          ) : (
-            <Power size={24} className="mt-1 text-white" />
+        <div className="relative">
+          <Avatar className="h-8 w-8 cursor-pointer">
+            {isLoaded && user ? (
+              <>
+                <AvatarImage src={user.imageUrl} alt={user.fullName ?? ""} />
+                <AvatarFallback>{user.fullName?.charAt(0)}</AvatarFallback>
+              </>
+            ) : (
+              <Power size={24} className="mt-1 text-white" />
+            )}
+          </Avatar>
+          {isLoaded && user && !isVerificationLoading && (
+            <VerificationBadge isVerified={isVerified || false} size="sm" />
           )}
-        </Avatar>
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-44 mt-2 rounded-md bg-[#081935] text-white border border-[#0f294d] shadow-lg">
         <motion.div
@@ -65,20 +74,22 @@ export default function UserAvatarDropdown() {
                 </DropdownMenuItem>
               </motion.div>
 
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.15 }}
-              >
-                <DropdownMenuItem
-                  onClick={() => router.push("/verify")}
-                  className={`flex items-center gap-2 cursor-pointer hover:bg-[#0f294d] transition-colors duration-200 ${
-                    isArabic ? "flex-row-reverse" : "flex-row"
-                  }`}
+              {!isVerified && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.15 }}
                 >
-                  <User size={16} /> {t("verify")}
-                </DropdownMenuItem>
-              </motion.div>
+                  <DropdownMenuItem
+                    onClick={() => router.push("/verify")}
+                    className={`flex items-center gap-2 cursor-pointer hover:bg-[#0f294d] transition-colors duration-200 ${
+                      isArabic ? "flex-row-reverse" : "flex-row"
+                    }`}
+                  >
+                    <User size={16} /> {t("verify")}
+                  </DropdownMenuItem>
+                </motion.div>
+              )}
 
               <motion.div
                 initial={{ opacity: 0 }}

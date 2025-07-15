@@ -69,6 +69,11 @@
     "error": "Error",
     "form_submit_error": "An error occurred while submitting the form."
   },
+  "verification": {
+    "verified": "Verified",
+    "not_verified": "Not Verified",
+    "verification_pending": "Verification Pending"
+  },
   "footer": {
     "tagline": "Making Crypto Trading Easier",
     "copyright": "All Rights Reserved.",

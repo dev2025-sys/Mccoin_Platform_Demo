@@ -57,12 +57,13 @@ export default function SumsubIframeVerification({
         const res = await fetch("/api/user/kyc-status");
         const data = await res.json();
         if (data.verified) {
-          router.push("/");
+          console.log("User verified successfully!");
+          router.push("/dashboard");
         }
       } catch (err) {
         console.error("Polling error:", err);
       }
-    }, 5000);
+    }, 3000); // Check every 3 seconds for faster response
 
     return () => {
       clearInterval(interval);

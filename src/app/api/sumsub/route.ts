@@ -65,12 +65,19 @@ export async function POST(request: Request) {
 
   // ⬅️ Save applicantId in Clerk public metadata
   const clerk = await clerkClient();
+  console.log("=== SAVING APPLICANT ID ===");
+  console.log("ApplicantId from Sumsub:", data.applicantId);
+  console.log("User ID:", userId);
+  console.log("Full Sumsub response:", JSON.stringify(data, null, 2));
+
   await clerk.users.updateUserMetadata(userId, {
     publicMetadata: {
       applicantId: data.applicantId,
       kycVerified: false,
     },
   });
+
+  console.log("✅ ApplicantId saved successfully");
 
   return NextResponse.json(data);
 }

@@ -9,5 +9,14 @@ export async function GET() {
   const user = await clerk.users.getUser(userId);
   const verified = user.publicMetadata?.kycVerified === true;
 
+  console.log(
+    "KYC Status check for user:",
+    userId,
+    "verified:",
+    verified,
+    "metadata:",
+    user.publicMetadata
+  );
+
   return Response.json({ verified });
 }

@@ -8,6 +8,7 @@ import AnimatedLogo from "../custom/AnimatedLogoDark";
 import UserAvatarDropdown from "./UserAvatarDropdown";
 import LanguageDropdown from "./LanguageDropdown";
 import NavLink from "./NavLink";
+import SupportDropdown from "./SupportDropdown";
 import { useTranslations } from "next-intl";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -44,7 +45,9 @@ const Navbar = () => {
           </Link>
           <NavLink href="/market-overview" label={t("market")} />
           {isLoaded && user && <NavLink href="/spot" label={t("spot")} />}
+          <NavLink href="/dashboard/assets" label={t("assets")} />
           <NavLink href="/news" label={t("news")} />
+          <SupportDropdown />
         </div>
 
         <div className="flex items-center gap-4">
@@ -125,6 +128,17 @@ const Navbar = () => {
                   </Link>
                 )}
                 <Link
+                  onClick={closeMobileMenu}
+                  href="/dashboard/assets"
+                  className={`px-4 py-2 rounded-md transition-colors duration-200 ${
+                    pathname.includes("/dashboard/assets")
+                      ? "bg-[#EC3B3B] text-white"
+                      : "hover:bg-[#0f294d] hover:text-white"
+                  }`}
+                >
+                  {t("assets")}
+                </Link>
+                <Link
                   href="/news"
                   onClick={closeMobileMenu}
                   className={`px-4 py-2 rounded-md transition-colors duration-200 ${
@@ -135,6 +149,7 @@ const Navbar = () => {
                 >
                   {t("news")}
                 </Link>
+                <SupportDropdown isMobile={true} onClose={closeMobileMenu} />
               </div>
             </motion.div>
           </motion.div>

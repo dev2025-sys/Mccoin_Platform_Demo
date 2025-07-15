@@ -35,7 +35,39 @@
     "logout": "Logout",
     "language": "Eng",
     "news": "News",
-    "home": "Home"
+    "home": "Home",
+    "assets": "Assets",
+    "support": "Support",
+    "contact": "Contact",
+    "faq": "FAQ",
+    "helpTopics": "Help Topics"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "description": "Please fill in the below information, Our Customer service team will contact you at the earliest",
+    "pattern_alt": "Pattern Image"
+  },
+  "Contact": {
+    "full_name": "Full Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "subject": "Subject",
+    "message": "Message",
+    "enter_your_full_name": "Enter your full name",
+    "enter_your_email": "Enter your email address",
+    "enter_your_phone_number": "Enter your phone number",
+    "enter_the_subject": "Enter the subject",
+    "enter_your_message": "Enter your message",
+    "send_message": "Send Message",
+    "name_error": "Name must be at least 2 characters",
+    "email_error": "Please enter a valid email address",
+    "phone_error": "Phone number must be at least 10 characters",
+    "subject_error": "Subject must be at least 5 characters",
+    "message_error": "Message must be at least 10 characters",
+    "message_sent_success": "Message sent successfully!",
+    "message_submitted": "Message Submitted",
+    "error": "Error",
+    "form_submit_error": "An error occurred while submitting the form."
   },
   "footer": {
     "tagline": "Making Crypto Trading Easier",

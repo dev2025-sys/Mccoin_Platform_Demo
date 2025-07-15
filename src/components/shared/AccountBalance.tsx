@@ -529,7 +529,7 @@ export default function AccountBalance({
                     onClick={() => setShowTransferModal(false)}
                     variant="ghost"
                     size="sm"
-                    className="text-white/60 hover:text-white p-1"
+                    className="text-white/60 hover:text-[#081935] p-1"
                     disabled={isTransferring}
                   >
                     <X size={20} />

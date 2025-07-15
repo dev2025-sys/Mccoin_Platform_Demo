@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Navbar from "@/components/shared/Navbar";
 import Sidebar from "@/components/dashboard/Sidebar";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -42,7 +44,19 @@ export default function DashboardLayout({
       <Navbar />
       <div className="flex lg:flex-row flex-col">
         <Sidebar />
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 py-4.5">
+          <div>
+            <Button
+              onClick={() => router.push("/")}
+              className="mb-2 border border-transparent cursor-pointer bg-[#DAE6EA] text-[#07153B] 
+            hover:bg-[#07153B] hover:text-[#DAE6EA] hover:border-[#DAE6EA]"
+            >
+              <ChevronLeft />
+              Back to Home
+            </Button>
+          </div>
+          {children}
+        </main>
       </div>
     </div>
   );

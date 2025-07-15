@@ -42,7 +42,35 @@ export async function POST(req: Request) {
   console.log("Review status:", data.reviewStatus);
 
   // Handle different webhook types based on Sumsub documentation
-  if (data.type === "applicantReviewed") {
+  if (data.type === "applicantCreated") {
+    console.log("🆕 Applicant created webhook received!");
+
+    // Update the user's applicantId with the real one from Sumsub
+    const clerk = await clerkClient();
+    const { data: users } = await clerk.users.getUserList();
+
+    for (const user of users) {
+      // Check if this user has a temporary applicantId or matches the externalUserId
+      if (
+        (typeof user.publicMetadata?.applicantId === "string" &&
+          user.publicMetadata.applicantId.startsWith("temp_")) ||
+        user.publicMetadata?.externalUserId === data.externalUserId
+      ) {
+        console.log(`✅ Found user to update: ${user.id}`);
+        await clerk.users.updateUserMetadata(user.id, {
+          publicMetadata: {
+            ...user.publicMetadata,
+            applicantId: data.applicantId,
+            externalUserId: data.externalUserId,
+          },
+        });
+        console.log(
+          `✅ Updated user ${user.id} with real applicantId: ${data.applicantId}`
+        );
+        break;
+      }
+    }
+  } else if (data.type === "applicantReviewed") {
     console.log("✅ Applicant reviewed webhook received!");
 
     // Check if verification was successful
@@ -105,8 +133,6 @@ export async function POST(req: Request) {
     }
   } else if (data.type === "applicantPending") {
     console.log("⏳ Applicant pending webhook received");
-  } else if (data.type === "applicantCreated") {
-    console.log("🆕 Applicant created webhook received");
   } else {
     console.log(`ℹ️ Other webhook type: ${data.type}`);
   }

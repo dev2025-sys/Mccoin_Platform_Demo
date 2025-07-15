@@ -66,18 +66,27 @@ export async function POST(request: Request) {
   // ⬅️ Save applicantId in Clerk public metadata
   const clerk = await clerkClient();
   console.log("=== SAVING APPLICANT ID ===");
-  console.log("ApplicantId from Sumsub:", data.applicantId);
   console.log("User ID:", userId);
   console.log("Full Sumsub response:", JSON.stringify(data, null, 2));
 
+  // Extract applicantId from the URL or make additional API call
+  // The applicantId will be available in the webhook when the applicant is created
+  // For now, we'll save a temporary identifier and update it when we receive the webhook
+  const tempApplicantId = `temp_${userId}_${Date.now()}`;
+
   await clerk.users.updateUserMetadata(userId, {
     publicMetadata: {
-      applicantId: data.applicantId,
+      applicantId: tempApplicantId,
+      externalUserId: userId,
       kycVerified: false,
+      levelName: levelName,
     },
   });
 
-  console.log("✅ ApplicantId saved successfully");
+  console.log("✅ Temporary applicantId saved:", tempApplicantId);
+  console.log(
+    "Note: Real applicantId will be updated when webhook is received"
+  );
 
   return NextResponse.json(data);
 }

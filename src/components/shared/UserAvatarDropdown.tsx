@@ -85,6 +85,16 @@ export default function UserAvatarDropdown() {
     }
   };
 
+  const testWebhookUrl = async () => {
+    try {
+      const response = await fetch("/api/sumsub/webhook/test");
+      const data = await response.text();
+      console.log("Webhook test result:", data);
+    } catch (error) {
+      console.error("Webhook test error:", error);
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="rounded-full outline-none">
@@ -235,6 +245,21 @@ export default function UserAvatarDropdown() {
                   }`}
                 >
                   <Settings size={16} /> Debug Metadata
+                </DropdownMenuItem>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                <DropdownMenuItem
+                  onClick={testWebhookUrl}
+                  className={`flex items-center gap-2 text-orange-400 cursor-pointer hover:bg-[#0f294d] transition-colors duration-200 ${
+                    isArabic ? "flex-row-reverse" : "flex-row"
+                  }`}
+                >
+                  <Settings size={16} /> Test Webhook URL
                 </DropdownMenuItem>
               </motion.div>
             </>

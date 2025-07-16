@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 
   const payload = JSON.stringify({
     levelName,
-    userId,
+    externalUserId: userId, // Use externalUserId as per Sumsub docs
     ttlInSecs: 1800,
   });
 

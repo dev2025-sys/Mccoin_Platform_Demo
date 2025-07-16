@@ -18,12 +18,24 @@ function generateSignature(
 }
 
 export async function POST(req: Request) {
+  console.log("=== WEBHOOK ENDPOINT HIT ===");
+
   const rawBody = await req.text();
   const headersList = await headers();
   const ts = headersList.get("X-App-Access-Ts");
   const sig = headersList.get("X-App-Access-Sig");
 
-  if (!ts || !sig) return new Response("Missing headers", { status: 400 });
+  console.log("Headers received:", {
+    ts: ts,
+    sig: sig,
+    contentType: headersList.get("content-type"),
+    userAgent: headersList.get("user-agent"),
+  });
+
+  if (!ts || !sig) {
+    console.log("❌ Missing headers - returning 400");
+    return new Response("Missing headers", { status: 400 });
+  }
 
   const computedSig = generateSignature(
     ts,
@@ -31,7 +43,17 @@ export async function POST(req: Request) {
     "/api/sumsub/webhook",
     rawBody
   );
-  if (sig !== computedSig) return new Response("Forbidden", { status: 403 });
+
+  console.log("Signature comparison:", {
+    received: sig,
+    computed: computedSig,
+    match: sig === computedSig,
+  });
+
+  if (sig !== computedSig) {
+    console.log("❌ Signature mismatch - returning 403");
+    return new Response("Forbidden", { status: 403 });
+  }
 
   const data = JSON.parse(rawBody);
   console.log("=== WEBHOOK RECEIVED ===");
@@ -44,6 +66,9 @@ export async function POST(req: Request) {
   // Handle different webhook types based on Sumsub documentation
   if (data.type === "applicantCreated") {
     console.log("🆕 Applicant created webhook received!");
+    console.log("Applicant ID:", data.applicantId);
+    console.log("External User ID:", data.externalUserId);
+    console.log("Level Name:", data.levelName);
 
     // Update the user's applicantId with the real one from Sumsub
     const clerk = await clerkClient();
@@ -62,11 +87,33 @@ export async function POST(req: Request) {
             ...user.publicMetadata,
             applicantId: data.applicantId,
             externalUserId: data.externalUserId,
+            levelName: data.levelName,
           },
         });
         console.log(
           `✅ Updated user ${user.id} with real applicantId: ${data.applicantId}`
         );
+        break;
+      }
+    }
+  } else if (data.type === "applicantPending") {
+    console.log("⏳ Applicant pending webhook received!");
+    console.log("Applicant ID:", data.applicantId);
+    console.log("Review Status:", data.reviewStatus);
+
+    // Optional: Update user status to pending
+    const clerk = await clerkClient();
+    const { data: users } = await clerk.users.getUserList();
+
+    for (const user of users) {
+      if (user.publicMetadata?.applicantId === data.applicantId) {
+        console.log(`✅ Found user in pending state: ${user.id}`);
+        await clerk.users.updateUserMetadata(user.id, {
+          publicMetadata: {
+            ...user.publicMetadata,
+            kycStatus: "pending",
+          },
+        });
         break;
       }
     }
@@ -131,11 +178,35 @@ export async function POST(req: Request) {
         `ℹ️ Other review result: ${data.reviewResult?.reviewAnswer}, status: ${data.reviewStatus}`
       );
     }
-  } else if (data.type === "applicantPending") {
-    console.log("⏳ Applicant pending webhook received");
+  } else if (data.type === "applicantOnHold") {
+    console.log("⏸️ Applicant on hold webhook received!");
+    console.log("Applicant ID:", data.applicantId);
+    console.log("Review Status:", data.reviewStatus);
+
+    // Update user status to on hold
+    const clerk = await clerkClient();
+    const { data: users } = await clerk.users.getUserList();
+
+    for (const user of users) {
+      if (user.publicMetadata?.applicantId === data.applicantId) {
+        console.log(`✅ Found user on hold: ${user.id}`);
+        await clerk.users.updateUserMetadata(user.id, {
+          publicMetadata: {
+            ...user.publicMetadata,
+            kycStatus: "on_hold",
+          },
+        });
+        break;
+      }
+    }
   } else {
     console.log(`ℹ️ Other webhook type: ${data.type}`);
+    console.log(
+      "Full webhook data for unknown type:",
+      JSON.stringify(data, null, 2)
+    );
   }
 
+  console.log("✅ Webhook processed successfully");
   return new Response("ok");
 }

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -19,6 +19,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { FaBitcoin, FaEthereum } from "react-icons/fa";
 import { SiSolana } from "react-icons/si";
 import {
@@ -27,9 +28,17 @@ import {
   TrendingUp,
   TrendingDown,
   CopyIcon,
+  ArrowUpDown,
+  Plus,
+  Minus,
+  ShoppingCart,
+  X,
 } from "lucide-react";
 import { Chart, registerables } from "chart.js";
 import { useBalanceManager } from "@/lib/balance-manager";
+import { BuyCryptoModal } from "@/components/dashboard/BuyCryptoModal";
+import DepositModal from "@/components/dashboard/DepositModal";
+import WithdrawModal from "@/components/dashboard/WithdrawModal";
 
 if (typeof window !== "undefined") {
   Chart.register(...registerables);
@@ -123,12 +132,37 @@ type OverviewData = {
 };
 
 export default function OverviewTab() {
-  const { balances } = useBalanceManager();
+  const { balances, transferBetweenAccounts, addTransaction } =
+    useBalanceManager();
   const data = balances.overview;
 
   // Live exchange rates state
   const [exchangeRates, setExchangeRates] = useState(FALLBACK_EXCHANGE_RATES);
   const [isLoadingRates, setIsLoadingRates] = useState(false);
+
+  // Modal states
+  const buyModalRef = useRef<HTMLDivElement>(null);
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
+
+  // Transfer modal states
+  const [transferAmount, setTransferAmount] = useState("");
+  const [fromAccount, setFromAccount] = useState<"trading" | "funding">(
+    "funding"
+  );
+  const [toAccount, setToAccount] = useState<"trading" | "funding">("trading");
+  const [selectedCoin, setSelectedCoin] = useState<"USDT" | "BTC">("USDT");
+  const [isTransferring, setIsTransferring] = useState(false);
+  const [showToast, setShowToast] = useState<{
+    show: boolean;
+    message: string;
+    type: "success" | "error";
+  }>({
+    show: false,
+    message: "",
+    type: "success",
+  });
 
   // Fetch live exchange rates
   useEffect(() => {
@@ -183,6 +217,60 @@ export default function OverviewTab() {
     }),
     [data.balanceHistory]
   );
+
+  // Handle transfer function
+  const handleTransfer = async () => {
+    const amount = parseFloat(transferAmount);
+    if (isNaN(amount) || amount <= 0) return;
+
+    // Validation: Check if accounts are different
+    if (fromAccount === toAccount) {
+      setShowToast({
+        show: true,
+        message: "Cannot transfer to the same account",
+        type: "error",
+      });
+      return;
+    }
+
+    // Validation: Check sufficient balance
+    const sourceBalance = balances[fromAccount].totalBalanceUSDT;
+    const requiredAmount =
+      selectedCoin === "USDT" ? amount : amount * exchangeRates.BTC.USD;
+
+    if (sourceBalance < requiredAmount) {
+      setShowToast({
+        show: true,
+        message: "Insufficient balance",
+        type: "error",
+      });
+      return;
+    }
+
+    setIsTransferring(true);
+
+    try {
+      // 3-second delay to simulate processing
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      transferBetweenAccounts(fromAccount, toAccount, requiredAmount);
+      setShowToast({
+        show: true,
+        message: `Transfer of ${amount} ${selectedCoin} successful`,
+        type: "success",
+      });
+      setShowTransferModal(false);
+      setTransferAmount("");
+    } catch (error) {
+      setShowToast({
+        show: true,
+        message: "Transfer failed",
+        type: "error",
+      });
+    } finally {
+      setIsTransferring(false);
+    }
+  };
 
   return (
     <motion.div
@@ -298,6 +386,45 @@ export default function OverviewTab() {
                   USDT
                 </span>
               </div>
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-4 gap-2 pt-4 border-t border-[#22304A]/50">
+                <Button
+                  onClick={() => {
+                    const button = buyModalRef.current?.querySelector("button");
+                    button?.click();
+                  }}
+                  size="sm"
+                  className="bg-[#22c55e] hover:bg-[#16a34a] text-white border-none"
+                >
+                  <ShoppingCart className="w-4 h-4 mr-1" />
+                  Buy
+                </Button>
+                <Button
+                  onClick={() => setShowDepositModal(true)}
+                  size="sm"
+                  className="bg-[#3b82f6] hover:bg-[#2563eb] text-white border-none"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Deposit
+                </Button>
+                <Button
+                  onClick={() => setShowTransferModal(true)}
+                  size="sm"
+                  className="bg-[#f59e0b] hover:bg-[#d97706] text-white border-none"
+                >
+                  <ArrowUpDown className="w-4 h-4 mr-1" />
+                  Transfer
+                </Button>
+                <Button
+                  onClick={() => setShowWithdrawModal(true)}
+                  size="sm"
+                  className="bg-[#ef4444] hover:bg-[#dc2626] text-white border-none"
+                >
+                  <Minus className="w-4 h-4 mr-1" />
+                  Withdraw
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -392,6 +519,279 @@ export default function OverviewTab() {
           </TableBody>
         </Table>
       </motion.div>
+
+      {/* Hidden BuyCryptoModal trigger */}
+      <div className="hidden">
+        <div ref={buyModalRef}>
+          <BuyCryptoModal />
+        </div>
+      </div>
+
+      <DepositModal
+        isOpen={showDepositModal}
+        onClose={() => setShowDepositModal(false)}
+        accountType="funding"
+      />
+
+      <WithdrawModal
+        isOpen={showWithdrawModal}
+        onClose={() => setShowWithdrawModal(false)}
+        accountType="funding"
+      />
+
+      {/* Transfer Modal */}
+      {showTransferModal && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !isTransferring) {
+              setShowTransferModal(false);
+            }
+          }}
+        >
+          <Card className="bg-[#081935] border-[#22304A] w-[500px] max-w-[95vw] max-h-[90vh] overflow-y-auto">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-white">Transfer</h3>
+                <Button
+                  onClick={() => setShowTransferModal(false)}
+                  variant="ghost"
+                  size="sm"
+                  className="text-white/60 hover:text-white p-1"
+                  disabled={isTransferring}
+                >
+                  <X size={20} />
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                {/* From Account */}
+                <div>
+                  <label className="text-white/80 text-sm mb-2 block">
+                    From
+                  </label>
+                  <Select
+                    value={fromAccount}
+                    onValueChange={(value) =>
+                      setFromAccount(value as "trading" | "funding")
+                    }
+                  >
+                    <SelectTrigger className="w-full bg-[#22304A] border-[#22304A] text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#081935] border-[#22304A]">
+                      <SelectItem value="trading" className="text-white/80">
+                        <div className="flex justify-between items-center w-full">
+                          <span>Trading Account</span>
+                          <span className="text-white/60 text-sm ml-2">
+                            (
+                            {selectedCoin === "USDT"
+                              ? balances.trading.totalBalanceUSDT.toFixed(2)
+                              : (
+                                  balances.trading.totalBalanceUSDT /
+                                  exchangeRates.BTC.USD
+                                ).toFixed(6)}{" "}
+                            {selectedCoin})
+                          </span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="funding" className="text-white/80">
+                        <div className="flex justify-between items-center w-full">
+                          <span>Funding Account</span>
+                          <span className="text-white/60 text-sm ml-2">
+                            (
+                            {selectedCoin === "USDT"
+                              ? balances.funding.totalBalanceUSDT.toFixed(2)
+                              : (
+                                  balances.funding.totalBalanceUSDT /
+                                  exchangeRates.BTC.USD
+                                ).toFixed(6)}{" "}
+                            {selectedCoin})
+                          </span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* To Account */}
+                <div>
+                  <label className="text-white/80 text-sm mb-2 block">To</label>
+                  <Select
+                    value={toAccount}
+                    onValueChange={(value) =>
+                      setToAccount(value as "trading" | "funding")
+                    }
+                  >
+                    <SelectTrigger className="w-full bg-[#22304A] border-[#22304A] text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#081935] border-[#22304A]">
+                      <SelectItem value="trading" className="text-white/80">
+                        <div className="flex justify-between items-center w-full">
+                          <span>Trading Account</span>
+                          <span className="text-white/60 text-sm ml-2">
+                            (
+                            {selectedCoin === "USDT"
+                              ? balances.trading.totalBalanceUSDT.toFixed(2)
+                              : (
+                                  balances.trading.totalBalanceUSDT /
+                                  exchangeRates.BTC.USD
+                                ).toFixed(6)}{" "}
+                            {selectedCoin})
+                          </span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="funding" className="text-white/80">
+                        <div className="flex justify-between items-center w-full">
+                          <span>Funding Account</span>
+                          <span className="text-white/60 text-sm ml-2">
+                            (
+                            {selectedCoin === "USDT"
+                              ? balances.funding.totalBalanceUSDT.toFixed(2)
+                              : (
+                                  balances.funding.totalBalanceUSDT /
+                                  exchangeRates.BTC.USD
+                                ).toFixed(6)}{" "}
+                            {selectedCoin})
+                          </span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Coin Selection */}
+                <div>
+                  <label className="text-white/80 text-sm mb-2 block">
+                    Coin
+                  </label>
+                  <Select
+                    value={selectedCoin}
+                    onValueChange={(value) =>
+                      setSelectedCoin(value as "USDT" | "BTC")
+                    }
+                  >
+                    <SelectTrigger className="w-full bg-[#22304A] border-[#22304A] text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#081935] border-[#22304A]">
+                      <SelectItem value="USDT" className="text-white/80">
+                        <div className="flex items-center gap-2">
+                          <span>USDT</span>
+                          <span className="text-white/60">(Tether)</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="BTC" className="text-white/80">
+                        <div className="flex items-center gap-2">
+                          <FaBitcoin className="text-yellow-400" />
+                          <span>BTC</span>
+                          <span className="text-white/60">(Bitcoin)</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Amount Input */}
+                <div>
+                  <label className="text-white/80 text-sm mb-2 block">
+                    Quantity
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      value={transferAmount}
+                      onChange={(e) => setTransferAmount(e.target.value)}
+                      className="w-full bg-[#22304A] border-[#22304A] text-white px-3 py-2 rounded-md pr-20"
+                      placeholder="Min 0.00000001"
+                      min="0.00000001"
+                      step="0.00000001"
+                    />
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+                      <span className="text-white/60 text-sm">
+                        {selectedCoin}
+                      </span>
+                      <Button
+                        onClick={() => {
+                          const maxAmount =
+                            selectedCoin === "USDT"
+                              ? balances[fromAccount].totalBalanceUSDT
+                              : balances[fromAccount].totalBalanceUSDT /
+                                exchangeRates.BTC.USD;
+                          setTransferAmount(
+                            maxAmount.toFixed(selectedCoin === "USDT" ? 2 : 6)
+                          );
+                        }}
+                        size="sm"
+                        className="bg-[#3b82f6] hover:bg-[#2563eb] text-white text-xs px-2 py-1 h-6"
+                      >
+                        MAX
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* USD Equivalent */}
+                {transferAmount && !isNaN(parseFloat(transferAmount)) && (
+                  <div className="text-white/60 text-sm">
+                    ≈ $
+                    {selectedCoin === "USDT"
+                      ? parseFloat(transferAmount).toFixed(2)
+                      : (
+                          parseFloat(transferAmount) * exchangeRates.BTC.USD
+                        ).toFixed(2)}{" "}
+                    USD
+                  </div>
+                )}
+
+                {/* Confirm Button */}
+                <Button
+                  onClick={handleTransfer}
+                  className="w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white"
+                  disabled={
+                    !transferAmount ||
+                    isNaN(parseFloat(transferAmount)) ||
+                    parseFloat(transferAmount) <= 0 ||
+                    fromAccount === toAccount ||
+                    isTransferring
+                  }
+                >
+                  {isTransferring ? (
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Processing...
+                    </div>
+                  ) : (
+                    "Confirm Transfer"
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {showToast.show && (
+        <div className="fixed top-4 right-4 z-50">
+          <div
+            className={`px-4 py-3 rounded-md shadow-lg ${
+              showToast.type === "success" ? "bg-green-500" : "bg-red-500"
+            } text-white`}
+          >
+            {showToast.message}
+            <Button
+              onClick={() => setShowToast({ ...showToast, show: false })}
+              variant="ghost"
+              size="sm"
+              className="ml-2 text-white hover:text-white/80 p-0"
+            >
+              <X size={16} />
+            </Button>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }

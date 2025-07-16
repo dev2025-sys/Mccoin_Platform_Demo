@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
@@ -18,6 +18,27 @@ const Navbar = () => {
   const { user, isLoaded } = useUser();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
+
+  useEffect(() => {
+    // Check verification status from localStorage
+    const checkVerificationStatus = () => {
+      const status = localStorage.getItem("userVerificationStatus");
+      setIsVerified(status === "verified");
+    };
+
+    checkVerificationStatus();
+
+    // Listen for storage changes (for cross-tab updates)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "userVerificationStatus") {
+        setIsVerified(e.newValue === "verified");
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -44,8 +65,12 @@ const Navbar = () => {
             {t("home")}
           </Link>
           <NavLink href="/market-overview" label={t("market")} />
-          {isLoaded && user && <NavLink href="/spot" label={t("spot")} />}
-          <NavLink href="/dashboard/assets" label={t("assets")} />
+          {isLoaded && user && isVerified && (
+            <NavLink href="/spot" label={t("spot")} />
+          )}
+          {isLoaded && user && isVerified && (
+            <NavLink href="/dashboard/assets" label={t("assets")} />
+          )}
           <NavLink href="/news" label={t("news")} />
           <SupportDropdown />
         </div>
@@ -114,7 +139,7 @@ const Navbar = () => {
                 >
                   {t("market")}
                 </Link>
-                {isLoaded && user && (
+                {isLoaded && user && isVerified && (
                   <Link
                     href="/spot"
                     onClick={closeMobileMenu}
@@ -127,17 +152,19 @@ const Navbar = () => {
                     {t("spot")}
                   </Link>
                 )}
-                <Link
-                  onClick={closeMobileMenu}
-                  href="/dashboard/assets"
-                  className={`px-4 py-2 rounded-md transition-colors duration-200 ${
-                    pathname.includes("/dashboard/assets")
-                      ? "bg-[#EC3B3B] text-white"
-                      : "hover:bg-[#0f294d] hover:text-white"
-                  }`}
-                >
-                  {t("assets")}
-                </Link>
+                {isLoaded && user && isVerified && (
+                  <Link
+                    onClick={closeMobileMenu}
+                    href="/dashboard/assets"
+                    className={`px-4 py-2 rounded-md transition-colors duration-200 ${
+                      pathname.includes("/dashboard/assets")
+                        ? "bg-[#EC3B3B] text-white"
+                        : "hover:bg-[#0f294d] hover:text-white"
+                    }`}
+                  >
+                    {t("assets")}
+                  </Link>
+                )}
                 <Link
                   href="/news"
                   onClick={closeMobileMenu}

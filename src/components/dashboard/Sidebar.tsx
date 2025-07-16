@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -20,11 +20,32 @@ const Sidebar = () => {
   const t = useTranslations("dashboard");
   const [spotExpanded, setSpotExpanded] = useState(false);
   const [showLogoutPrompt, setShowLogoutPrompt] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
   const { signOut } = useClerk();
   const pathname = usePathname() || "/";
   const locale = useLocale();
 
   const isActive = (path: string) => pathname === `/${locale}${path}`;
+
+  useEffect(() => {
+    // Check verification status from localStorage
+    const checkVerificationStatus = () => {
+      const status = localStorage.getItem("userVerificationStatus");
+      setIsVerified(status === "verified");
+    };
+
+    checkVerificationStatus();
+
+    // Listen for storage changes (for cross-tab updates)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "userVerificationStatus") {
+        setIsVerified(e.newValue === "verified");
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   return (
     <aside className="w-full lg:w-64 bg-[#081935] p-4 space-y-4 shadow-2xl">
@@ -42,155 +63,159 @@ const Sidebar = () => {
           {t("sidebar.profile")}
         </Link>
 
-        {/* Spot with Submenu */}
-        <div>
-          <div
-            onClick={() => setSpotExpanded(!spotExpanded)}
-            className={`flex items-center justify-between px-2 py-2 rounded-md cursor-pointer ${
-              [
-                "/dashboard/assets",
-                "/dashboard/deposit",
-                "/dashboard/records",
-                "/dashboard/withdraw",
-                "/dashboard/withdraw-records",
-              ]
-                .map((path) => `/${locale}${path}`)
-                .includes(pathname)
+        {/* Spot with Submenu - Only show if verified */}
+        {isVerified && (
+          <div>
+            <div
+              onClick={() => setSpotExpanded(!spotExpanded)}
+              className={`flex items-center justify-between px-2 py-2 rounded-md cursor-pointer ${
+                [
+                  "/dashboard/assets",
+                  "/dashboard/deposit",
+                  "/dashboard/records",
+                  "/dashboard/withdraw",
+                  "/dashboard/withdraw-records",
+                ]
+                  .map((path) => `/${locale}${path}`)
+                  .includes(pathname)
+                  ? "bg-[#EC3B3B] text-white"
+                  : "text-[#DAE6EA] hover:text-white"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <LayoutDashboard className="w-5 h-5" />
+                {t("sidebar.my_wallet")}
+              </div>
+              <motion.div
+                animate={{ rotate: spotExpanded ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ChevronDown className="w-4 h-4" />
+              </motion.div>
+            </div>
+
+            {/* Subitems */}
+            <AnimatePresence>
+              {spotExpanded && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="overflow-hidden"
+                >
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2, delay: 0.1 }}
+                    className="ml-8 mt-1 space-y-1 text-[#DAE6EA] text-sm"
+                  >
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.15 }}
+                    >
+                      <Link
+                        href="/dashboard/assets"
+                        className={`block cursor-pointer py-1 px-2 rounded-md transition-colors duration-200 ${
+                          isActive("/dashboard/assets")
+                            ? "font-bold text-white"
+                            : "hover:text-white hover:bg-[#0f294d]"
+                        }`}
+                      >
+                        {t("sidebar.assets")}
+                      </Link>
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <Link
+                        href="/dashboard/deposit"
+                        className={`block cursor-pointer py-1 px-2 rounded-md transition-colors duration-200 ${
+                          isActive("/dashboard/deposit")
+                            ? "font-bold text-white"
+                            : "hover:text-white hover:bg-[#0f294d]"
+                        }`}
+                      >
+                        {t("sidebar.deposit")}
+                      </Link>
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.25 }}
+                    >
+                      <Link
+                        href="/dashboard/records"
+                        className={`block cursor-pointer py-1 px-2 rounded-md transition-colors duration-200 ${
+                          isActive("/dashboard/records")
+                            ? "font-bold text-white"
+                            : "hover:text-white hover:bg-[#0f294d]"
+                        }`}
+                      >
+                        {t("sidebar.records")}
+                      </Link>
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <Link
+                        href="/dashboard/withdraw"
+                        className={`block cursor-pointer py-1 px-2 rounded-md transition-colors duration-200 ${
+                          isActive("/dashboard/withdraw")
+                            ? "font-bold text-white"
+                            : "hover:text-white hover:bg-[#0f294d]"
+                        }`}
+                      >
+                        {t("sidebar.withdraw")}
+                      </Link>
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.35 }}
+                    >
+                      <Link
+                        href="/dashboard/withdraw-records"
+                        className={`block cursor-pointer py-1 px-2 rounded-md transition-colors duration-200 ${
+                          isActive("/dashboard/withdraw-records")
+                            ? "font-bold text-white"
+                            : "hover:text-white hover:bg-[#0f294d]"
+                        }`}
+                      >
+                        {t("sidebar.withdraw-records")}
+                      </Link>
+                    </motion.div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {/* Order History - Only show if verified */}
+        {isVerified && (
+          <Link
+            href="/dashboard/order-history"
+            className={`flex items-center gap-2 px-2 py-2 rounded-md cursor-pointer ${
+              isActive("/dashboard/order-history")
                 ? "bg-[#EC3B3B] text-white"
                 : "text-[#DAE6EA] hover:text-white"
             }`}
           >
-            <div className="flex items-center gap-2">
-              <LayoutDashboard className="w-5 h-5" />
-              {t("sidebar.my_wallet")}
-            </div>
-            <motion.div
-              animate={{ rotate: spotExpanded ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <ChevronDown className="w-4 h-4" />
-            </motion.div>
-          </div>
-
-          {/* Subitems */}
-          <AnimatePresence>
-            {spotExpanded && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="overflow-hidden"
-              >
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2, delay: 0.1 }}
-                  className="ml-8 mt-1 space-y-1 text-[#DAE6EA] text-sm"
-                >
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.15 }}
-                  >
-                    <Link
-                      href="/dashboard/assets"
-                      className={`block cursor-pointer py-1 px-2 rounded-md transition-colors duration-200 ${
-                        isActive("/dashboard/assets")
-                          ? "font-bold text-white"
-                          : "hover:text-white hover:bg-[#0f294d]"
-                      }`}
-                    >
-                      {t("sidebar.assets")}
-                    </Link>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <Link
-                      href="/dashboard/deposit"
-                      className={`block cursor-pointer py-1 px-2 rounded-md transition-colors duration-200 ${
-                        isActive("/dashboard/deposit")
-                          ? "font-bold text-white"
-                          : "hover:text-white hover:bg-[#0f294d]"
-                      }`}
-                    >
-                      {t("sidebar.deposit")}
-                    </Link>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.25 }}
-                  >
-                    <Link
-                      href="/dashboard/records"
-                      className={`block cursor-pointer py-1 px-2 rounded-md transition-colors duration-200 ${
-                        isActive("/dashboard/records")
-                          ? "font-bold text-white"
-                          : "hover:text-white hover:bg-[#0f294d]"
-                      }`}
-                    >
-                      {t("sidebar.records")}
-                    </Link>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <Link
-                      href="/dashboard/withdraw"
-                      className={`block cursor-pointer py-1 px-2 rounded-md transition-colors duration-200 ${
-                        isActive("/dashboard/withdraw")
-                          ? "font-bold text-white"
-                          : "hover:text-white hover:bg-[#0f294d]"
-                      }`}
-                    >
-                      {t("sidebar.withdraw")}
-                    </Link>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.35 }}
-                  >
-                    <Link
-                      href="/dashboard/withdraw-records"
-                      className={`block cursor-pointer py-1 px-2 rounded-md transition-colors duration-200 ${
-                        isActive("/dashboard/withdraw-records")
-                          ? "font-bold text-white"
-                          : "hover:text-white hover:bg-[#0f294d]"
-                      }`}
-                    >
-                      {t("sidebar.withdraw-records")}
-                    </Link>
-                  </motion.div>
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Order History */}
-        <Link
-          href="/dashboard/order-history"
-          className={`flex items-center gap-2 px-2 py-2 rounded-md cursor-pointer ${
-            isActive("/dashboard/order-history")
-              ? "bg-[#EC3B3B] text-white"
-              : "text-[#DAE6EA] hover:text-white"
-          }`}
-        >
-          <History className="w-5 h-5" />
-          {t("sidebar.orderHistory")}
-        </Link>
+            <History className="w-5 h-5" />
+            {t("sidebar.orderHistory")}
+          </Link>
+        )}
 
         {/* Preferences */}
         <Link

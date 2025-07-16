@@ -39,7 +39,7 @@ export default function VerificationBadge({
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       transition={{ type: "spring", stiffness: 500, damping: 30 }}
-      className={`absolute -bottom-1 -right-1 bg-gray-400 text-white rounded-full flex items-center justify-center ${sizeClasses[size]} shadow-lg border-2 border-white`}
+      className={`absolute -bottom-1 -right-1 bg-red-500 text-white rounded-full flex items-center justify-center ${sizeClasses[size]} shadow-lg border-2 border-white`}
       title={t("not_verified")}
     >
       <X className="w-3 h-3" />

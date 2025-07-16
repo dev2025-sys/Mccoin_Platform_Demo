@@ -1,9 +1,11 @@
 "use client";
-import SumsubIframeVerification from "@/components/custom/SumsubVerification";
-import Navbar from "@/components/shared/Navbar";
+import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import Navbar from "@/components/shared/Navbar";
+import Footer from "@/components/shared/Footer";
+import KYCVerificationForm from "@/components/forms/KYCVerificationForm";
 
 export default function VerificationPage() {
   const { userId, isLoaded, isSignedIn } = useAuth();
@@ -21,8 +23,20 @@ export default function VerificationPage() {
   return (
     <div className="bg-[#07153B] min-h-screen">
       <Navbar />
-      <h1 className="text-2xl text-white text-center my-4">Verify Identity</h1>
-      <SumsubIframeVerification levelName="basic-kyc-level" />
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-white mb-4">
+              Identity Verification
+            </h1>
+            <p className="text-[#DAE6EA] text-lg">
+              Complete your KYC verification to access all platform features
+            </p>
+          </div>
+          <KYCVerificationForm />
+        </div>
+      </div>
+      <Footer />
     </div>
   );
 }

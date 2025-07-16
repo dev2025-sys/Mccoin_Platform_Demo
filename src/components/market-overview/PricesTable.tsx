@@ -58,6 +58,7 @@ export default function PricesTable() {
     }
     return [];
   });
+  const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
     fetch(`/api/prices_table`)
@@ -69,6 +70,26 @@ export default function PricesTable() {
   useEffect(() => {
     localStorage.setItem("coinWishlist", JSON.stringify(wishlist));
   }, [wishlist]);
+
+  useEffect(() => {
+    // Check verification status from localStorage
+    const checkVerificationStatus = () => {
+      const status = localStorage.getItem("userVerificationStatus");
+      setIsVerified(status === "verified");
+    };
+
+    checkVerificationStatus();
+
+    // Listen for storage changes (for cross-tab updates)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "userVerificationStatus") {
+        setIsVerified(e.newValue === "verified");
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   const toggleWishlist = (coin: Coin) => {
     const isInWishlist = wishlist.some((c) => c.id === coin.id);
@@ -125,7 +146,7 @@ export default function PricesTable() {
 
   return (
     <section className="mx-auto py-8 px-4 xl:px-0 flex lg:flex-row flex-col gap-2">
-      <div className={`${isSignedIn ? "lg:flex-[3]" : "w-full"}`}>
+      <div className={`${isSignedIn && isVerified ? "lg:flex-[3]" : "w-full"}`}>
         <div className="flex justify-start items-center">
           <Input
             placeholder="Search any column..."
@@ -172,7 +193,7 @@ export default function PricesTable() {
                     </div>
                   </th>
                 ))}
-                {isSignedIn ? (
+                {isSignedIn && isVerified ? (
                   <th className="py-4 px-2 select-none">Wishlist</th>
                 ) : (
                   ""
@@ -183,14 +204,13 @@ export default function PricesTable() {
               {loading
                 ? Array.from({ length: coinsPerPage }).map((_, i) => (
                     <tr key={i} className="border-t border-[#DAE6EA]/10">
-                      {Array.from({ length: 9 }).map((__, j) => (
+                      {Array.from({
+                        length: isSignedIn && isVerified ? 7 : 6,
+                      }).map((__, j) => (
                         <td key={j} className="p-2">
                           <Skeleton className="h-4 w-full" />
                         </td>
                       ))}
-                      <td className="p-2">
-                        <Skeleton className="h-4 w-full" />
-                      </td>
                     </tr>
                   ))
                 : paginatedCoins.map((coin) => (
@@ -250,7 +270,7 @@ export default function PricesTable() {
                           positive={coin.percent_change_7d >= 0}
                         />
                       </td>
-                      {isSignedIn ? (
+                      {isSignedIn && isVerified ? (
                         <td className="p-2 text-center">
                           <motion.button
                             whileTap={{ scale: 0.8 }}
@@ -301,8 +321,8 @@ export default function PricesTable() {
           </button>
         </div>
       </div>
-      <div className={`${isSignedIn ? "lg:flex-[1.5]" : ""}`}>
-        {isSignedIn ? (
+      <div className={`${isSignedIn && isVerified ? "lg:flex-[1.5]" : ""}`}>
+        {isSignedIn && isVerified ? (
           <CoinsWishlistTable wishlist={wishlist} loading={loading} />
         ) : (
           ""

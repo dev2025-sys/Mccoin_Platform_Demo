@@ -94,8 +94,11 @@ export default function WithdrawModal({
   const [amount, setAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
+  const [otp, setOtp] = useState(["", "", "", ""]);
+  const [isOtpSent, setIsOtpSent] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Reset form when modal opens/closes
   useEffect(() => {
@@ -104,9 +107,73 @@ export default function WithdrawModal({
       setSelectedNetwork("");
       setWalletAddress("");
       setAmount("");
+      setOtp(["", "", "", ""]);
+      setIsOtpSent(false);
       setShowQRScanner(false);
     }
   }, [isOpen]);
+
+  // Send OTP when amount is entered
+  useEffect(() => {
+    if (
+      amount &&
+      !isNaN(parseFloat(amount)) &&
+      parseFloat(amount) > 0 &&
+      !isOtpSent
+    ) {
+      // Simulate sending OTP
+      setTimeout(() => {
+        setIsOtpSent(true);
+        toast.success("OTP sent to your email!");
+      }, 500);
+    } else if (
+      (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) &&
+      isOtpSent
+    ) {
+      setIsOtpSent(false);
+      setOtp(["", "", "", ""]);
+    }
+  }, [amount, isOtpSent]);
+
+  // Handle OTP input change
+  const handleOtpChange = (index: number, value: string) => {
+    if (value.length > 1) return; // Only allow single digit
+
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    // Auto-focus to next input
+    if (value && index < 3) {
+      otpRefs.current[index + 1]?.focus();
+    }
+  };
+
+  // Handle OTP input keydown
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus();
+    }
+  };
+
+  // Handle OTP input paste
+  const handleOtpPaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pastedText = e.clipboardData.getData("text").slice(0, 4);
+    const newOtp = [...otp];
+
+    for (let i = 0; i < pastedText.length && i < 4; i++) {
+      if (/^\d$/.test(pastedText[i])) {
+        newOtp[i] = pastedText[i];
+      }
+    }
+
+    setOtp(newOtp);
+
+    // Focus on the next empty input or the last input
+    const nextIndex = Math.min(pastedText.length, 3);
+    otpRefs.current[nextIndex]?.focus();
+  };
 
   // Get available balance for selected coin
   const getAvailableBalance = () => {
@@ -233,7 +300,20 @@ export default function WithdrawModal({
   // Handle withdrawal
   const handleWithdraw = async () => {
     if (!selectedCoin || !selectedNetwork || !walletAddress || !amount) {
-      toast.error("Please fill in all fields");
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    // Validate OTP
+    const otpValue = otp.join("");
+    if (otpValue.length !== 4) {
+      toast.error("Please enter the complete OTP");
+      return;
+    }
+
+    // Simulate OTP verification (in real app, verify with backend)
+    if (otpValue !== "0000") {
+      toast.error("Invalid OTP. Please try again.");
       return;
     }
 
@@ -514,6 +594,52 @@ export default function WithdrawModal({
                   </CardContent>
                 </Card>
 
+                {/* OTP Verification Card */}
+                <AnimatePresence>
+                  {isOtpSent && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <Card className="bg-[#0c1e4e] border-[#22304A]">
+                        <CardContent className="p-3 sm:p-4 space-y-3 sm:space-y-4">
+                          <div className="text-center">
+                            <h3 className="text-sm font-medium text-white mb-2">
+                              Enter OTP Sent to your Email
+                            </h3>
+                            <div className="flex justify-center gap-2 sm:gap-3">
+                              {otp.map((digit, index) => (
+                                <Input
+                                  key={index}
+                                  ref={(el) => {
+                                    otpRefs.current[index] = el;
+                                  }}
+                                  type="text"
+                                  inputMode="numeric"
+                                  pattern="[0-9]"
+                                  maxLength={1}
+                                  value={digit}
+                                  onChange={(e) =>
+                                    handleOtpChange(index, e.target.value)
+                                  }
+                                  onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                                  onPaste={handleOtpPaste}
+                                  className="w-12 h-12 sm:w-14 sm:h-14 text-center text-lg sm:text-xl font-bold bg-[#081935] border-[#22304A] text-white focus:border-[#EC3B3B] focus:ring-1 focus:ring-[#EC3B3B]"
+                                />
+                              ))}
+                            </div>
+                            <p className="text-xs text-white/60 mt-2">
+                              Enter the 4-digit code sent to your email
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 {/* Amount Received */}
                 {amount && !isNaN(parseFloat(amount)) && (
                   <Card className="bg-[#0c1e4e] border-[#22304A]">
@@ -553,6 +679,8 @@ export default function WithdrawModal({
                     !selectedNetwork ||
                     !walletAddress ||
                     !amount ||
+                    !isOtpSent ||
+                    otp.join("").length !== 4 ||
                     isLoading
                   }
                   className="w-full bg-[#EC3B3B] hover:bg-[#d02f2f] text-white h-11 sm:h-12 text-sm sm:text-base font-medium"

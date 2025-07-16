@@ -15,9 +15,8 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HiMiniArrowRightStartOnRectangle } from "react-icons/hi2";
-import { useVerificationStatus } from "@/hooks/useVerificationStatus";
 import VerificationBadge from "./VerificationBadge";
 export default function UserAvatarDropdown() {
   const t = useTranslations("shared");
@@ -28,72 +27,28 @@ export default function UserAvatarDropdown() {
   const locale = useLocale();
   const isArabic = locale === "ar";
   const [showLogoutPrompt, setShowLogoutPrompt] = useState(false);
-  const { isVerified, isLoading: isVerificationLoading } =
-    useVerificationStatus();
+  const [isVerified, setIsVerified] = useState(false);
+
+  // Check verification status from localStorage
+  useEffect(() => {
+    const verificationStatus = localStorage.getItem("userVerificationStatus");
+    setIsVerified(verificationStatus === "verified");
+
+    // Listen for storage changes to update verification status in real-time
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "userVerificationStatus") {
+        setIsVerified(e.newValue === "verified");
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
 
   // Debug function to manually check verification status
-  const debugCheckVerification = async () => {
-    try {
-      const response = await fetch("/api/user/kyc-status");
-      const data = await response.json();
-      console.log("Manual verification check:", data);
-    } catch (error) {
-      console.error("Manual verification check error:", error);
-    }
-  };
-
-  // Test functions for manual verification testing
-  const testVerify = async () => {
-    try {
-      const response = await fetch("/api/test-kyc", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "verify" }),
-      });
-      const data = await response.json();
-      console.log("Test verify result:", data);
-      // Force refresh
-      window.location.reload();
-    } catch (error) {
-      console.error("Test verify error:", error);
-    }
-  };
-
-  const testUnverify = async () => {
-    try {
-      const response = await fetch("/api/test-kyc", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "unverify" }),
-      });
-      const data = await response.json();
-      console.log("Test unverify result:", data);
-      // Force refresh
-      window.location.reload();
-    } catch (error) {
-      console.error("Test unverify error:", error);
-    }
-  };
-
-  const debugUserMetadata = async () => {
-    try {
-      const response = await fetch("/api/debug-user");
-      const data = await response.json();
-      console.log("User metadata debug:", data);
-    } catch (error) {
-      console.error("Debug user metadata error:", error);
-    }
-  };
-
-  const testWebhookUrl = async () => {
-    try {
-      const response = await fetch("/api/sumsub/webhook/test");
-      const data = await response.text();
-      console.log("Webhook test result:", data);
-    } catch (error) {
-      console.error("Webhook test error:", error);
-    }
-  };
 
   return (
     <DropdownMenu>
@@ -109,8 +64,8 @@ export default function UserAvatarDropdown() {
               <Power size={24} className="mt-1 text-white" />
             )}
           </Avatar>
-          {isLoaded && user && !isVerificationLoading && (
-            <VerificationBadge isVerified={isVerified || false} size="sm" />
+          {isLoaded && user && (
+            <VerificationBadge isVerified={isVerified} size="sm" />
           )}
         </div>
       </DropdownMenuTrigger>
@@ -188,80 +143,6 @@ export default function UserAvatarDropdown() {
               </motion.div>
 
               {/* Debug buttons - remove in production */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                <DropdownMenuItem
-                  onClick={debugCheckVerification}
-                  className={`flex items-center gap-2 text-blue-400 cursor-pointer hover:bg-[#0f294d] transition-colors duration-200 ${
-                    isArabic ? "flex-row-reverse" : "flex-row"
-                  }`}
-                >
-                  <Settings size={16} /> Debug KYC
-                </DropdownMenuItem>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.35 }}
-              >
-                <DropdownMenuItem
-                  onClick={testVerify}
-                  className={`flex items-center gap-2 text-green-400 cursor-pointer hover:bg-[#0f294d] transition-colors duration-200 ${
-                    isArabic ? "flex-row-reverse" : "flex-row"
-                  }`}
-                >
-                  <Settings size={16} /> Test Verify
-                </DropdownMenuItem>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
-              >
-                <DropdownMenuItem
-                  onClick={testUnverify}
-                  className={`flex items-center gap-2 text-yellow-400 cursor-pointer hover:bg-[#0f294d] transition-colors duration-200 ${
-                    isArabic ? "flex-row-reverse" : "flex-row"
-                  }`}
-                >
-                  <Settings size={16} /> Test Unverify
-                </DropdownMenuItem>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.45 }}
-              >
-                <DropdownMenuItem
-                  onClick={debugUserMetadata}
-                  className={`flex items-center gap-2 text-purple-400 cursor-pointer hover:bg-[#0f294d] transition-colors duration-200 ${
-                    isArabic ? "flex-row-reverse" : "flex-row"
-                  }`}
-                >
-                  <Settings size={16} /> Debug Metadata
-                </DropdownMenuItem>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-              >
-                <DropdownMenuItem
-                  onClick={testWebhookUrl}
-                  className={`flex items-center gap-2 text-orange-400 cursor-pointer hover:bg-[#0f294d] transition-colors duration-200 ${
-                    isArabic ? "flex-row-reverse" : "flex-row"
-                  }`}
-                >
-                  <Settings size={16} /> Test Webhook URL
-                </DropdownMenuItem>
-              </motion.div>
             </>
           ) : (
             <>

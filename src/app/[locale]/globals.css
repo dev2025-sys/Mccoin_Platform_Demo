@@ -138,3 +138,34 @@
     transform-origin: 0 0;
   }
 }
+
+/* Custom styling for date picker calendar */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  background-color: #ffffff;
+  padding: 5px;
+  cursor: pointer;
+  border-radius: 3px;
+  filter: invert(0);
+}
+
+/* Force white background for date picker popup */
+input[type="date"]::-webkit-datetime-edit {
+  background-color: transparent;
+  color: white;
+}
+
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+  background-color: transparent;
+}
+
+input[type="date"]::-webkit-datetime-edit-text {
+  color: white;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+  color: white;
+}
+
+/* Style the calendar popup itself */

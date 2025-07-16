@@ -341,24 +341,28 @@ export default function AccountBalance({
                   <ArrowUpDown className="w-4 h-4 mr-1" />
                   Transfer
                 </Button>
-                <Button
-                  onClick={() => setShowDepositModal(true)}
-                  size="sm"
-                  variant="outline"
-                  className="bg-[#FFF]  text-[#0c1e4e] hover:bg-[#0c1e4e]/80 hover:text-white border border-transparent hover:border-[#FFF] cursor-pointer"
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  Deposit
-                </Button>
-                <Button
-                  onClick={() => setShowWithdrawModal(true)}
-                  size="sm"
-                  variant="outline"
-                  className="bg-[#FFF]  text-[#0c1e4e] hover:bg-[#0c1e4e]/80 hover:text-white border border-transparent hover:border-[#FFF] cursor-pointer"
-                >
-                  <Minus className="w-4 h-4 mr-1" />
-                  Withdraw
-                </Button>
+                {accountType === "funding" && (
+                  <>
+                    <Button
+                      onClick={() => setShowDepositModal(true)}
+                      size="sm"
+                      variant="outline"
+                      className="bg-[#FFF]  text-[#0c1e4e] hover:bg-[#0c1e4e]/80 hover:text-white border border-transparent hover:border-[#FFF] cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      Deposit
+                    </Button>
+                    <Button
+                      onClick={() => setShowWithdrawModal(true)}
+                      size="sm"
+                      variant="outline"
+                      className="bg-[#FFF]  text-[#0c1e4e] hover:bg-[#0c1e4e]/80 hover:text-white border border-transparent hover:border-[#FFF] cursor-pointer"
+                    >
+                      <Minus className="w-4 h-4 mr-1" />
+                      Withdraw
+                    </Button>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>

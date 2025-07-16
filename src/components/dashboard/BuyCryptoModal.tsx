@@ -40,6 +40,7 @@ import {
   FaUniversity,
 } from "react-icons/fa";
 import { SiTether } from "react-icons/si";
+import { useBalanceManager } from "@/lib/balance-manager";
 
 const formSchema = z.object({
   cryptocurrency: z.string().min(1, "Please select a cryptocurrency"),
@@ -100,6 +101,8 @@ export function BuyCryptoModal() {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [estimatedAmount, setEstimatedAmount] = useState("0");
+  const { updateFundingBalance, addTransaction, balances } =
+    useBalanceManager();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -118,13 +121,86 @@ export function BuyCryptoModal() {
 
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    toast.success("Purchase Complete!", {
-      description: `Successfully purchased ${estimatedAmount} ${data.cryptocurrency}`,
-    });
-    setIsSubmitting(false);
-    setOpen(false);
-    form.reset();
+
+    try {
+      // Validate input data
+      const purchaseAmountUSD = parseFloat(data.amount);
+      const cryptoAmount = parseFloat(estimatedAmount);
+
+      if (isNaN(purchaseAmountUSD) || purchaseAmountUSD < 10) {
+        throw new Error("Invalid purchase amount. Minimum $10 required.");
+      }
+
+      if (isNaN(cryptoAmount) || cryptoAmount <= 0) {
+        throw new Error("Invalid crypto amount calculated.");
+      }
+
+      // Simulate API call delay
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // Update funding account balance (add the purchased crypto value in USD)
+      const currentBalance = balances.funding.totalBalanceUSDT;
+      const newBalance = currentBalance + purchaseAmountUSD;
+
+      // Generate new balance history for the updated balance
+      const generateBalanceHistory = (baseBalance: number) => {
+        const now = Date.now();
+        return Array.from({ length: 50 }, (_, i) => ({
+          time: now - ((50 - i) * 60 * 60 * 1000) / 2,
+          value:
+            baseBalance +
+            Math.sin(i / 3) * (baseBalance * 0.1) +
+            Math.cos(i / 1.5) * (baseBalance * 0.05) +
+            (Math.random() - 0.5) * (baseBalance * 0.02) +
+            (i % 7 === 0 ? (Math.random() - 0.5) * (baseBalance * 0.08) : 0),
+        }));
+      };
+
+      updateFundingBalance({
+        totalBalanceUSDT: newBalance,
+        balanceHistory: generateBalanceHistory(newBalance),
+      });
+
+      // Add transaction to funding account
+      addTransaction("funding", {
+        date: new Date().toLocaleString("en-US", {
+          day: "2-digit",
+          month: "short",
+        }),
+        action: "Buy",
+        amount: cryptoAmount.toFixed(data.cryptocurrency === "BTC" ? 8 : 4),
+        symbol: data.cryptocurrency,
+      });
+
+      toast.success("Purchase Complete!", {
+        description: `Successfully purchased ${estimatedAmount} ${
+          data.cryptocurrency
+        } for $${purchaseAmountUSD.toFixed(
+          2
+        )}. Funding balance updated: $${currentBalance.toFixed(
+          2
+        )} → $${newBalance.toFixed(2)}`,
+      });
+
+      setIsSubmitting(false);
+      setOpen(false);
+      form.reset({
+        cryptocurrency: "",
+        amount: "",
+        paymentMethod: "credit_card",
+      });
+      setEstimatedAmount("0");
+    } catch (error) {
+      console.error("Purchase failed:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again.";
+      toast.error("Purchase Failed!", {
+        description: errorMessage,
+      });
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -136,12 +212,16 @@ export function BuyCryptoModal() {
             <FaBitcoin className="w-4 h-4 mr-2" /> Buy Crypto
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px] bg-[#DAE6EA] max-h-[90vh] overflow-y-auto w-full p-4 sm:p-8">
+        <DialogContent className="sm:max-w-[425px] bg-[#081935] border-[#22304A] max-h-[90vh] overflow-y-auto w-full p-4 sm:p-8">
           <DialogHeader>
-            <DialogTitle className="text-[#07153B] text-xl font-semibold flex items-center gap-2">
+            <DialogTitle className="text-white text-xl font-semibold flex items-center gap-2">
               <FaBitcoin className="w-6 h-6 text-[#EC3B3B]" />
               Buy Cryptocurrency
             </DialogTitle>
+            <div className="text-sm text-white/60 mt-2">
+              Current Funding Balance: $
+              {balances.funding.totalBalanceUSDT.toFixed(2)} USDT
+            </div>
           </DialogHeader>
           <Form {...form}>
             <form
@@ -153,7 +233,7 @@ export function BuyCryptoModal() {
                 name="cryptocurrency"
                 render={({ field }) => (
                   <FormItem className="min-h-[80px]">
-                    <FormLabel className="text-[#07153B] font-medium">
+                    <FormLabel className="text-white/80 font-medium">
                       Select Cryptocurrency
                     </FormLabel>
                     <Select
@@ -168,16 +248,16 @@ export function BuyCryptoModal() {
                       }}
                     >
                       <FormControl>
-                        <SelectTrigger className="bg-white border-2 border-[#07153B]/10 focus:border-[#EC3B3B] focus:ring-[#EC3B3B] h-12 w-full">
+                        <SelectTrigger className="bg-[#22304A] border-[#22304A] text-white focus:border-[#EC3B3B] focus:ring-[#EC3B3B] h-12 w-full">
                           <SelectValue placeholder="Select a cryptocurrency" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="bg-[#081935] border-[#22304A]">
                         {Object.entries(cryptoIcons).map(([value, icon]) => (
                           <SelectItem
                             key={value}
                             value={value}
-                            className="h-12 flex items-center gap-2 cursor-pointer hover:bg-[#DAE6EA]/50"
+                            className="h-12 flex items-center gap-2 cursor-pointer hover:bg-[#22304A]/50 text-white"
                           >
                             {icon}
                             <span>{value}</span>
@@ -185,7 +265,7 @@ export function BuyCryptoModal() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage className="text-sm" />
+                    <FormMessage className="text-sm text-red-400" />
                   </FormItem>
                 )}
               />
@@ -195,7 +275,7 @@ export function BuyCryptoModal() {
                 name="amount"
                 render={({ field }) => (
                   <FormItem className="min-h-[80px]">
-                    <FormLabel className="text-[#07153B] font-medium">
+                    <FormLabel className="text-white/80 font-medium">
                       Amount in USD
                     </FormLabel>
                     <div className="relative">
@@ -203,7 +283,7 @@ export function BuyCryptoModal() {
                         <Input
                           type="number"
                           placeholder="Enter amount (min $10)"
-                          className="bg-white pl-10 border-2 border-[#07153B]/10 focus:border-[#EC3B3B] focus:ring-[#EC3B3B] h-12 w-full"
+                          className="bg-[#22304A] border-[#22304A] text-white placeholder:text-white/60 pl-10 focus:border-[#EC3B3B] focus:ring-[#EC3B3B] h-12 w-full"
                           min="10"
                           {...field}
                           onChange={(e) => {
@@ -217,15 +297,15 @@ export function BuyCryptoModal() {
                           }}
                         />
                       </FormControl>
-                      <DollarSign className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
+                      <DollarSign className="absolute left-3 top-3 h-5 w-5 text-white/60" />
                     </div>
-                    <FormMessage className="text-sm" />
+                    <FormMessage className="text-sm text-red-400" />
                   </FormItem>
                 )}
               />
 
               <FormItem className="min-h-[80px]">
-                <FormLabel className="text-[#07153B] font-medium">
+                <FormLabel className="text-white/80 font-medium">
                   Estimated Amount
                 </FormLabel>
                 <div className="relative">
@@ -234,7 +314,7 @@ export function BuyCryptoModal() {
                     value={`${estimatedAmount} ${
                       form.getValues("cryptocurrency") || "---"
                     }`}
-                    className="bg-white pl-10 border-2 border-[#07153B]/10 h-12 w-full"
+                    className="bg-[#22304A] border-[#22304A] text-white pl-10 h-12 w-full"
                     readOnly
                   />
                   {form.getValues("cryptocurrency") && (
@@ -256,7 +336,7 @@ export function BuyCryptoModal() {
                 name="paymentMethod"
                 render={({ field }) => (
                   <FormItem className="min-h-[80px]">
-                    <FormLabel className="text-[#07153B] font-medium">
+                    <FormLabel className="text-white/80 font-medium">
                       Payment Method
                     </FormLabel>
                     <FormControl>
@@ -271,8 +351,8 @@ export function BuyCryptoModal() {
                             className={`relative flex items-center rounded-lg border-2 p-4 cursor-pointer transition-all
                               ${
                                 field.value === method.id
-                                  ? "border-[#EC3B3B] bg-[#EC3B3B]/5"
-                                  : "border-[#07153B]/10 hover:border-[#EC3B3B]/50"
+                                  ? "border-[#EC3B3B] bg-[#EC3B3B]/10"
+                                  : "border-[#22304A] hover:border-[#EC3B3B]/50 bg-[#22304A]/30"
                               }`}
                           >
                             <FormItem className="flex items-center space-x-3 space-y-0 w-full m-0">
@@ -281,14 +361,14 @@ export function BuyCryptoModal() {
                               </FormControl>
                               <div className="flex items-center justify-between w-full">
                                 <div className="flex items-center space-x-3">
-                                  <div className="text-[#07153B]">
+                                  <div className="text-white">
                                     {method.icon}
                                   </div>
                                   <div>
-                                    <FormLabel className="font-medium text-[#07153B] cursor-pointer">
+                                    <FormLabel className="font-medium text-white cursor-pointer">
                                       {method.name}
                                     </FormLabel>
-                                    <p className="text-sm text-gray-500">
+                                    <p className="text-sm text-white/60">
                                       {method.description}
                                     </p>
                                   </div>
@@ -299,17 +379,57 @@ export function BuyCryptoModal() {
                         ))}
                       </RadioGroup>
                     </FormControl>
-                    <FormMessage className="text-sm" />
+                    <FormMessage className="text-sm text-red-400" />
                   </FormItem>
                 )}
               />
+
+              {/* Transaction Summary */}
+              {form.getValues("amount") && form.getValues("cryptocurrency") && (
+                <div className="bg-[#22304A]/50 border border-[#22304A] rounded-lg p-4 space-y-2">
+                  <h4 className="text-white font-medium text-sm">
+                    Transaction Summary
+                  </h4>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between text-white/80">
+                      <span>You Pay:</span>
+                      <span>${form.getValues("amount")} USD</span>
+                    </div>
+                    <div className="flex justify-between text-white/80">
+                      <span>You Get:</span>
+                      <span>
+                        {estimatedAmount} {form.getValues("cryptocurrency")}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-white/80">
+                      <span>Payment Method:</span>
+                      <span className="capitalize">
+                        {form.getValues("paymentMethod")?.replace("_", " ")}
+                      </span>
+                    </div>
+                    <div className="border-t border-[#22304A] pt-2 mt-2">
+                      <div className="flex justify-between text-white font-medium">
+                        <span>New Balance:</span>
+                        <span>
+                          $
+                          {(
+                            balances.funding.totalBalanceUSDT +
+                            (parseFloat(form.getValues("amount")) || 0)
+                          ).toFixed(2)}{" "}
+                          USDT
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="flex flex-col sm:flex-row justify-end sm:space-x-2 space-y-2 sm:space-y-0 pt-4 w-full">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setOpen(false)}
-                  className="bg-white border-2 border-[#07153B]/10 hover:bg-[#07153B]/5 w-full sm:w-auto"
+                  className="bg-[#22304A] border-[#22304A] text-white hover:bg-[#22304A]/80 w-full sm:w-auto"
                 >
                   Cancel
                 </Button>

@@ -71,9 +71,9 @@ const Sidebar = () => {
               className={`flex items-center justify-between px-2 py-2 rounded-md cursor-pointer ${
                 [
                   "/dashboard/assets",
-                  "/dashboard/deposit",
+                  "/dashboard/assets/trading-account",
+                  "/dashboard/assets/funding-account",
                   "/dashboard/records",
-                  "/dashboard/withdraw",
                   "/dashboard/withdraw-records",
                 ]
                   .map((path) => `/${locale}${path}`)
@@ -134,14 +134,30 @@ const Sidebar = () => {
                       transition={{ delay: 0.2 }}
                     >
                       <Link
-                        href="/dashboard/deposit"
+                        href="/dashboard/assets/trading-account"
                         className={`block cursor-pointer py-1 px-2 rounded-md transition-colors duration-200 ${
-                          isActive("/dashboard/deposit")
+                          isActive("/dashboard/assets/trading-account")
                             ? "font-bold text-white"
                             : "hover:text-white hover:bg-[#0f294d]"
                         }`}
                       >
-                        {t("sidebar.deposit")}
+                        Trading Account
+                      </Link>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <Link
+                        href="/dashboard/assets/funding-account"
+                        className={`block cursor-pointer py-1 px-2 rounded-md transition-colors duration-200 ${
+                          isActive("/dashboard/assets/funding-account")
+                            ? "font-bold text-white"
+                            : "hover:text-white hover:bg-[#0f294d]"
+                        }`}
+                      >
+                        Funding Account
                       </Link>
                     </motion.div>
 
@@ -159,23 +175,6 @@ const Sidebar = () => {
                         }`}
                       >
                         {t("sidebar.records")}
-                      </Link>
-                    </motion.div>
-
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.3 }}
-                    >
-                      <Link
-                        href="/dashboard/withdraw"
-                        className={`block cursor-pointer py-1 px-2 rounded-md transition-colors duration-200 ${
-                          isActive("/dashboard/withdraw")
-                            ? "font-bold text-white"
-                            : "hover:text-white hover:bg-[#0f294d]"
-                        }`}
-                      >
-                        {t("sidebar.withdraw")}
                       </Link>
                     </motion.div>
 

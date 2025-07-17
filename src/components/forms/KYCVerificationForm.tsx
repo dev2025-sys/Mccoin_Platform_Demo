@@ -32,6 +32,8 @@ import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { CheckCircle, Loader2 } from "lucide-react";
+import { SumsubLogo } from "@/components/custom/SumsubLogo";
+import Image from "next/image";
 
 // Zod schema for the entire form – individual steps will validate subsets
 const verificationSchema = z.object({
@@ -252,6 +254,19 @@ export default function KYCVerificationForm() {
       case 0:
         return (
           <div className="space-y-6 text-white">
+            <div className="mb-0 mt-8">
+              <Image
+                src="/images/coin.png"
+                alt="Mccoin Coin"
+                width={70}
+                height={70}
+                className="mx-auto block"
+              />
+            </div>
+            {/* Sumsub Logo */}
+            <div className="flex items-center justify-center gap-2 mb-8">
+              <blockquote>Powered By</blockquote> <SumsubLogo />
+            </div>
             <p>
               To comply with regulations and keep our platform secure, we need
               to verify your identity. This process takes only a few minutes and

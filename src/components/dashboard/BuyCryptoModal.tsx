@@ -212,7 +212,7 @@ export function BuyCryptoModal() {
             <FaBitcoin className="w-4 h-4 mr-2" /> Buy Crypto
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px] bg-[#081935] border-[#22304A] max-h-[90vh] overflow-y-auto w-full p-4 sm:p-8">
+        <DialogContent className="sm:max-w-[425px] bg-[#081935] border-[#22304A] max-h-[90vh] overflow-y-auto w-full p-4 sm:p-8 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#22304A] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-[#2a3b55] scrollbar-thin scrollbar-thumb-[#22304A] scrollbar-track-transparent">
           <DialogHeader>
             <DialogTitle className="text-white text-xl font-semibold flex items-center gap-2">
               <FaBitcoin className="w-6 h-6 text-[#EC3B3B]" />
@@ -355,20 +355,23 @@ export function BuyCryptoModal() {
                                   : "border-[#22304A] hover:border-[#EC3B3B]/50 bg-[#22304A]/30"
                               }`}
                           >
-                            <FormItem className="flex items-center space-x-3 space-y-0 w-full m-0">
+                            <FormItem className="flex items-center space-x-3 space-y-0 w-full m-0 cursor-pointer">
                               <FormControl>
-                                <RadioGroupItem value={method.id} />
+                                <RadioGroupItem
+                                  value={method.id}
+                                  className="text-white bg-white cursor-pointer"
+                                />
                               </FormControl>
                               <div className="flex items-center justify-between w-full">
                                 <div className="flex items-center space-x-3">
-                                  <div className="text-white">
+                                  <div className="text-white cursor-pointer">
                                     {method.icon}
                                   </div>
                                   <div>
                                     <FormLabel className="font-medium text-white cursor-pointer">
                                       {method.name}
                                     </FormLabel>
-                                    <p className="text-sm text-white/60">
+                                    <p className="text-sm text-white">
                                       {method.description}
                                     </p>
                                   </div>
@@ -406,19 +409,6 @@ export function BuyCryptoModal() {
                       <span className="capitalize">
                         {form.getValues("paymentMethod")?.replace("_", " ")}
                       </span>
-                    </div>
-                    <div className="border-t border-[#22304A] pt-2 mt-2">
-                      <div className="flex justify-between text-white font-medium">
-                        <span>New Balance:</span>
-                        <span>
-                          $
-                          {(
-                            balances.funding.totalBalanceUSDT +
-                            (parseFloat(form.getValues("amount")) || 0)
-                          ).toFixed(2)}{" "}
-                          USDT
-                        </span>
-                      </div>
                     </div>
                   </div>
                 </div>

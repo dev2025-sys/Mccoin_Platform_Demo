@@ -29,9 +29,19 @@ export default function AssetsTab() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd")
+    const apiKey = process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
+
+    fetch(
+      "https://pro-api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=20&page=1",
+      {
+        headers: {
+          Accept: "application/json",
+          ...(apiKey && { "x-cg-pro-api-key": apiKey }),
+        },
+      }
+    )
       .then((res) => res.json())
-      .then((data) => setCoins(data.slice(0, 20)))
+      .then((data) => setCoins(data))
       .catch((err) => console.error(err));
   }, []);
 

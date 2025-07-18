@@ -21,7 +21,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FaBitcoin, FaEthereum } from "react-icons/fa";
-import { SiSolana } from "react-icons/si";
+import { SiSolana, SiTether } from "react-icons/si";
 import {
   DollarSign,
   PieChart,
@@ -335,16 +335,12 @@ export default function OverviewTab() {
                 value={fiat}
                 onValueChange={(value: string) => setFiat(value as typeof fiat)}
               >
-                <SelectTrigger className="w-20 h-7 bg-[#0c1e4e] border-[#22304A] text-xs text-white hover:bg-[#FFF] transition-colors">
+                <SelectTrigger className="w-20 h-6 border-none bg-transparent text-white/80 text-sm">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#081935] border-[#22304A] shadow-lg">
+                <SelectContent className="bg-[#0c1e4e] border-[#22304A]">
                   {CURRENCIES.map((c) => (
-                    <SelectItem
-                      key={c}
-                      value={c}
-                      className="text-xs text-white hover:bg-[#0c1e4e] focus:bg-[#0c1e4e] hover:text-white!"
-                    >
+                    <SelectItem key={c} value={c} className="text-white/80">
                       {c}
                     </SelectItem>
                   ))}
@@ -388,14 +384,14 @@ export default function OverviewTab() {
               </div>
 
               {/* Action Buttons */}
-              <div className="grid grid-cols-4 gap-2 pt-4 border-t border-[#22304A]/50">
+              <div className="grid xl:grid-cols-4 grid-cols-2 gap-2 pt-4 border-t border-[#22304A]/50">
                 <Button
                   onClick={() => {
                     const button = buyModalRef.current?.querySelector("button");
                     button?.click();
                   }}
                   size="sm"
-                  className="bg-[#22c55e] hover:bg-[#16a34a] text-white border-none"
+                  className="bg-[#FFF]  text-[#0c1e4e] hover:bg-[#0c1e4e]/80 hover:text-white border border-transparent hover:border-[#FFF] cursor-pointer"
                 >
                   <ShoppingCart className="w-4 h-4 mr-1" />
                   Buy
@@ -403,7 +399,7 @@ export default function OverviewTab() {
                 <Button
                   onClick={() => setShowDepositModal(true)}
                   size="sm"
-                  className="bg-[#3b82f6] hover:bg-[#2563eb] text-white border-none"
+                  className="bg-[#FFF]  text-[#0c1e4e] hover:bg-[#0c1e4e]/80 hover:text-white border border-transparent hover:border-[#FFF] cursor-pointer"
                 >
                   <Plus className="w-4 h-4 mr-1" />
                   Deposit
@@ -411,7 +407,7 @@ export default function OverviewTab() {
                 <Button
                   onClick={() => setShowTransferModal(true)}
                   size="sm"
-                  className="bg-[#f59e0b] hover:bg-[#d97706] text-white border-none"
+                  className="bg-[#FFF]  text-[#0c1e4e] hover:bg-[#0c1e4e]/80 hover:text-white border border-transparent hover:border-[#FFF] cursor-pointer"
                 >
                   <ArrowUpDown className="w-4 h-4 mr-1" />
                   Transfer
@@ -419,7 +415,7 @@ export default function OverviewTab() {
                 <Button
                   onClick={() => setShowWithdrawModal(true)}
                   size="sm"
-                  className="bg-[#ef4444] hover:bg-[#dc2626] text-white border-none"
+                  className="bg-[#FFF]  text-[#0c1e4e] hover:bg-[#0c1e4e]/80 hover:text-white border border-transparent hover:border-[#FFF] cursor-pointer"
                 >
                   <Minus className="w-4 h-4 mr-1" />
                   Withdraw
@@ -438,7 +434,7 @@ export default function OverviewTab() {
                 Balance (24h)
               </span>
             </div>
-            <div className="h-40">
+            <div className="lg:h-80">
               <canvas id="balance-line-chart" />
             </div>
           </CardContent>
@@ -583,7 +579,7 @@ export default function OverviewTab() {
                       <SelectItem value="trading" className="text-white/80">
                         <div className="flex justify-between items-center w-full">
                           <span>Trading Account</span>
-                          <span className="text-white/60 text-sm ml-2">
+                          <span className="text-sm ml-2">
                             (
                             {selectedCoin === "USDT"
                               ? balances.trading.totalBalanceUSDT.toFixed(2)
@@ -598,7 +594,7 @@ export default function OverviewTab() {
                       <SelectItem value="funding" className="text-white/80">
                         <div className="flex justify-between items-center w-full">
                           <span>Funding Account</span>
-                          <span className="text-white/60 text-sm ml-2">
+                          <span className="text-sm ml-2">
                             (
                             {selectedCoin === "USDT"
                               ? balances.funding.totalBalanceUSDT.toFixed(2)
@@ -630,7 +626,7 @@ export default function OverviewTab() {
                       <SelectItem value="trading" className="text-white/80">
                         <div className="flex justify-between items-center w-full">
                           <span>Trading Account</span>
-                          <span className="text-white/60 text-sm ml-2">
+                          <span className="text-sm ml-2">
                             (
                             {selectedCoin === "USDT"
                               ? balances.trading.totalBalanceUSDT.toFixed(2)
@@ -645,7 +641,7 @@ export default function OverviewTab() {
                       <SelectItem value="funding" className="text-white/80">
                         <div className="flex justify-between items-center w-full">
                           <span>Funding Account</span>
-                          <span className="text-white/60 text-sm ml-2">
+                          <span className="text-sm ml-2">
                             (
                             {selectedCoin === "USDT"
                               ? balances.funding.totalBalanceUSDT.toFixed(2)
@@ -678,15 +674,16 @@ export default function OverviewTab() {
                     <SelectContent className="bg-[#081935] border-[#22304A]">
                       <SelectItem value="USDT" className="text-white/80">
                         <div className="flex items-center gap-2">
+                          <SiTether className="w-5 h-5 text-[#26A17B]" />
                           <span>USDT</span>
-                          <span className="text-white/60">(Tether)</span>
+                          <span className="hover:text-black!">(Tether)</span>
                         </div>
                       </SelectItem>
                       <SelectItem value="BTC" className="text-white/80">
                         <div className="flex items-center gap-2">
                           <FaBitcoin className="text-yellow-400" />
                           <span>BTC</span>
-                          <span className="text-white/60">(Bitcoin)</span>
+                          <span className="hover:text-black!">(Bitcoin)</span>
                         </div>
                       </SelectItem>
                     </SelectContent>
@@ -744,6 +741,117 @@ export default function OverviewTab() {
                     USD
                   </div>
                 )}
+
+                {/* Transfer Confirmation Card */}
+                {transferAmount &&
+                  !isNaN(parseFloat(transferAmount)) &&
+                  parseFloat(transferAmount) > 0 && (
+                    <div className="bg-[#22304A]/50 border border-[#22304A] rounded-lg p-4 space-y-3">
+                      <h4 className="text-white font-medium text-sm">
+                        Transfer Summary
+                      </h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between items-center">
+                          <span className="text-white/60">
+                            Transfer Amount:
+                          </span>
+                          <span className="text-white font-medium">
+                            {parseFloat(transferAmount).toFixed(
+                              selectedCoin === "USDT" ? 2 : 6
+                            )}{" "}
+                            {selectedCoin}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-white/60">Direction:</span>
+                          <span className="text-white font-medium">
+                            {fromAccount === "trading" ? "Trading" : "Funding"}{" "}
+                            → {toAccount === "trading" ? "Trading" : "Funding"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-white/60">USD Equivalent:</span>
+                          <span className="text-white">
+                            $
+                            {selectedCoin === "USDT"
+                              ? parseFloat(transferAmount).toFixed(2)
+                              : (
+                                  parseFloat(transferAmount) *
+                                  exchangeRates.BTC.USD
+                                ).toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="border-t border-[#22304A] pt-2 mt-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-white/60">
+                              From Balance After:
+                            </span>
+                            <span className="text-white">
+                              {(() => {
+                                const transferAmountValue =
+                                  parseFloat(transferAmount) || 0;
+                                const requiredAmount =
+                                  selectedCoin === "USDT"
+                                    ? transferAmountValue
+                                    : transferAmountValue *
+                                      exchangeRates.BTC.USD;
+                                const remainingBalance =
+                                  selectedCoin === "USDT"
+                                    ? balances[fromAccount].totalBalanceUSDT -
+                                      requiredAmount
+                                    : (balances[fromAccount].totalBalanceUSDT -
+                                        requiredAmount) /
+                                      exchangeRates.BTC.USD;
+                                return selectedCoin === "USDT"
+                                  ? remainingBalance.toFixed(2)
+                                  : remainingBalance.toFixed(6);
+                              })()}{" "}
+                              {selectedCoin}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center mt-1">
+                            <span className="text-white/60">
+                              To Balance After:
+                            </span>
+                            <span className="text-white">
+                              {(() => {
+                                const transferAmountValue =
+                                  parseFloat(transferAmount) || 0;
+                                const requiredAmount =
+                                  selectedCoin === "USDT"
+                                    ? transferAmountValue
+                                    : transferAmountValue *
+                                      exchangeRates.BTC.USD;
+                                const newBalance =
+                                  selectedCoin === "USDT"
+                                    ? balances[toAccount].totalBalanceUSDT +
+                                      requiredAmount
+                                    : (balances[toAccount].totalBalanceUSDT +
+                                        requiredAmount) /
+                                      exchangeRates.BTC.USD;
+                                return selectedCoin === "USDT"
+                                  ? newBalance.toFixed(2)
+                                  : newBalance.toFixed(6);
+                              })()}{" "}
+                              {selectedCoin}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mt-3">
+                        <div className="flex items-start gap-2">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                          <div className="text-xs text-blue-300">
+                            <strong>Note:</strong> Transfers are processed
+                            instantly between your accounts. Make sure you have
+                            sufficient balance in your{" "}
+                            {fromAccount === "trading" ? "trading" : "funding"}{" "}
+                            account.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                 {/* Confirm Button */}
                 <Button

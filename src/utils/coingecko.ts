@@ -13,8 +13,17 @@ const COINGECKO_API = "https://pro-api.coingecko.com/api/v3";
 
 export async function getTopCoins(limit: number = 100): Promise<CoinData[]> {
   try {
+    const apiKey = process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
+
     const response = await fetch(
-      `${COINGECKO_API}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${limit}&page=1&sparkline=false&locale=en`
+      `${COINGECKO_API}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${limit}&page=1&sparkline=false&locale=en`,
+      {
+        headers: {
+          Accept: "application/json",
+          ...(apiKey && { "x-cg-pro-api-key": apiKey }),
+        },
+        next: { revalidate: 60 }, // Cache for 60 seconds to reduce API calls
+      }
     );
 
     if (!response.ok) {

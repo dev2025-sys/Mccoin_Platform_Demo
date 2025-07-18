@@ -21,7 +21,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FaBitcoin, FaEthereum } from "react-icons/fa";
-import { SiSolana } from "react-icons/si";
+import { SiSolana, SiTether } from "react-icons/si";
 import {
   DollarSign,
   PieChart,
@@ -227,19 +227,6 @@ export default function AccountBalance({
     } finally {
       setIsTransferring(false);
     }
-  };
-
-  const handleQuickAction = (action: string) => {
-    const amount = (Math.random() * 100 + 10).toFixed(2);
-    onAddTransaction?.({
-      date: new Date().toLocaleString("en-US", {
-        day: "2-digit",
-        month: "short",
-      }),
-      action,
-      amount,
-      symbol: "USDT",
-    });
   };
 
   return (
@@ -558,8 +545,10 @@ export default function AccountBalance({
                       <SelectContent className="bg-[#081935] border-[#22304A]">
                         <SelectItem value="trading" className="text-white/80">
                           <div className="flex justify-between items-center w-full">
-                            <span>Trading Account</span>
-                            <span className="text-white/60 text-sm ml-2">
+                            <span className="hover:text-black!">
+                              Trading Account
+                            </span>
+                            <span className="hover:text-black text-sm ml-2">
                               (
                               {selectedCoin === "USDT"
                                 ? allBalances.trading.totalBalanceUSDT.toFixed(
@@ -576,7 +565,7 @@ export default function AccountBalance({
                         <SelectItem value="funding" className="text-white/80">
                           <div className="flex justify-between items-center w-full">
                             <span>Funding Account</span>
-                            <span className="text-white/60 text-sm ml-2">
+                            <span className="text-sm ml-2">
                               (
                               {selectedCoin === "USDT"
                                 ? allBalances.funding.totalBalanceUSDT.toFixed(
@@ -612,7 +601,7 @@ export default function AccountBalance({
                         <SelectItem value="trading" className="text-white/80">
                           <div className="flex justify-between items-center w-full">
                             <span>Trading Account</span>
-                            <span className="text-white/60 text-sm ml-2">
+                            <span className="text-sm ml-2">
                               (
                               {selectedCoin === "USDT"
                                 ? allBalances.trading.totalBalanceUSDT.toFixed(
@@ -629,7 +618,7 @@ export default function AccountBalance({
                         <SelectItem value="funding" className="text-white/80">
                           <div className="flex justify-between items-center w-full">
                             <span>Funding Account</span>
-                            <span className="text-white/60 text-sm ml-2">
+                            <span className="text-sm ml-2">
                               (
                               {selectedCoin === "USDT"
                                 ? allBalances.funding.totalBalanceUSDT.toFixed(
@@ -664,15 +653,16 @@ export default function AccountBalance({
                       <SelectContent className="bg-[#081935] border-[#22304A]">
                         <SelectItem value="USDT" className="text-white/80">
                           <div className="flex items-center gap-2">
+                            <SiTether className="w-5 h-5 text-[#26A17B]" />
                             <span>USDT</span>
-                            <span className="text-white/60">(Tether)</span>
+                            <span className="hover:text-black!">(Tether)</span>
                           </div>
                         </SelectItem>
                         <SelectItem value="BTC" className="text-white/80">
                           <div className="flex items-center gap-2">
                             <FaBitcoin className="text-yellow-400" />
                             <span>BTC</span>
-                            <span className="text-white/60">(Bitcoin)</span>
+                            <span className="hover:text-black!">(Bitcoin)</span>
                           </div>
                         </SelectItem>
                       </SelectContent>
@@ -786,6 +776,126 @@ export default function AccountBalance({
                       USD
                     </div>
                   )}
+
+                  {/* Transfer Confirmation Card */}
+                  {transferAmount &&
+                    !isNaN(parseFloat(transferAmount)) &&
+                    parseFloat(transferAmount) > 0 && (
+                      <div className="bg-[#22304A]/50 border border-[#22304A] rounded-lg p-4 space-y-3">
+                        <h4 className="text-white font-medium text-sm">
+                          Transfer Summary
+                        </h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between items-center">
+                            <span className="text-white/60">
+                              Transfer Amount:
+                            </span>
+                            <span className="text-white font-medium">
+                              {parseFloat(transferAmount).toFixed(
+                                selectedCoin === "USDT" ? 2 : 6
+                              )}{" "}
+                              {selectedCoin}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-white/60">Direction:</span>
+                            <span className="text-white font-medium">
+                              {fromAccount === "trading"
+                                ? "Trading"
+                                : "Funding"}{" "}
+                              →{" "}
+                              {toAccount === "trading" ? "Trading" : "Funding"}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-white/60">
+                              USD Equivalent:
+                            </span>
+                            <span className="text-white">
+                              $
+                              {selectedCoin === "USDT"
+                                ? parseFloat(transferAmount).toFixed(2)
+                                : (
+                                    parseFloat(transferAmount) *
+                                    exchangeRates.BTC.USD
+                                  ).toFixed(2)}
+                            </span>
+                          </div>
+                          <div className="border-t border-[#22304A] pt-2 mt-2">
+                            <div className="flex justify-between items-center">
+                              <span className="text-white/60">
+                                From Balance After:
+                              </span>
+                              <span className="text-white">
+                                {(() => {
+                                  const transferAmountValue =
+                                    parseFloat(transferAmount) || 0;
+                                  const requiredAmount =
+                                    selectedCoin === "USDT"
+                                      ? transferAmountValue
+                                      : transferAmountValue *
+                                        exchangeRates.BTC.USD;
+                                  const remainingBalance =
+                                    selectedCoin === "USDT"
+                                      ? allBalances[fromAccount]
+                                          .totalBalanceUSDT - requiredAmount
+                                      : (allBalances[fromAccount]
+                                          .totalBalanceUSDT -
+                                          requiredAmount) /
+                                        exchangeRates.BTC.USD;
+                                  return selectedCoin === "USDT"
+                                    ? remainingBalance.toFixed(2)
+                                    : remainingBalance.toFixed(6);
+                                })()}{" "}
+                                {selectedCoin}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center mt-1">
+                              <span className="text-white/60">
+                                To Balance After:
+                              </span>
+                              <span className="text-white">
+                                {(() => {
+                                  const transferAmountValue =
+                                    parseFloat(transferAmount) || 0;
+                                  const requiredAmount =
+                                    selectedCoin === "USDT"
+                                      ? transferAmountValue
+                                      : transferAmountValue *
+                                        exchangeRates.BTC.USD;
+                                  const newBalance =
+                                    selectedCoin === "USDT"
+                                      ? allBalances[toAccount]
+                                          .totalBalanceUSDT + requiredAmount
+                                      : (allBalances[toAccount]
+                                          .totalBalanceUSDT +
+                                          requiredAmount) /
+                                        exchangeRates.BTC.USD;
+                                  return selectedCoin === "USDT"
+                                    ? newBalance.toFixed(2)
+                                    : newBalance.toFixed(6);
+                                })()}{" "}
+                                {selectedCoin}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mt-3">
+                          <div className="flex items-start gap-2">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                            <div className="text-xs text-blue-300">
+                              <strong>Note:</strong> Transfers are processed
+                              instantly between your accounts. Make sure you
+                              have sufficient balance in your{" "}
+                              {fromAccount === "trading"
+                                ? "trading"
+                                : "funding"}{" "}
+                              account.
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                   {/* Confirm Button */}
                   <Button

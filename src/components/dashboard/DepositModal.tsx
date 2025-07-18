@@ -275,7 +275,7 @@ export default function DepositModal({
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
-            className="w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl mx-auto max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl mx-auto max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#22304A] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-[#2a3b55] scrollbar-thin scrollbar-thumb-[#22304A] scrollbar-track-transparent"
           >
             <Card className="bg-[#081935] border-[#22304A] shadow-2xl">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 px-4 sm:px-6">

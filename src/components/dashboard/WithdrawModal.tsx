@@ -39,6 +39,68 @@ function generateTxId(): string {
   ).toUpperCase();
 }
 
+// Generate wallet addresses based on coin and network
+function generateWalletAddress(coin: string, network: string): string {
+  const addresses = {
+    BTC: {
+      "Bitcoin Network": "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+    },
+    USDT: {
+      "Ethereum (ERC20)": "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6",
+      "Tron (TRC20)": "TQn9Y2khDD95J42FQtQTdw6S5vLzqJqKpS",
+      "BSC (BEP20)": "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+    },
+    SOL: {
+      "Solana Network": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    },
+  };
+
+  const coinAddresses = addresses[coin as keyof typeof addresses];
+  if (!coinAddresses) return "";
+
+  return (coinAddresses as Record<string, string>)[network] || "";
+}
+
+// Format address as shallow preview
+function formatAddressPreview(address: string): string {
+  if (!address) return "";
+  if (address.length <= 12) return address;
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
+
+// Get wallet addresses from localStorage
+function getWalletAddresses(): Record<string, Record<string, string>> {
+  if (typeof window === "undefined") return {};
+
+  try {
+    const stored = localStorage.getItem("dashboard_account_balances");
+    if (!stored) return {};
+
+    const data = JSON.parse(stored);
+    return data.walletAddresses || {};
+  } catch (error) {
+    console.error("Error reading wallet addresses from localStorage:", error);
+    return {};
+  }
+}
+
+// Save wallet addresses to localStorage
+function saveWalletAddresses(
+  addresses: Record<string, Record<string, string>>
+) {
+  if (typeof window === "undefined") return;
+
+  try {
+    const existing = localStorage.getItem("dashboard_account_balances");
+    const data = existing ? JSON.parse(existing) : {};
+
+    data.walletAddresses = addresses;
+    localStorage.setItem("dashboard_account_balances", JSON.stringify(data));
+  } catch (error) {
+    console.error("Error saving wallet addresses to localStorage:", error);
+  }
+}
+
 interface WithdrawModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -96,9 +158,42 @@ export default function WithdrawModal({
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [isOtpSent, setIsOtpSent] = useState(false);
+  const [walletAddresses, setWalletAddresses] = useState<
+    Record<string, Record<string, string>>
+  >({});
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Initialize wallet addresses from localStorage
+  useEffect(() => {
+    const addresses = getWalletAddresses();
+    if (Object.keys(addresses).length === 0) {
+      // Generate default addresses for all coins and networks
+      const defaultAddresses: Record<string, Record<string, string>> = {};
+
+      Object.entries(COINS).forEach(([coin, coinData]) => {
+        defaultAddresses[coin] = {};
+        coinData.networks.forEach((network) => {
+          defaultAddresses[coin][network] = generateWalletAddress(
+            coin,
+            network
+          );
+        });
+      });
+
+      setWalletAddresses(defaultAddresses);
+      saveWalletAddresses(defaultAddresses);
+    } else {
+      setWalletAddresses(addresses);
+    }
+  }, []);
+
+  // Get current wallet address preview
+  const getCurrentWalletAddress = () => {
+    if (!selectedCoin || !selectedNetwork) return "";
+    return walletAddresses[selectedCoin]?.[selectedNetwork] || "";
+  };
 
   // Reset form when modal opens/closes
   useEffect(() => {
@@ -417,7 +512,7 @@ export default function WithdrawModal({
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
-            className="w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl mx-auto max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl mx-auto max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#22304A] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-[#2a3b55] scrollbar-thin scrollbar-thumb-[#22304A] scrollbar-track-transparent"
           >
             <Card className="bg-[#081935] border-[#22304A] shadow-2xl">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 px-4 sm:px-6">
@@ -439,7 +534,13 @@ export default function WithdrawModal({
                 {/* Coin Selection */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-white">Coin</label>
-                  <Select value={selectedCoin} onValueChange={setSelectedCoin}>
+                  <Select
+                    value={selectedCoin}
+                    onValueChange={(value) => {
+                      setSelectedCoin(value);
+                      setSelectedNetwork(""); // Reset network when coin changes
+                    }}
+                  >
                     <SelectTrigger className="bg-[#0c1e4e] border-[#22304A] text-white w-full h-10 sm:h-11">
                       <SelectValue
                         placeholder="Select coin"
@@ -462,6 +563,73 @@ export default function WithdrawModal({
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Network Selection */}
+                {selectedCoin && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-white/80">
+                      Network
+                    </label>
+                    <Select
+                      value={selectedNetwork}
+                      onValueChange={setSelectedNetwork}
+                    >
+                      <SelectTrigger className="bg-[#0c1e4e] border-[#22304A] text-white h-10 sm:h-11">
+                        <SelectValue placeholder="Select network" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#081935] border-[#22304A]">
+                        {COINS[selectedCoin]?.networks.map((network) => (
+                          <SelectItem
+                            key={network}
+                            value={network}
+                            className="text-white hover:bg-[#0c1e4e]"
+                          >
+                            {network}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {/* Wallet Address Preview */}
+                {selectedCoin && selectedNetwork && (
+                  <div className="bg-[#22304A]/30 border border-[#22304A] rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {COINS[selectedCoin]?.icon}
+                        <span className="text-white text-sm font-medium">
+                          {selectedCoin} - {selectedNetwork}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <span className="text-white/60 text-xs">
+                        Your {selectedCoin} address:
+                      </span>
+                      <div className="flex items-center gap-2 bg-[#081935] px-2 py-1 rounded border border-[#22304A]">
+                        <span className="text-white text-sm font-mono">
+                          {formatAddressPreview(getCurrentWalletAddress())}
+                        </span>
+                        <button
+                          onClick={() => {
+                            const fullAddress = getCurrentWalletAddress();
+                            navigator.clipboard.writeText(fullAddress);
+                            toast.success("Address copied to clipboard");
+                          }}
+                          className="text-white/60 hover:text-white transition-colors"
+                          title="Copy full address"
+                        >
+                          <Copy size={12} />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="mt-1 text-xs text-blue-300">
+                      💡 This is your receiving address for {selectedCoin} on{" "}
+                      {selectedNetwork}
+                    </div>
+                  </div>
+                )}
 
                 {/* Wallet Address */}
                 <div className="space-y-2">
@@ -513,34 +681,6 @@ export default function WithdrawModal({
                     </Button>
                   </div>
                 </div>
-
-                {/* Network Selection */}
-                {selectedCoin && (
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/80">
-                      Network
-                    </label>
-                    <Select
-                      value={selectedNetwork}
-                      onValueChange={setSelectedNetwork}
-                    >
-                      <SelectTrigger className="bg-[#0c1e4e] border-[#22304A] text-white h-10 sm:h-11">
-                        <SelectValue placeholder="Select network" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-[#081935] border-[#22304A]">
-                        {COINS[selectedCoin]?.networks.map((network) => (
-                          <SelectItem
-                            key={network}
-                            value={network}
-                            className="text-white hover:bg-[#0c1e4e]"
-                          >
-                            {network}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
 
                 {/* Withdrawal Amount Card */}
                 <Card className="bg-[#0c1e4e] border-[#22304A]">

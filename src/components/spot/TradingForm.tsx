@@ -140,7 +140,7 @@ const TradingForm: React.FC = () => {
     total: "0",
     postOnly: false,
     reduceOnly: false,
-    sliderValue: 20,
+    sliderValue: 0,
   });
 
   const [sellForm, setSellForm] = useState({
@@ -149,7 +149,7 @@ const TradingForm: React.FC = () => {
     total: "0",
     postOnly: false,
     stopLoss: false,
-    sliderValue: 80,
+    sliderValue: 0,
   });
 
   useEffect(() => {
@@ -256,7 +256,7 @@ const TradingForm: React.FC = () => {
     const price =
       activeTab === "market"
         ? state.currentPrice.price
-        : parseFloat(buyForm.price) || 1;
+        : parseFloat(buyForm.price) || state.currentPrice.price;
     const max = available / price;
     const newAmount = ((max * value) / 100).toFixed(8);
     setBuyForm((prev) => ({ ...prev, amount: newAmount, sliderValue: value }));
@@ -303,10 +303,6 @@ const TradingForm: React.FC = () => {
             >
               {t("market")}
             </button>
-            <span className="text-gray-400">{t("advanced_limit")}</span>
-            <span className="text-gray-400">{t("trail_stop")}</span>
-            <span className="text-gray-400">{t("trigger")}</span>
-            <span className="text-gray-400">{t("tp_sl")}</span>
           </div>
         </div>
 
@@ -357,13 +353,23 @@ const TradingForm: React.FC = () => {
               <input
                 type="number"
                 value={buyForm.amount}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const newAmount = parseFloat(e.target.value) || 0;
+                  const available = tradingBalances.USDT || 0;
+                  const price =
+                    activeTab === "market"
+                      ? state.currentPrice.price
+                      : parseFloat(buyForm.price) || state.currentPrice.price;
+                  const maxAmount = available / price;
+                  const newSliderValue =
+                    maxAmount > 0 ? (newAmount / maxAmount) * 100 : 0;
+
                   setBuyForm((prev) => ({
                     ...prev,
                     amount: e.target.value,
-                    sliderValue: 0, // Reset slider when manually entering amount
-                  }))
-                }
+                    sliderValue: Math.min(Math.max(newSliderValue, 0), 100),
+                  }));
+                }}
                 className="w-full bg-slate-700 text-white px-3 py-2 rounded text-sm"
                 placeholder="0.00"
                 step="0.00000001"
@@ -387,15 +393,21 @@ const TradingForm: React.FC = () => {
                     const price =
                       activeTab === "market"
                         ? state.currentPrice.price
-                        : Number.parseFloat(buyForm.price) ||
-                          state.currentPrice.price;
+                        : parseFloat(buyForm.price) || state.currentPrice.price;
                     const amount = (availableBalance * percent) / price;
+                    const sliderValue = percent * 100;
+
                     setBuyForm((prev) => ({
                       ...prev,
                       amount: amount.toFixed(8),
+                      sliderValue: sliderValue,
                     }));
                   }}
-                  className="text-xs py-1 bg-slate-700 text-gray-400 hover:text-white hover:bg-slate-600 rounded"
+                  className={`text-xs py-1 rounded transition-colors ${
+                    Math.abs(buyForm.sliderValue - percent * 100) < 1
+                      ? "bg-green-600 text-white"
+                      : "bg-slate-700 text-gray-400 hover:text-white hover:bg-slate-600"
+                  }`}
                 >
                   {(percent * 100).toFixed(0)}%
                 </button>
@@ -428,7 +440,7 @@ const TradingForm: React.FC = () => {
             </div>
 
             {/* Order options */}
-            <div className="space-y-2 text-xs">
+            {/* <div className="space-y-2 text-xs">
               <label className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -457,7 +469,7 @@ const TradingForm: React.FC = () => {
                 />
                 <span>{t("reduce_only")}</span>
               </label>
-            </div>
+            </div> */}
 
             <button
               type="submit"
@@ -509,13 +521,18 @@ const TradingForm: React.FC = () => {
               <input
                 type="number"
                 value={sellForm.amount}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const newAmount = parseFloat(e.target.value) || 0;
+                  const available = tradingBalances.BTC || 0;
+                  const newSliderValue =
+                    available > 0 ? (newAmount / available) * 100 : 0;
+
                   setSellForm((prev) => ({
                     ...prev,
                     amount: e.target.value,
-                    sliderValue: 0, // Reset slider when manually entering amount
-                  }))
-                }
+                    sliderValue: Math.min(Math.max(newSliderValue, 0), 100),
+                  }));
+                }}
                 className="w-full bg-slate-700 text-white px-3 py-2 rounded text-sm"
                 placeholder="0.00"
                 step="0.00000001"
@@ -537,12 +554,19 @@ const TradingForm: React.FC = () => {
                   onClick={() => {
                     const availableBalance = tradingBalances.BTC || 0;
                     const amount = availableBalance * percent;
+                    const sliderValue = percent * 100;
+
                     setSellForm((prev) => ({
                       ...prev,
                       amount: amount.toFixed(8),
+                      sliderValue: sliderValue,
                     }));
                   }}
-                  className="text-xs py-1 bg-slate-700 text-gray-400 hover:text-white hover:bg-slate-600 rounded"
+                  className={`text-xs py-1 rounded transition-colors ${
+                    Math.abs(sellForm.sliderValue - percent * 100) < 1
+                      ? "bg-red-600 text-white"
+                      : "bg-slate-700 text-gray-400 hover:text-white hover:bg-slate-600"
+                  }`}
                 >
                   {(percent * 100).toFixed(0)}%
                 </button>
@@ -575,7 +599,7 @@ const TradingForm: React.FC = () => {
             </div>
 
             {/* Order options */}
-            <div className="space-y-2 text-xs">
+            {/* <div className="space-y-2 text-xs">
               <label className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -604,7 +628,7 @@ const TradingForm: React.FC = () => {
                 />
                 <span>Stop Loss</span>
               </label>
-            </div>
+            </div> */}
 
             <button
               type="submit"

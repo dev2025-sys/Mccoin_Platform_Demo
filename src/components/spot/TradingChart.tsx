@@ -19,6 +19,7 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candlestickSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
+  const lastTimestampRef = useRef<number>(0);
   const { state, setTimeframe } = useTrading();
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<string>("");
@@ -151,9 +152,12 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
     );
     candlestickSeries.setData(initialData);
 
-    // Store the last timestamp for updates
-    const lastDataPoint = initialData[initialData.length - 1];
-    if (lastDataPoint) {
+    // Initialize the last timestamp reference
+    if (initialData.length > 0) {
+      const lastDataPoint = initialData[initialData.length - 1];
+      lastTimestampRef.current = lastDataPoint.time as number;
+
+      // Update with current price
       candlestickSeries.update({
         time: lastDataPoint.time,
         open: lastDataPoint.close,
@@ -192,6 +196,15 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
     );
     const currentPrice = state.currentPrice.price;
 
+    // Prevent updating with older or duplicate timestamps
+    if (alignedTimestamp <= lastTimestampRef.current) {
+      console.log("Skipping update - timestamp not newer than last:", {
+        alignedTimestamp,
+        lastTimestamp: lastTimestampRef.current,
+      });
+      return;
+    }
+
     try {
       candlestickSeriesRef.current.update({
         time: alignedTimestamp as Time,
@@ -200,6 +213,9 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
         low: currentPrice,
         close: currentPrice,
       });
+
+      // Update the last timestamp after successful update
+      lastTimestampRef.current = alignedTimestamp;
     } catch (error) {
       console.error("Failed to update chart:", error);
       // If update fails, try to reinitialize with new data
@@ -209,6 +225,11 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
           currentPrice
         );
         candlestickSeriesRef.current.setData(newData);
+
+        // Update the last timestamp to the most recent data point
+        if (newData.length > 0) {
+          lastTimestampRef.current = newData[newData.length - 1].time as number;
+        }
       }
     }
   }, [
@@ -216,6 +237,11 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
     state.currentPrice.timestamp,
     state.chartTimeframe,
   ]);
+
+  // Reset timestamp reference when timeframe changes
+  useEffect(() => {
+    lastTimestampRef.current = 0;
+  }, [state.chartTimeframe]);
 
   const timeframes = useMemo(
     () =>
@@ -265,13 +291,13 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
           </div>
 
           {/* Chart type selector */}
-          <div className="flex space-x-2 text-sm">
+          {/* <div className="flex space-x-2 text-sm">
             <span className="text-orange-500">
               {t("chartTypes.candlesticks")}
             </span>
             <span className="text-gray-400">{t("chartTypes.line")}</span>
             <span className="text-gray-400">{t("chartTypes.area")}</span>
-          </div>
+          </div> */}
 
           {/* Fullscreen toggle */}
           <button
@@ -332,7 +358,7 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
 
       {/* Chart controls */}
       <div className="flex items-center justify-between mt-4 text-sm text-gray-400">
-        <div className="flex items-center space-x-4">
+        {/* <div className="flex items-center space-x-4">
           <button className="hover:text-white">
             {t("controls.drawingTools")}
           </button>
@@ -340,7 +366,7 @@ const TradingChart: React.FC<TradingChartProps> = ({ height = 400 }) => {
             {t("controls.indicators")}
           </button>
           <button className="hover:text-white">{t("controls.settings")}</button>
-        </div>
+        </div> */}
         <div className="flex items-center space-x-2">
           <span>
             {t("lastUpdate")}: {lastUpdate}

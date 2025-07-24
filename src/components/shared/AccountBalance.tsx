@@ -32,11 +32,13 @@ import {
   Plus,
   Minus,
   X,
+  Lock,
 } from "lucide-react";
 import { Chart, registerables } from "chart.js";
 import { BalanceData } from "@/lib/balance-manager";
 import WithdrawModal from "@/components/dashboard/WithdrawModal";
 import DepositModal from "@/components/dashboard/DepositModal";
+import { useBalanceManager } from "@/lib/balance-manager";
 
 if (typeof window !== "undefined") {
   Chart.register(...registerables);
@@ -108,6 +110,8 @@ export default function AccountBalance({
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [isBalanceUpdating, setIsBalanceUpdating] = useState(false);
+  const { canTransferFromTrading, getAvailableTradingBalance } =
+    useBalanceManager();
 
   // Fetch live exchange rates
   useEffect(() => {
@@ -204,6 +208,26 @@ export default function AccountBalance({
       return;
     }
 
+    // Additional validation for trading account - check available balance (excluding on-hold amounts)
+    if (fromAccount === "trading" && selectedCoin === "USDT") {
+      if (!canTransferFromTrading(requiredAmount)) {
+        const availableBalance = getAvailableTradingBalance("USDT");
+        const onHoldAmount = sourceBalance - availableBalance;
+        setShowToast({
+          show: true,
+          message: `Insufficient available balance. Available: $${availableBalance.toFixed(
+            2
+          )} (${
+            onHoldAmount > 0
+              ? `$${onHoldAmount.toFixed(2)} on hold`
+              : "no holds"
+          })`,
+          type: "error",
+        });
+        return;
+      }
+    }
+
     setIsTransferring(true);
 
     try {
@@ -227,6 +251,34 @@ export default function AccountBalance({
     } finally {
       setIsTransferring(false);
     }
+  };
+
+  // Helper function to get account balance display info
+  const getAccountBalanceInfo = (
+    account: "trading" | "funding",
+    coin: "USDT" | "BTC"
+  ) => {
+    const totalBalance = allBalances[account].totalBalanceUSDT;
+    const displayBalance =
+      coin === "USDT" ? totalBalance : totalBalance / exchangeRates.BTC.USD;
+
+    if (account === "trading" && coin === "USDT") {
+      const availableBalance = getAvailableTradingBalance("USDT");
+      const onHoldAmount = totalBalance - availableBalance;
+      return {
+        total: displayBalance,
+        available: availableBalance,
+        onHold: onHoldAmount,
+        hasOnHold: onHoldAmount > 0,
+      };
+    }
+
+    return {
+      total: displayBalance,
+      available: displayBalance,
+      onHold: 0,
+      hasOnHold: false,
+    };
   };
 
   return (
@@ -550,37 +602,81 @@ export default function AccountBalance({
                             </span>
                             <span className="hover:text-black text-sm ml-2">
                               (
-                              {selectedCoin === "USDT"
-                                ? allBalances.trading.totalBalanceUSDT.toFixed(
-                                    2
-                                  )
-                                : (
-                                    allBalances.trading.totalBalanceUSDT /
-                                    exchangeRates.BTC.USD
-                                  ).toFixed(6)}{" "}
-                              {selectedCoin})
+                              {getAccountBalanceInfo(
+                                "trading",
+                                selectedCoin
+                              ).available.toFixed(
+                                selectedCoin === "USDT" ? 2 : 6
+                              )}{" "}
+                              available)
                             </span>
                           </div>
                         </SelectItem>
                         <SelectItem value="funding" className="text-white/80">
                           <div className="flex justify-between items-center w-full">
-                            <span>Funding Account</span>
-                            <span className="text-sm ml-2">
+                            <span className="hover:text-black">
+                              Funding Account
+                            </span>
+                            <span className="hover:text-black text-sm ml-2">
                               (
-                              {selectedCoin === "USDT"
-                                ? allBalances.funding.totalBalanceUSDT.toFixed(
-                                    2
-                                  )
-                                : (
-                                    allBalances.funding.totalBalanceUSDT /
-                                    exchangeRates.BTC.USD
-                                  ).toFixed(6)}{" "}
+                              {getAccountBalanceInfo(
+                                "funding",
+                                selectedCoin
+                              ).total.toFixed(
+                                selectedCoin === "USDT" ? 2 : 6
+                              )}{" "}
                               {selectedCoin})
                             </span>
                           </div>
                         </SelectItem>
                       </SelectContent>
                     </Select>
+
+                    {/* Show detailed balance breakdown for selected from account */}
+                    {(() => {
+                      const balanceInfo = getAccountBalanceInfo(
+                        fromAccount,
+                        selectedCoin
+                      );
+                      return (
+                        <div className="mt-2 p-3 bg-[#22304A]/30 border border-[#22304A] rounded-lg">
+                          <div className="text-xs text-white/60 space-y-1">
+                            <div className="flex justify-between">
+                              <span>Total Balance:</span>
+                              <span>
+                                {balanceInfo.total.toFixed(
+                                  selectedCoin === "USDT" ? 2 : 6
+                                )}{" "}
+                                {selectedCoin}
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-green-400">
+                              <span>Available:</span>
+                              <span>
+                                {balanceInfo.available.toFixed(
+                                  selectedCoin === "USDT" ? 2 : 6
+                                )}{" "}
+                                {selectedCoin}
+                              </span>
+                            </div>
+                            {balanceInfo.hasOnHold && (
+                              <div className="flex justify-between text-orange-400">
+                                <span className="flex items-center">
+                                  <Lock size={10} className="mr-1" />
+                                  On Hold:
+                                </span>
+                                <span>
+                                  {balanceInfo.onHold.toFixed(
+                                    selectedCoin === "USDT" ? 2 : 6
+                                  )}{" "}
+                                  {selectedCoin}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   {/* To Account */}
@@ -603,14 +699,12 @@ export default function AccountBalance({
                             <span>Trading Account</span>
                             <span className="text-sm ml-2">
                               (
-                              {selectedCoin === "USDT"
-                                ? allBalances.trading.totalBalanceUSDT.toFixed(
-                                    2
-                                  )
-                                : (
-                                    allBalances.trading.totalBalanceUSDT /
-                                    exchangeRates.BTC.USD
-                                  ).toFixed(6)}{" "}
+                              {getAccountBalanceInfo(
+                                "trading",
+                                selectedCoin
+                              ).total.toFixed(
+                                selectedCoin === "USDT" ? 2 : 6
+                              )}{" "}
                               {selectedCoin})
                             </span>
                           </div>
@@ -620,14 +714,12 @@ export default function AccountBalance({
                             <span>Funding Account</span>
                             <span className="text-sm ml-2">
                               (
-                              {selectedCoin === "USDT"
-                                ? allBalances.funding.totalBalanceUSDT.toFixed(
-                                    2
-                                  )
-                                : (
-                                    allBalances.funding.totalBalanceUSDT /
-                                    exchangeRates.BTC.USD
-                                  ).toFixed(6)}{" "}
+                              {getAccountBalanceInfo(
+                                "funding",
+                                selectedCoin
+                              ).total.toFixed(
+                                selectedCoin === "USDT" ? 2 : 6
+                              )}{" "}
                               {selectedCoin})
                             </span>
                           </div>
@@ -652,47 +744,14 @@ export default function AccountBalance({
                       </SelectTrigger>
                       <SelectContent className="bg-[#081935] border-[#22304A]">
                         <SelectItem value="USDT" className="text-white/80">
-                          <div className="flex items-center gap-2">
-                            <SiTether className="w-5 h-5 text-[#26A17B]" />
-                            <span>USDT</span>
-                            <span className="hover:text-black!">(Tether)</span>
-                          </div>
+                          <span className="hover:text-black">USDT</span>
                         </SelectItem>
                         <SelectItem value="BTC" className="text-white/80">
-                          <div className="flex items-center gap-2">
-                            <FaBitcoin className="text-yellow-400" />
-                            <span>BTC</span>
-                            <span className="hover:text-black!">(Bitcoin)</span>
-                          </div>
+                          <span className="hover:text-black">BTC</span>
                         </SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
 
-                  {/* Balance Display */}
-                  <div className="bg-[#22304A]/50 p-3 rounded-md">
-                    <div className="text-white/80 text-sm mb-2">
-                      Available Balance:
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-white/60">
-                        {fromAccount === "trading" ? "Trading:" : "Funding:"}
-                      </span>
-                      <span className="text-white">
-                        {(() => {
-                          const currentBalance =
-                            selectedCoin === "USDT"
-                              ? allBalances[fromAccount].totalBalanceUSDT
-                              : allBalances[fromAccount].totalBalanceUSDT /
-                                exchangeRates.BTC.USD;
-
-                          return selectedCoin === "USDT"
-                            ? currentBalance.toFixed(2)
-                            : currentBalance.toFixed(6);
-                        })()}{" "}
-                        {selectedCoin}
-                      </span>
-                    </div>
                     {transferAmount && parseFloat(transferAmount) > 0 && (
                       <div className="text-xs text-white/50 mt-1 border-t border-[#22304A] pt-2">
                         <div className="flex justify-between">
@@ -746,11 +805,12 @@ export default function AccountBalance({
                         </span>
                         <Button
                           onClick={() => {
-                            const maxAmount =
-                              selectedCoin === "USDT"
-                                ? allBalances[fromAccount].totalBalanceUSDT
-                                : allBalances[fromAccount].totalBalanceUSDT /
-                                  exchangeRates.BTC.USD;
+                            // Use available balance for trading account, total for funding
+                            const balanceInfo = getAccountBalanceInfo(
+                              fromAccount,
+                              selectedCoin
+                            );
+                            const maxAmount = balanceInfo.available;
                             setTransferAmount(
                               maxAmount.toFixed(selectedCoin === "USDT" ? 2 : 6)
                             );
@@ -765,137 +825,123 @@ export default function AccountBalance({
                   </div>
 
                   {/* USD Equivalent */}
-                  {transferAmount && !isNaN(parseFloat(transferAmount)) && (
-                    <div className="text-white/60 text-sm">
-                      ≈ $
-                      {selectedCoin === "USDT"
-                        ? parseFloat(transferAmount).toFixed(2)
-                        : (
-                            parseFloat(transferAmount) * exchangeRates.BTC.USD
-                          ).toFixed(2)}{" "}
-                      USD
-                    </div>
-                  )}
-
-                  {/* Transfer Confirmation Card */}
-                  {transferAmount &&
-                    !isNaN(parseFloat(transferAmount)) &&
-                    parseFloat(transferAmount) > 0 && (
-                      <div className="bg-[#22304A]/50 border border-[#22304A] rounded-lg p-4 space-y-3">
-                        <h4 className="text-white font-medium text-sm">
-                          Transfer Summary
-                        </h4>
-                        <div className="space-y-2 text-sm">
+                  {transferAmount && parseFloat(transferAmount) > 0 && (
+                    <div className="bg-[#22304A]/30 border border-[#22304A] rounded-lg p-3">
+                      <h4 className="text-white text-sm font-medium mb-2">
+                        Transfer Summary
+                      </h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between items-center">
+                          <span className="text-white/60">
+                            Transfer Amount:
+                          </span>
+                          <span className="text-white font-medium">
+                            {parseFloat(transferAmount).toFixed(
+                              selectedCoin === "USDT" ? 2 : 6
+                            )}{" "}
+                            {selectedCoin}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-white/60">Direction:</span>
+                          <span className="text-white font-medium">
+                            {fromAccount === "trading" ? "Trading" : "Funding"}{" "}
+                            → {toAccount === "trading" ? "Trading" : "Funding"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-white/60">USD Equivalent:</span>
+                          <span className="text-white">
+                            $
+                            {selectedCoin === "USDT"
+                              ? parseFloat(transferAmount).toFixed(2)
+                              : (
+                                  parseFloat(transferAmount) *
+                                  exchangeRates.BTC.USD
+                                ).toFixed(2)}
+                          </span>
+                        </div>
+                        {transferAmount && parseFloat(transferAmount) > 0 && (
                           <div className="flex justify-between items-center">
                             <span className="text-white/60">
-                              Transfer Amount:
+                              From Balance After:
                             </span>
-                            <span className="text-white font-medium">
-                              {parseFloat(transferAmount).toFixed(
-                                selectedCoin === "USDT" ? 2 : 6
-                              )}{" "}
+                            <span className="text-white">
+                              {(() => {
+                                const transferAmountValue =
+                                  parseFloat(transferAmount) || 0;
+                                const requiredAmount =
+                                  selectedCoin === "USDT"
+                                    ? transferAmountValue
+                                    : transferAmountValue *
+                                      exchangeRates.BTC.USD;
+                                const remainingBalance =
+                                  selectedCoin === "USDT"
+                                    ? allBalances[fromAccount]
+                                        .totalBalanceUSDT - requiredAmount
+                                    : (allBalances[fromAccount]
+                                        .totalBalanceUSDT -
+                                        requiredAmount) /
+                                      exchangeRates.BTC.USD;
+                                return selectedCoin === "USDT"
+                                  ? remainingBalance.toFixed(2)
+                                  : remainingBalance.toFixed(6);
+                              })()}{" "}
                               {selectedCoin}
                             </span>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-white/60">Direction:</span>
-                            <span className="text-white font-medium">
-                              {fromAccount === "trading"
-                                ? "Trading"
-                                : "Funding"}{" "}
-                              →{" "}
-                              {toAccount === "trading" ? "Trading" : "Funding"}
-                            </span>
-                          </div>
+                        )}
+                        {transferAmount && parseFloat(transferAmount) > 0 && (
                           <div className="flex justify-between items-center">
                             <span className="text-white/60">
-                              USD Equivalent:
+                              To Balance After:
                             </span>
                             <span className="text-white">
-                              $
-                              {selectedCoin === "USDT"
-                                ? parseFloat(transferAmount).toFixed(2)
-                                : (
-                                    parseFloat(transferAmount) *
-                                    exchangeRates.BTC.USD
-                                  ).toFixed(2)}
+                              {(() => {
+                                const transferAmountValue =
+                                  parseFloat(transferAmount) || 0;
+                                const requiredAmount =
+                                  selectedCoin === "USDT"
+                                    ? transferAmountValue
+                                    : transferAmountValue *
+                                      exchangeRates.BTC.USD;
+                                const newBalance =
+                                  selectedCoin === "USDT"
+                                    ? allBalances[toAccount].totalBalanceUSDT +
+                                      requiredAmount
+                                    : (allBalances[toAccount].totalBalanceUSDT +
+                                        requiredAmount) /
+                                      exchangeRates.BTC.USD;
+                                return selectedCoin === "USDT"
+                                  ? newBalance.toFixed(2)
+                                  : newBalance.toFixed(6);
+                              })()}{" "}
+                              {selectedCoin}
                             </span>
                           </div>
-                          <div className="border-t border-[#22304A] pt-2 mt-2">
-                            <div className="flex justify-between items-center">
-                              <span className="text-white/60">
-                                From Balance After:
-                              </span>
-                              <span className="text-white">
-                                {(() => {
-                                  const transferAmountValue =
-                                    parseFloat(transferAmount) || 0;
-                                  const requiredAmount =
-                                    selectedCoin === "USDT"
-                                      ? transferAmountValue
-                                      : transferAmountValue *
-                                        exchangeRates.BTC.USD;
-                                  const remainingBalance =
-                                    selectedCoin === "USDT"
-                                      ? allBalances[fromAccount]
-                                          .totalBalanceUSDT - requiredAmount
-                                      : (allBalances[fromAccount]
-                                          .totalBalanceUSDT -
-                                          requiredAmount) /
-                                        exchangeRates.BTC.USD;
-                                  return selectedCoin === "USDT"
-                                    ? remainingBalance.toFixed(2)
-                                    : remainingBalance.toFixed(6);
-                                })()}{" "}
-                                {selectedCoin}
-                              </span>
-                            </div>
-                            <div className="flex justify-between items-center mt-1">
-                              <span className="text-white/60">
-                                To Balance After:
-                              </span>
-                              <span className="text-white">
-                                {(() => {
-                                  const transferAmountValue =
-                                    parseFloat(transferAmount) || 0;
-                                  const requiredAmount =
-                                    selectedCoin === "USDT"
-                                      ? transferAmountValue
-                                      : transferAmountValue *
-                                        exchangeRates.BTC.USD;
-                                  const newBalance =
-                                    selectedCoin === "USDT"
-                                      ? allBalances[toAccount]
-                                          .totalBalanceUSDT + requiredAmount
-                                      : (allBalances[toAccount]
-                                          .totalBalanceUSDT +
-                                          requiredAmount) /
-                                        exchangeRates.BTC.USD;
-                                  return selectedCoin === "USDT"
-                                    ? newBalance.toFixed(2)
-                                    : newBalance.toFixed(6);
-                                })()}{" "}
-                                {selectedCoin}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mt-3">
-                          <div className="flex items-start gap-2">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div>
-                            <div className="text-xs text-blue-300">
-                              <strong>Note:</strong> Transfers are processed
-                              instantly between your accounts. Make sure you
-                              have sufficient balance in your{" "}
-                              {fromAccount === "trading"
-                                ? "trading"
-                                : "funding"}{" "}
-                              account.
-                            </div>
+                        )}
+                      </div>
+
+                      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mt-3">
+                        <div className="flex items-start gap-2">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                          <div className="text-xs text-blue-300">
+                            <strong>Note:</strong> Transfers are processed
+                            instantly between your accounts.
+                            {fromAccount === "trading" &&
+                              selectedCoin === "USDT" && (
+                                <span>
+                                  {" "}
+                                  Only available funds (excluding on-hold
+                                  amounts from pending orders) can be
+                                  transferred from your trading account.
+                                </span>
+                              )}
                           </div>
                         </div>
                       </div>
-                    )}
+                    </div>
+                  )}
 
                   {/* Confirm Button */}
                   <Button

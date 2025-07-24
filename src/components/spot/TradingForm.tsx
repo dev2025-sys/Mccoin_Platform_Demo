@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import type React from "react";
 import { toast } from "react-hot-toast";
 import { useBalanceManager } from "@/lib/balance-manager";
+import { Lock } from "lucide-react";
 
 interface SliderProps {
   value: number;
@@ -113,7 +114,7 @@ const Slider: React.FC<SliderProps> = ({
 };
 
 const TradingForm: React.FC = () => {
-  const { state, placeOrder } = useTrading();
+  const { state, placeOrder, getAvailableBalance } = useTrading();
   const { balances } = useBalanceManager();
   const t = useTranslations("spot.tradingForm");
   const [activeTab, setActiveTab] = useState<"limit" | "market">("limit");
@@ -132,6 +133,28 @@ const TradingForm: React.FC = () => {
       BNB: 45.67, // Default BNB balance for demo
     }),
     [balances.trading.totalBalanceUSDT]
+  );
+
+  // Get available balances (total - on hold)
+  const availableBalances = useMemo(
+    () => ({
+      USDT: getAvailableBalance("USDT"),
+      BTC: getAvailableBalance("BTC"),
+      ETH: getAvailableBalance("ETH"),
+      BNB: getAvailableBalance("BNB"),
+    }),
+    [getAvailableBalance, state.onHoldBalances, tradingBalances]
+  );
+
+  // Get on-hold amounts for display
+  const onHoldAmounts = useMemo(
+    () => ({
+      USDT: state.onHoldBalances.USDT || 0,
+      BTC: state.onHoldBalances.BTC || 0,
+      ETH: state.onHoldBalances.ETH || 0,
+      BNB: state.onHoldBalances.BNB || 0,
+    }),
+    [state.onHoldBalances]
   );
 
   const [buyForm, setBuyForm] = useState({
@@ -180,10 +203,14 @@ const TradingForm: React.FC = () => {
       return;
     }
 
-    const available = tradingBalances.USDT || 0;
+    const available = availableBalances.USDT || 0;
     if (total > available) {
       toast.error(
-        t("error_insufficient_usdt", { amount: available.toFixed(2) })
+        `Insufficient available balance. Available: $${available.toFixed(2)} (${
+          onHoldAmounts.USDT > 0
+            ? `$${onHoldAmounts.USDT.toFixed(2)} on hold`
+            : "no holds"
+        })`
       );
       return;
     }
@@ -222,10 +249,16 @@ const TradingForm: React.FC = () => {
       return;
     }
 
-    const available = tradingBalances.BTC || 0;
+    const available = availableBalances.BTC || 0;
     if (amount > available) {
       toast.error(
-        t("error_insufficient_btc", { amount: available.toFixed(8) })
+        `Insufficient available balance. Available: ${available.toFixed(
+          8
+        )} BTC (${
+          onHoldAmounts.BTC > 0
+            ? `${onHoldAmounts.BTC.toFixed(8)} on hold`
+            : "no holds"
+        })`
       );
       return;
     }
@@ -252,7 +285,7 @@ const TradingForm: React.FC = () => {
   };
 
   const handleBuySliderChange = (value: number) => {
-    const available = tradingBalances.USDT || 0;
+    const available = availableBalances.USDT || 0;
     const price =
       activeTab === "market"
         ? state.currentPrice.price
@@ -263,7 +296,7 @@ const TradingForm: React.FC = () => {
   };
 
   const handleSellSliderChange = (value: number) => {
-    const available = tradingBalances.BTC || 0;
+    const available = availableBalances.BTC || 0;
     const newAmount = ((available * value) / 100).toFixed(8);
     setSellForm((prev) => ({ ...prev, amount: newAmount, sliderValue: value }));
   };
@@ -315,10 +348,21 @@ const TradingForm: React.FC = () => {
 
             {/* Available balance */}
             {isClient ? (
-              <div className="text-xs text-gray-400">
-                {t("available_usdt", {
-                  amount: (tradingBalances.USDT || 0).toFixed(2),
-                })}
+              <div className="space-y-1">
+                <div className="text-xs text-gray-400 flex items-center justify-between">
+                  <span>
+                    Available: ${(availableBalances.USDT || 0).toFixed(2)}
+                  </span>
+                  {onHoldAmounts.USDT > 0 && (
+                    <span className="text-orange-400 flex items-center">
+                      <Lock size={10} className="mr-1" />$
+                      {onHoldAmounts.USDT.toFixed(2)} on hold
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs text-gray-500">
+                  Total: ${(tradingBalances.USDT || 0).toFixed(2)}
+                </div>
               </div>
             ) : (
               <div className="text-xs text-gray-400">Available: Loading...</div>
@@ -355,7 +399,7 @@ const TradingForm: React.FC = () => {
                 value={buyForm.amount}
                 onChange={(e) => {
                   const newAmount = parseFloat(e.target.value) || 0;
-                  const available = tradingBalances.USDT || 0;
+                  const available = availableBalances.USDT || 0;
                   const price =
                     activeTab === "market"
                       ? state.currentPrice.price
@@ -389,7 +433,7 @@ const TradingForm: React.FC = () => {
                   key={percent}
                   type="button"
                   onClick={() => {
-                    const availableBalance = tradingBalances.USDT || 0;
+                    const availableBalance = availableBalances.USDT || 0;
                     const price =
                       activeTab === "market"
                         ? state.currentPrice.price
@@ -487,10 +531,21 @@ const TradingForm: React.FC = () => {
 
             {/* Available balance */}
             {isClient ? (
-              <div className="text-xs text-gray-400">
-                {t("available_btc", {
-                  amount: (tradingBalances.BTC || 0).toFixed(8),
-                })}
+              <div className="space-y-1">
+                <div className="text-xs text-gray-400 flex items-center justify-between">
+                  <span>
+                    Available: {(availableBalances.BTC || 0).toFixed(8)} BTC
+                  </span>
+                  {onHoldAmounts.BTC > 0 && (
+                    <span className="text-orange-400 flex items-center">
+                      <Lock size={10} className="mr-1" />
+                      {onHoldAmounts.BTC.toFixed(8)} on hold
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs text-gray-500">
+                  Total: {(tradingBalances.BTC || 0).toFixed(8)} BTC
+                </div>
               </div>
             ) : (
               <div className="text-xs text-gray-400">Available: Loading...</div>
@@ -523,7 +578,7 @@ const TradingForm: React.FC = () => {
                 value={sellForm.amount}
                 onChange={(e) => {
                   const newAmount = parseFloat(e.target.value) || 0;
-                  const available = tradingBalances.BTC || 0;
+                  const available = availableBalances.BTC || 0;
                   const newSliderValue =
                     available > 0 ? (newAmount / available) * 100 : 0;
 
@@ -552,7 +607,7 @@ const TradingForm: React.FC = () => {
                   key={percent}
                   type="button"
                   onClick={() => {
-                    const availableBalance = tradingBalances.BTC || 0;
+                    const availableBalance = availableBalances.BTC || 0;
                     const amount = availableBalance * percent;
                     const sliderValue = percent * 100;
 

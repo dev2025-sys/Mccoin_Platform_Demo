@@ -1,11 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
 
+export interface OnHoldBalances {
+  USDT: number;
+  BTC: number;
+  ETH: number;
+  BNB: number;
+}
+
 export interface BalanceData {
   totalBalanceUSDT: number;
   balanceHistory: BalanceHistoryPoint[];
   profit: number;
   loss: number;
   txs: Tx[];
+  onHoldAmounts?: OnHoldBalances; // Add on-hold amounts tracking
 }
 
 export interface BalanceHistoryPoint {
@@ -94,6 +102,7 @@ function createDefaultBalances(): AccountBalances {
       profit: Math.random() * 1000 + 500,
       loss: Math.random() * 500 + 200,
       txs: generateTransactions(6),
+      onHoldAmounts: { USDT: 0, BTC: 0, ETH: 0, BNB: 0 },
     },
     funding: {
       totalBalanceUSDT: fundingBalance,
@@ -101,6 +110,7 @@ function createDefaultBalances(): AccountBalances {
       profit: Math.random() * 800 + 300,
       loss: Math.random() * 400 + 100,
       txs: generateTransactions(5),
+      onHoldAmounts: { USDT: 0, BTC: 0, ETH: 0, BNB: 0 },
     },
     overview: {
       totalBalanceUSDT: overviewBalance,
@@ -108,6 +118,7 @@ function createDefaultBalances(): AccountBalances {
       profit: 0, // Will be calculated
       loss: 0, // Will be calculated
       txs: [], // Will be combined
+      onHoldAmounts: { USDT: 0, BTC: 0, ETH: 0, BNB: 0 },
     },
   };
 }
@@ -118,6 +129,17 @@ export function useBalanceManager() {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
+        // Add onHoldAmounts if missing for backward compatibility
+        if (!parsed.trading.onHoldAmounts) {
+          parsed.trading.onHoldAmounts = { USDT: 0, BTC: 0, ETH: 0, BNB: 0 };
+        }
+        if (!parsed.funding.onHoldAmounts) {
+          parsed.funding.onHoldAmounts = { USDT: 0, BTC: 0, ETH: 0, BNB: 0 };
+        }
+        if (!parsed.overview.onHoldAmounts) {
+          parsed.overview.onHoldAmounts = { USDT: 0, BTC: 0, ETH: 0, BNB: 0 };
+        }
+
         // Validate the balance equation
         const calculatedOverview =
           parsed.trading.totalBalanceUSDT + parsed.funding.totalBalanceUSDT;
@@ -192,6 +214,42 @@ export function useBalanceManager() {
     []
   );
 
+  // New function to update on-hold amounts for trading account
+  const updateTradingOnHoldAmounts = useCallback(
+    (onHoldAmounts: OnHoldBalances) => {
+      setBalances((prev) => ({
+        ...prev,
+        trading: {
+          ...prev.trading,
+          onHoldAmounts,
+        },
+      }));
+    },
+    []
+  );
+
+  // Function to get available balance (total - on hold) for trading account
+  const getAvailableTradingBalance = useCallback(
+    (symbol: string): number => {
+      const totalBalance =
+        symbol === "USDT" ? balances.trading.totalBalanceUSDT : 0; // For demo, only USDT balance is tracked in totalBalanceUSDT
+
+      const onHoldAmount =
+        balances.trading.onHoldAmounts?.[symbol as keyof OnHoldBalances] || 0;
+      return Math.max(0, totalBalance - onHoldAmount);
+    },
+    [balances.trading.totalBalanceUSDT, balances.trading.onHoldAmounts]
+  );
+
+  // Function to check if transfer amount is available (considering on-hold amounts)
+  const canTransferFromTrading = useCallback(
+    (amount: number): boolean => {
+      const availableUSDT = getAvailableTradingBalance("USDT");
+      return availableUSDT >= amount;
+    },
+    [getAvailableTradingBalance]
+  );
+
   const addTransaction = useCallback(
     (accountType: "trading" | "funding", transaction: Omit<Tx, "txId">) => {
       const newTx = { ...transaction, txId: generateTxId() };
@@ -221,6 +279,16 @@ export function useBalanceManager() {
 
         if (fromBalance < amount) {
           throw new Error("Insufficient balance");
+        }
+
+        // Check on-hold amounts for trading account transfers
+        if (fromAccount === "trading") {
+          const availableBalance = getAvailableTradingBalance("USDT");
+          if (availableBalance < amount) {
+            throw new Error(
+              "Insufficient available balance (funds are on hold)"
+            );
+          }
         }
 
         const newFromBalance = fromBalance - amount;
@@ -267,13 +335,16 @@ export function useBalanceManager() {
         };
       });
     },
-    []
+    [getAvailableTradingBalance]
   );
 
   return {
     balances,
     updateTradingBalance,
     updateFundingBalance,
+    updateTradingOnHoldAmounts,
+    getAvailableTradingBalance,
+    canTransferFromTrading,
     addTransaction,
     transferBetweenAccounts,
   };

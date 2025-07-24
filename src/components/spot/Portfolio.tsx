@@ -1,6 +1,6 @@
 import type React from "react";
 import { useState, useEffect, useMemo } from "react";
-import { Trash2, X } from "lucide-react";
+import { Trash2, X, Lock } from "lucide-react";
 import { useTrading } from "@/context/TradingContext";
 import { useTranslations } from "next-intl";
 import { useBalanceManager } from "@/lib/balance-manager";
@@ -65,6 +65,20 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
     }
   };
 
+  const getStatusBadge = (status: string) => {
+    const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
+    switch (status) {
+      case "filled":
+        return `${baseClasses} bg-green-500/20 text-green-400 border border-green-500/30`;
+      case "cancelled":
+        return `${baseClasses} bg-red-500/20 text-red-400 border border-red-500/30`;
+      case "pending":
+        return `${baseClasses} bg-yellow-500/20 text-yellow-400 border border-yellow-500/30`;
+      default:
+        return `${baseClasses} bg-gray-500/20 text-gray-400 border border-gray-500/30`;
+    }
+  };
+
   const handleCancelOrder = (orderId: string) => {
     if (confirm("Are you sure you want to cancel this order?")) {
       cancelOrder(orderId);
@@ -79,6 +93,20 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
       const approximatePrice =
         symbol === "ETH" ? 2500 : symbol === "BNB" ? 300 : 1;
       return total + balance * approximatePrice;
+    },
+    0
+  );
+
+  // Calculate total on-hold value
+  const totalOnHoldValue = Object.entries(state.onHoldBalances).reduce(
+    (total, [symbol, onHoldAmount]) => {
+      if (symbol === "USDT") return total + onHoldAmount;
+      if (symbol === "BTC")
+        return total + onHoldAmount * state.currentPrice.price;
+      // For other currencies, use approximate values
+      const approximatePrice =
+        symbol === "ETH" ? 2500 : symbol === "BNB" ? 300 : 1;
+      return total + onHoldAmount * approximatePrice;
     },
     0
   );
@@ -126,7 +154,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
             {state.openOrders.length > 0 ? (
               <div className="space-y-2">
                 {/* Headers */}
-                <div className="grid grid-cols-7 gap-4 text-xs text-gray-400 pb-2 border-b border-slate-700">
+                <div className="grid grid-cols-8 gap-4 text-xs text-gray-400 pb-2 border-b border-slate-700">
                   <span>{t("orders.headers.pair")}</span>
                   <span>{t("orders.headers.type")}</span>
                   <span>{t("orders.headers.side")}</span>
@@ -139,6 +167,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
                   <span className="text-right">
                     {t("orders.headers.total")}
                   </span>
+                  <span>Status</span>
                   <span className="text-right">
                     {t("orders.headers.action")}
                   </span>
@@ -148,7 +177,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
                 {state.openOrders.map((order) => (
                   <div
                     key={order.id}
-                    className="grid grid-cols-7 gap-4 text-sm py-3 hover:bg-slate-700/50 rounded"
+                    className="grid grid-cols-8 gap-4 text-sm py-3 hover:bg-slate-700/50 rounded"
                   >
                     <div className="font-mono">{order.symbol}</div>
                     <div className="capitalize">{order.type}</div>
@@ -163,6 +192,17 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
                     </div>
                     <div className="text-right font-mono">
                       {formatPrice(order.amount * order.price)}
+                    </div>
+                    <div>
+                      <span className={getStatusBadge(order.status)}>
+                        {order.status.toUpperCase()}
+                      </span>
+                      {order.status === "pending" && order.type === "limit" && (
+                        <div className="flex items-center mt-1 text-orange-400">
+                          <Lock size={12} className="mr-1" />
+                          <span className="text-xs">On Hold</span>
+                        </div>
+                      )}
                     </div>
                     <div className="text-right">
                       <button
@@ -196,20 +236,19 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
             {state.orderHistory.length > 0 || state.transactions.length > 0 ? (
               <div className="space-y-2">
                 {/* Headers */}
-                <div className="grid grid-cols-7 gap-4 text-xs text-gray-400 pb-2 border-b border-slate-700">
-                  <span>{t("orders.headers.date")}</span>
-                  <span>{t("orders.headers.pair")}</span>
-                  <span>{t("orders.headers.type")}</span>
-                  <span>{t("orders.headers.side")}</span>
+                <div className="grid grid-cols-8 gap-4 text-xs text-gray-400 pb-2 border-b border-slate-700">
+                  <span>{t("history.headers.date")}</span>
+                  <span>{t("history.headers.pair")}</span>
+                  <span>{t("history.headers.type")}</span>
+                  <span>{t("history.headers.side")}</span>
                   <span className="text-right">
-                    {t("orders.headers.amount")}
+                    {t("history.headers.amount")}
                   </span>
                   <span className="text-right">
-                    {t("orders.headers.price")}
+                    {t("history.headers.price")}
                   </span>
-                  <span className="text-right">
-                    {t("orders.headers.status")}
-                  </span>
+                  <span>{t("history.headers.status")}</span>
+                  <span className="text-right">{t("history.headers.fee")}</span>
                 </div>
 
                 {/* Combine order history and transactions */}
@@ -224,6 +263,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
                     price: tx.price,
                     status: "filled" as const,
                     timestamp: tx.timestamp,
+                    fee: tx.fee,
                   })),
                 ]
                   .sort((a, b) => b.timestamp - a.timestamp)
@@ -231,7 +271,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
                   .map((item) => (
                     <div
                       key={item.id}
-                      className="grid grid-cols-7 gap-4 text-sm py-3 hover:bg-slate-700/50 rounded"
+                      className="grid grid-cols-8 gap-4 text-sm py-3 hover:bg-slate-700/50 rounded"
                     >
                       <div className="text-gray-400 text-xs">
                         {formatDate(item.timestamp)}
@@ -247,12 +287,13 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
                       <div className="text-right font-mono">
                         {formatPrice(item.price)}
                       </div>
-                      <div
-                        className={`text-right capitalize ${getStatusColor(
-                          item.status
-                        )}`}
-                      >
-                        {item.status}
+                      <div>
+                        <span className={getStatusBadge(item.status)}>
+                          {item.status.toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="text-right font-mono text-gray-400">
+                        ${("fee" in item ? (item as any).fee : 0).toFixed(2)}
                       </div>
                     </div>
                   ))}
@@ -299,33 +340,24 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
                 </div>
                 {isClient ? (
                   <div>
-                    <div className="text-sm text-gray-400">
-                      {t("balances.summary.available")}
-                    </div>
-                    <div className="text-lg font-semibold">
-                      ${formatPrice(tradingBalances.USDT || 0)}
+                    <div className="text-sm text-gray-400">Available</div>
+                    <div className="text-lg font-semibold text-white">
+                      ${formatPrice(totalPortfolioValue - totalOnHoldValue)}
                     </div>
                   </div>
                 ) : (
                   <div>
-                    <div className="text-sm text-gray-400">
-                      {t("balances.summary.available")}
-                    </div>
+                    <div className="text-sm text-gray-400">Available</div>
                     <div className="text-lg font-semibold">Loading...</div>
                   </div>
                 )}
                 <div>
-                  <div className="text-sm text-gray-400">
-                    {t("balances.summary.inOrders")}
+                  <div className="text-sm text-gray-400 flex items-center">
+                    <Lock size={12} className="mr-1" />
+                    On Hold
                   </div>
-                  <div className="text-lg font-semibold">
-                    $
-                    {formatPrice(
-                      state.openOrders.reduce(
-                        (sum, order) => sum + order.amount * order.price,
-                        0
-                      )
-                    )}
+                  <div className="text-lg font-semibold text-orange-400">
+                    ${formatPrice(totalOnHoldValue)}
                   </div>
                 </div>
               </div>
@@ -338,17 +370,13 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
               </h4>
               <div className="space-y-3">
                 {/* Headers */}
-                <div className="grid grid-cols-4 gap-4 text-xs text-gray-400 pb-2 border-b border-slate-700">
+                <div className="grid grid-cols-6 gap-4 text-xs text-gray-400 pb-2 border-b border-slate-700">
                   <span>{t("balances.assets.headers.asset")}</span>
-                  <span className="text-right">
-                    {t("balances.assets.headers.balance")}
-                  </span>
-                  <span className="text-right">
-                    {t("balances.assets.headers.value")}
-                  </span>
-                  <span className="text-right">
-                    {t("balances.assets.headers.allocation")}
-                  </span>
+                  <span className="text-right">Total Balance</span>
+                  <span className="text-right">Available</span>
+                  <span className="text-right">On Hold</span>
+                  <span className="text-right">USD Value</span>
+                  <span className="text-right">Allocation</span>
                 </div>
 
                 {/* Balance rows */}
@@ -365,13 +393,18 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
                         : symbol === "BNB"
                         ? 300
                         : 1;
+                    const onHoldAmount =
+                      state.onHoldBalances[
+                        symbol as keyof typeof state.onHoldBalances
+                      ] || 0;
+                    const availableAmount = Math.max(0, balance - onHoldAmount);
                     const value = balance * price;
                     const allocation = (value / totalPortfolioValue) * 100;
 
                     return (
                       <div
                         key={symbol}
-                        className="grid grid-cols-4 gap-4 text-sm py-3 hover:bg-slate-700/50 rounded"
+                        className="grid grid-cols-6 gap-4 text-sm py-3 hover:bg-slate-700/50 rounded"
                       >
                         <div className="flex items-center space-x-2">
                           <div className="w-6 h-6 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full flex items-center justify-center text-xs font-bold">
@@ -388,8 +421,25 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
                             ? formatPrice(balance)
                             : formatAmount(balance)}
                         </div>
+                        <div className="text-right font-mono text-green-400">
+                          {symbol === "USDT"
+                            ? formatPrice(availableAmount)
+                            : formatAmount(availableAmount)}
+                        </div>
                         <div className="text-right font-mono">
-                          {formatPrice(value)}
+                          {onHoldAmount > 0 ? (
+                            <div className="flex items-center justify-end text-orange-400">
+                              <Lock size={12} className="mr-1" />
+                              {symbol === "USDT"
+                                ? formatPrice(onHoldAmount)
+                                : formatAmount(onHoldAmount)}
+                            </div>
+                          ) : (
+                            <span className="text-gray-500">-</span>
+                          )}
+                        </div>
+                        <div className="text-right font-mono">
+                          ${formatPrice(value)}
                         </div>
                         <div className="text-right">
                           <div className="flex items-center justify-end space-x-2">
@@ -449,7 +499,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ className = "" }) => {
                           {formatAmount(transaction.amount)} BTC
                         </div>
                         <div className="text-xs text-gray-400 font-mono">
-                          @ {formatPrice(transaction.price)}
+                          @ ${formatPrice(transaction.price)}
                         </div>
                       </div>
                     </div>

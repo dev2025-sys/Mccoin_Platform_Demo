@@ -536,7 +536,8 @@
           "side": "Side",
           "amount": "Amount",
           "price": "Price",
-          "status": "Status"
+          "status": "Status",
+          "fee": "Fee"
         },
         "noHistory": "No trading history",
         "historyPrompt": "Your completed orders will appear here"

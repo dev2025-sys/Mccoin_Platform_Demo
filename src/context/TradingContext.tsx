@@ -51,6 +51,14 @@ export interface Transaction {
   timestamp: number;
 }
 
+// New interface for on-hold amounts
+export interface OnHoldBalances {
+  USDT: number;
+  BTC: number;
+  ETH: number;
+  BNB: number;
+}
+
 interface TradingState {
   currentPrice: PriceData;
   orderBook: {
@@ -61,6 +69,7 @@ interface TradingState {
   orderHistory: Order[];
   portfolio: Portfolio;
   transactions: Transaction[];
+  onHoldBalances: OnHoldBalances;
   isConnected: boolean;
   chartTimeframe: "5m" | "15m" | "1h" | "4h" | "1d";
 }
@@ -76,6 +85,7 @@ type TradingAction =
   | { type: "FILL_ORDER"; payload: string }
   | { type: "UPDATE_PORTFOLIO"; payload: Portfolio }
   | { type: "ADD_TRANSACTION"; payload: Transaction }
+  | { type: "UPDATE_ON_HOLD_BALANCES"; payload: OnHoldBalances }
   | { type: "SET_CONNECTION"; payload: boolean }
   | { type: "SET_TIMEFRAME"; payload: "5m" | "15m" | "1h" | "4h" | "1d" };
 
@@ -117,9 +127,40 @@ const initialState: TradingState = {
     totalValue: 50000.0,
   },
   transactions: [],
+  onHoldBalances: {
+    USDT: 0,
+    BTC: 0,
+    ETH: 0,
+    BNB: 0,
+  },
   isConnected: false,
   chartTimeframe: "5m",
 };
+
+// Helper function to calculate on-hold amounts from pending limit orders
+function calculateOnHoldBalances(orders: Order[]): OnHoldBalances {
+  const onHold: OnHoldBalances = { USDT: 0, BTC: 0, ETH: 0, BNB: 0 };
+
+  orders
+    .filter((order) => order.status === "pending" && order.type === "limit")
+    .forEach((order) => {
+      if (order.side === "buy") {
+        // For buy orders, USDT is on hold (price × quantity)
+        onHold.USDT += order.amount * order.price;
+      } else if (order.side === "sell") {
+        // For sell orders, the crypto asset is on hold (quantity)
+        if (order.symbol === "BTC/USDT") {
+          onHold.BTC += order.amount;
+        } else if (order.symbol === "ETH/USDT") {
+          onHold.ETH += order.amount;
+        } else if (order.symbol === "BNB/USDT") {
+          onHold.BNB += order.amount;
+        }
+      }
+    });
+
+  return onHold;
+}
 
 function tradingReducer(
   state: TradingState,
@@ -133,13 +174,18 @@ function tradingReducer(
       return { ...state, orderBook: action.payload };
 
     case "PLACE_ORDER":
-      return {
+      const newStateWithOrder = {
         ...state,
         openOrders: [...state.openOrders, action.payload],
       };
+      // Recalculate on-hold balances after placing order
+      return {
+        ...newStateWithOrder,
+        onHoldBalances: calculateOnHoldBalances(newStateWithOrder.openOrders),
+      };
 
     case "CANCEL_ORDER":
-      return {
+      const newStateAfterCancel = {
         ...state,
         openOrders: state.openOrders.filter(
           (order) => order.id !== action.payload
@@ -148,8 +194,18 @@ function tradingReducer(
           ...state.orderHistory,
           ...state.openOrders
             .filter((order) => order.id === action.payload)
-            .map((order) => ({ ...order, status: "cancelled" as const })),
+            .map(
+              (order): Order => ({
+                ...order,
+                status: "cancelled" as "cancelled",
+              })
+            ),
         ],
+      };
+      // Recalculate on-hold balances after canceling order
+      return {
+        ...newStateAfterCancel,
+        onHoldBalances: calculateOnHoldBalances(newStateAfterCancel.openOrders),
       };
 
     case "FILL_ORDER":
@@ -158,15 +214,20 @@ function tradingReducer(
       );
       if (!filledOrder) return state;
 
-      return {
+      const newStateAfterFill = {
         ...state,
         openOrders: state.openOrders.filter(
           (order) => order.id !== action.payload
         ),
         orderHistory: [
           ...state.orderHistory,
-          { ...filledOrder, status: "filled" },
+          { ...filledOrder, status: "filled" as const },
         ],
+      };
+      // Recalculate on-hold balances after filling order
+      return {
+        ...newStateAfterFill,
+        onHoldBalances: calculateOnHoldBalances(newStateAfterFill.openOrders),
       };
 
     case "UPDATE_PORTFOLIO":
@@ -177,6 +238,9 @@ function tradingReducer(
         ...state,
         transactions: [action.payload, ...state.transactions],
       };
+
+    case "UPDATE_ON_HOLD_BALANCES":
+      return { ...state, onHoldBalances: action.payload };
 
     case "SET_CONNECTION":
       return { ...state, isConnected: action.payload };
@@ -194,6 +258,7 @@ interface TradingContextType {
   placeOrder: (orderData: Omit<Order, "id" | "timestamp">) => void;
   cancelOrder: (orderId: string) => void;
   setTimeframe: (timeframe: "5m" | "15m" | "1h" | "4h" | "1d") => void;
+  getAvailableBalance: (symbol: string) => number;
 }
 
 const TradingContext = createContext<TradingContextType | undefined>(undefined);
@@ -293,9 +358,23 @@ export function TradingProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "SET_TIMEFRAME", payload: timeframe });
   };
 
+  // Helper function to get available balance (total - on hold)
+  const getAvailableBalance = (symbol: string): number => {
+    const totalBalance = state.portfolio.balances[symbol] || 0;
+    const onHoldAmount =
+      state.onHoldBalances[symbol as keyof OnHoldBalances] || 0;
+    return Math.max(0, totalBalance - onHoldAmount);
+  };
+
   return (
     <TradingContext.Provider
-      value={{ state, placeOrder, cancelOrder, setTimeframe }}
+      value={{
+        state,
+        placeOrder,
+        cancelOrder,
+        setTimeframe,
+        getAvailableBalance,
+      }}
     >
       {children}
     </TradingContext.Provider>
